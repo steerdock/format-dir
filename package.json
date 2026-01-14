@@ -2,8 +2,8 @@
   "name": "format-directory",
   "displayName": "%displayName%",
   "description": "%description%",
-  "version": "1.0.1",
-  "publisher": "cline",
+  "version": "1.0.2",
+  "publisher": "FormatDirectory",
   "engines": {
     "vscode": "^1.85.0"
   },
