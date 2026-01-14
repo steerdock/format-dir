@@ -8,6 +8,7 @@ build/
 
 # VS Code
 .vscode-test/
+.vscode/
 
 # Package files
 *.vsix
