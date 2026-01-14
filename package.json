@@ -1,5 +1,5 @@
 {
-  "name": "format-dir",
+  "name": "format-directory",
   "displayName": "%displayName%",
   "description": "%description%",
   "version": "1.0.1",
@@ -29,6 +29,7 @@
   },
   "homepage": "https://github.com/steerdock/format-dir#readme",
   "license": "MIT",
+  "icon": "icon.png",
   "activationEvents": [
   ],
   "main": "./out/extension.js",
