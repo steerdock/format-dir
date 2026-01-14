@@ -1,0 +1,124 @@
+{
+  "name": "format-dir",
+  "displayName": "%displayName%",
+  "description": "%description%",
+  "version": "1.0.1",
+  "publisher": "cline",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Formatters"
+  ],
+  "keywords": [
+    "format",
+    "formatter",
+    "directory",
+    "batch",
+    "prettier",
+    "beautify",
+    "i18n",
+    "internationalization"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/steerdock/format-dir"
+  },
+  "bugs": {
+    "url": "https://github.com/steerdock/format-dir/issues"
+  },
+  "homepage": "https://github.com/steerdock/format-dir#readme",
+  "license": "MIT",
+  "activationEvents": [
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "formatdir.formatWithDefault",
+        "title": "%command.formatWithDefault%"
+      },
+      {
+        "command": "formatdir.reconfigure",
+        "title": "%command.reconfigure%"
+      }
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "formatdir.formatWithDefault",
+          "group": "navigation",
+          "when": "explorerResourceIsFolder"
+        },
+        {
+          "command": "formatdir.reconfigure",
+          "group": "navigation",
+          "when": "explorerResourceIsFolder"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "%config.title%",
+      "properties": {
+        "formatdir.fileExtensions": {
+          "type": "array",
+          "default": [
+            ".js", ".ts", ".jsx", ".tsx", ".json", ".css", ".scss", ".less",
+            ".html", ".xml", ".md", ".yaml", ".yml", ".vue", ".py", ".java",
+            ".c", ".cpp", ".h", ".cs", ".go", ".rs", ".php", ".rb"
+          ],
+          "description": "%config.fileExtensions.description%",
+          "items": {
+            "type": "string"
+          }
+        },
+        "formatdir.recursive": {
+          "type": "boolean",
+          "default": true,
+          "description": "%config.recursive.description%"
+        },
+        "formatdir.excludePatterns": {
+          "type": "array",
+          "default": [
+            "**/node_modules/**",
+            "**/dist/**",
+            "**/build/**",
+            "**/out/**",
+            "**/.git/**",
+            "**/vendor/**",
+            "**/*.min.js",
+            "**/*.min.css"
+          ],
+          "description": "%config.excludePatterns.description%",
+          "items": {
+            "type": "string"
+          }
+        },
+        "formatdir.showProgress": {
+          "type": "boolean",
+          "default": true,
+          "description": "%config.showProgress.description%"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "@types/mocha": "^10.0.6",
+    "@types/node": "^18.19.14",
+    "@typescript-eslint/eslint-plugin": "^6.19.1",
+    "@typescript-eslint/parser": "^6.19.1",
+    "eslint": "^8.56.0",
+    "typescript": "^5.3.3",
+    "@vscode/test-cli": "^0.0.6",
+    "@vscode/test-electron": "^2.3.9"
+  }
+}

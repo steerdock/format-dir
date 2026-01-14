@@ -1,0 +1,11 @@
+{
+  "displayName": "Format Directory",
+  "description": "A VS Code extension to format entire directories with right-click options.",
+  "command.formatWithDefault": "Format Directory (Default Settings)",
+  "command.reconfigure": "Format Directory (Reconfigure)",
+  "config.title": "Format Directory",
+  "config.fileExtensions.description": "File extensions to format",
+  "config.recursive.description": "Recursively format files in subdirectories",
+  "config.excludePatterns.description": "Glob patterns to exclude from formatting",
+  "config.showProgress.description": "Show progress notification when formatting"
+}
