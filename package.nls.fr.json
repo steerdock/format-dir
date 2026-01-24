@@ -1,0 +1,11 @@
+{
+  "displayName": "Formater le Répertoire",
+  "description": "Une extension VS Code pour formater des répertoires entiers avec des options de clic droit.",
+  "command.formatWithDefault": "Formater le Répertoire (Paramètres par défaut)",
+  "command.reconfigure": "Formater le Répertoire (Reconfigurer)",
+  "config.title": "Formater le Répertoire",
+  "config.fileExtensions.description": "Extensions de fichiers à formater",
+  "config.recursive.description": "Formater récursivement les fichiers dans les sous-répertoires",
+  "config.excludePatterns.description": "Motifs glob à exclure du formatage",
+  "config.showProgress.description": "Afficher la notification de progression lors du formatage"
+}

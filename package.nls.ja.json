@@ -1,0 +1,11 @@
+{
+  "displayName": "ディレクトリのフォーマット",
+  "description": "右クリックメニューからディレクトリ全体をフォーマットするVS Code拡張機能。",
+  "command.formatWithDefault": "ディレクトリをフォーマット (デフォルト設定)",
+  "command.reconfigure": "ディレクトリをフォーマット (再設定)",
+  "config.title": "ディレクトリのフォーマット",
+  "config.fileExtensions.description": "フォーマットするファイル拡張子",
+  "config.recursive.description": "サブディレクトリ内のファイルを再帰的にフォーマット",
+  "config.excludePatterns.description": "フォーマットから除外するglobパターン",
+  "config.showProgress.description": "フォーマット中に進行状況通知を表示"
+}

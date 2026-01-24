@@ -91,6 +91,25 @@ async function getFormatConfig(reconfigure: boolean): Promise<FormatConfig | nul
         }
 
         recursive = recursiveChoice === t('formatDirectory.yes');
+
+        // Allow customizing exclude patterns
+        const customizeExclude = await vscode.window.showQuickPick([t('formatDirectory.yes'), t('formatDirectory.no')], {
+            placeHolder: t('formatDirectory.customizeExclude')
+        });
+
+        if (customizeExclude === t('formatDirectory.yes')) {
+            const excludeInput = await vscode.window.showInputBox({
+                prompt: t('formatDirectory.inputExcludePatterns'),
+                value: excludePatterns.join(', '),
+                placeHolder: t('formatDirectory.excludePlaceholder')
+            });
+
+            if (excludeInput === undefined) {
+                return null;
+            }
+
+            excludePatterns = excludeInput.split(',').map(pattern => pattern.trim()).filter(pattern => pattern);
+        }
     }
 
     return { fileExtensions, recursive, excludePatterns, showProgress };
@@ -151,39 +170,44 @@ async function formatFiles(files: vscode.Uri[], config: FormatConfig) {
             title: t('formatDirectory.formatting'),
             cancellable: true
         }, async (progress, token) => {
-            for (let i = 0; i < files.length; i++) {
+            const CONCURRENCY_LIMIT = 10; // Concurrency limit for performance
+            for (let i = 0; i < files.length; i += CONCURRENCY_LIMIT) {
                 if (token.isCancellationRequested) {
                     vscode.window.showWarningMessage(t('formatDirectory.cancelled'));
                     return;
                 }
 
-                const file = files[i];
-                const fileName = path.basename(file.fsPath);
+                const batch = files.slice(i, i + CONCURRENCY_LIMIT);
+                const results = await Promise.all(batch.map(file => formatFile(file)));
 
-                progress.report({
-                    message: `${i + 1}/${files.length}: ${fileName}`,
-                    increment: (100 / files.length)
-                });
+                for (let j = 0; j < batch.length; j++) {
+                    const file = batch[j];
+                    const fileName = path.basename(file.fsPath);
 
-                const result = await formatFile(file);
-                if (result) {
-                    successCount++;
-                } else {
-                    failCount++;
-                    failedFiles.push(path.basename(file.fsPath));
+                    progress.report({
+                        message: `${i + j + 1}/${files.length}: ${fileName}`,
+                        increment: (100 / files.length)
+                    });
+
+                    if (results[j]) {
+                        successCount++;
+                    } else {
+                        failCount++;
+                        failedFiles.push(fileName);
+                    }
                 }
             }
         });
     } else {
-        for (const file of files) {
-            const result = await formatFile(file);
+        const results = await Promise.all(files.map(file => formatFile(file)));
+        results.forEach((result, index) => {
             if (result) {
                 successCount++;
             } else {
                 failCount++;
-                failedFiles.push(path.basename(file.fsPath));
+                failedFiles.push(path.basename(files[index].fsPath));
             }
-        }
+        });
     }
 
     let message = t('formatDirectory.complete', successCount);

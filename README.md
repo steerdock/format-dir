@@ -2,6 +2,18 @@
 
 A VS Code extension that allows you to format entire directories with a right-click context menu option.
 
+## Changelog
+
+### v1.0.5
+- **New language support**: Added Japanese (日本語) and French (Français) translations
+- **Enhanced internationalization**: Now supports 4 languages (English, Chinese, Japanese, French)
+
+### v1.0.4
+- **Performance optimization**: Added concurrent file formatting (up to 10 files at once) for faster processing
+- **Enhanced reconfigure mode**: Now allows customizing exclude patterns in addition to file extensions and recursive mode
+- **Dependency updates**: Upgraded TypeScript to 5.7.2, ESLint to 9.17.0, and other dependencies
+- **Bug fix**: Synchronized default file extensions configuration across all files (now includes .sql)
+
 ## Features
 
 - **Right-click directory formatting**: Format all files in a directory directly from the Explorer
@@ -10,11 +22,12 @@ A VS Code extension that allows you to format entire directories with a right-cl
 - **Exclude patterns**: Skip specific directories or files (e.g., node_modules, dist)
 - **Progress tracking**: Visual progress notification with cancellation support
 - **Error handling**: Detailed error reporting for failed files
-- **Internationalization (i18n)**: Supports English and Chinese, automatically switches based on VS Code language settings
+- **Internationalization (i18n)**: Supports 4 languages (English, Chinese, Japanese, French), automatically switches based on VS Code language settings
 - **Respects user settings**: Uses your configured formatters and editor settings from `settings.json`
+- **Performance optimization**: Concurrent file formatting for faster processing
 - **Two formatting modes**:
   - **Default**: Use saved configuration settings
-  - **Reconfigure**: Customize settings on-the-fly before formatting
+  - **Reconfigure**: Customize settings on-the-fly before formatting (including file extensions, recursive mode, and exclude patterns)
 
 ## Usage
 
@@ -38,6 +51,8 @@ The extension automatically detects your VS Code language setting and displays t
 
 - **English**: When VS Code is set to English
 - **中文**: When VS Code is set to Chinese (Simplified)
+- **日本語 (Japanese)**: When VS Code is set to Japanese
+- **Français (French)**: When VS Code is set to French
 
 All menu items, notifications, and prompts will be displayed in the appropriate language.
 
@@ -53,7 +68,7 @@ Array of file extensions to format.
 [
   ".js", ".ts", ".jsx", ".tsx", ".json", ".css", ".scss", ".less",
   ".html", ".xml", ".md", ".yaml", ".yml", ".vue", ".py", ".java",
-  ".c", ".cpp", ".h", ".cs", ".go", ".rs", ".php", ".rb"
+  ".c", ".cpp", ".h", ".cs", ".go", ".rs", ".php", ".rb", ".sql"
 ]
 ```
 
