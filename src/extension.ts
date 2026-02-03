@@ -14,6 +14,8 @@ interface FormatConfig {
     recursive: boolean;
     excludePatterns: string[];
     showProgress: boolean;
+    concurrencyLimit: number;
+    maxFileSize: number;
 }
 
 export function activate(context: vscode.ExtensionContext) {
@@ -68,6 +70,8 @@ async function getFormatConfig(reconfigure: boolean): Promise<FormatConfig | nul
         '**/.git/**', '**/vendor/**', '**/*.min.js', '**/*.min.css'
     ]);
     let showProgress = workspaceConfig.get<boolean>('showProgress', true);
+    let concurrencyLimit = workspaceConfig.get<number>('concurrencyLimit', 10);
+    let maxFileSize = workspaceConfig.get<number>('maxFileSize', 1048576);
 
     if (reconfigure) {
         const extensionsInput = await vscode.window.showInputBox({
@@ -112,7 +116,7 @@ async function getFormatConfig(reconfigure: boolean): Promise<FormatConfig | nul
         }
     }
 
-    return { fileExtensions, recursive, excludePatterns, showProgress };
+    return { fileExtensions, recursive, excludePatterns, showProgress, concurrencyLimit, maxFileSize };
 }
 
 async function collectFiles(uri: vscode.Uri, config: FormatConfig): Promise<vscode.Uri[]> {
@@ -132,6 +136,18 @@ async function collectFiles(uri: vscode.Uri, config: FormatConfig): Promise<vsco
             if (fileType === vscode.FileType.File) {
                 const ext = path.extname(name);
                 if (config.fileExtensions.includes(ext)) {
+                    // Check file size if maxFileSize is set (0 means no limit)
+                    if (config.maxFileSize > 0) {
+                        try {
+                            const stat = await vscode.workspace.fs.stat(itemUri);
+                            if (stat.size > config.maxFileSize) {
+                                console.log(`Skipping ${name}: file size ${stat.size} exceeds limit ${config.maxFileSize}`);
+                                continue;
+                            }
+                        } catch (error) {
+                            console.error(`Failed to get file size for ${name}:`, error);
+                        }
+                    }
                     files.push(itemUri);
                 }
             } else if (fileType === vscode.FileType.Directory && config.recursive) {
@@ -170,14 +186,13 @@ async function formatFiles(files: vscode.Uri[], config: FormatConfig) {
             title: t('formatDirectory.formatting'),
             cancellable: true
         }, async (progress, token) => {
-            const CONCURRENCY_LIMIT = 10; // Concurrency limit for performance
-            for (let i = 0; i < files.length; i += CONCURRENCY_LIMIT) {
+            for (let i = 0; i < files.length; i += config.concurrencyLimit) {
                 if (token.isCancellationRequested) {
                     vscode.window.showWarningMessage(t('formatDirectory.cancelled'));
                     return;
                 }
 
-                const batch = files.slice(i, i + CONCURRENCY_LIMIT);
+                const batch = files.slice(i, i + config.concurrencyLimit);
                 const results = await Promise.all(batch.map(file => formatFile(file)));
 
                 for (let j = 0; j < batch.length; j++) {

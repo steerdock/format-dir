@@ -4,11 +4,15 @@ A VS Code extension that allows you to format entire directories with a right-cl
 
 ## Changelog
 
+### v1.0.6
+- **Performance optimization**: Added configurable concurrency limit (1-50 files, default: 10)
+- **File size limit**: Added maximum file size configuration to skip large files (default: 1MB, 0 = no limit)
+- **New language support**: Added German (Deutsch) and Spanish (Español) translations
+- **Enhanced internationalization**: Now supports 6 languages (English, Chinese, Japanese, French, German, Spanish)
+
 ### v1.0.5
 - **New language support**: Added Japanese (日本語) and French (Français) translations
 - **Enhanced internationalization**: Now supports 4 languages (English, Chinese, Japanese, French)
-
-### v1.0.4
 - **Performance optimization**: Added concurrent file formatting (up to 10 files at once) for faster processing
 - **Enhanced reconfigure mode**: Now allows customizing exclude patterns in addition to file extensions and recursive mode
 - **Dependency updates**: Upgraded TypeScript to 5.7.2, ESLint to 9.17.0, and other dependencies
@@ -53,6 +57,8 @@ The extension automatically detects your VS Code language setting and displays t
 - **中文**: When VS Code is set to Chinese (Simplified)
 - **日本語 (Japanese)**: When VS Code is set to Japanese
 - **Français (French)**: When VS Code is set to French
+- **Deutsch (German)**: When VS Code is set to German
+- **Español (Spanish)**: When VS Code is set to Spanish
 
 All menu items, notifications, and prompts will be displayed in the appropriate language.
 
@@ -99,6 +105,17 @@ Show progress notification when formatting.
 
 **Default:** `true`
 
+### `formatdir.concurrencyLimit`
+Maximum number of files to format concurrently. Higher values may improve performance but use more system resources.
+
+**Default:** `10`
+**Range:** `1-50`
+
+### `formatdir.maxFileSize`
+Maximum file size in bytes to format. Files larger than this will be skipped. Set to 0 for no limit.
+
+**Default:** `1048576` (1MB)
+
 ## Example Configuration
 
 Add to your `settings.json`:
@@ -111,7 +128,9 @@ Add to your `settings.json`:
     "**/node_modules/**",
     "**/dist/**"
   ],
-  "formatdir.showProgress": true
+  "formatdir.showProgress": true,
+  "formatdir.concurrencyLimit": 10,
+  "formatdir.maxFileSize": 1048576
 }
 ```
 

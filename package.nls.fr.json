@@ -7,5 +7,7 @@
   "config.fileExtensions.description": "Extensions de fichiers à formater",
   "config.recursive.description": "Formater récursivement les fichiers dans les sous-répertoires",
   "config.excludePatterns.description": "Motifs glob à exclure du formatage",
-  "config.showProgress.description": "Afficher la notification de progression lors du formatage"
+  "config.showProgress.description": "Afficher la notification de progression lors du formatage",
+  "config.concurrencyLimit.description": "Nombre maximum de fichiers à formater simultanément (1-50, par défaut: 10)",
+  "config.maxFileSize.description": "Taille maximale de fichier en octets à formater (0 = pas de limite, par défaut: 1MB)"
 }

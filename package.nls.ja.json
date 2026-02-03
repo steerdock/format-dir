@@ -7,5 +7,7 @@
   "config.fileExtensions.description": "フォーマットするファイル拡張子",
   "config.recursive.description": "サブディレクトリ内のファイルを再帰的にフォーマット",
   "config.excludePatterns.description": "フォーマットから除外するglobパターン",
-  "config.showProgress.description": "フォーマット中に進行状況通知を表示"
+  "config.showProgress.description": "フォーマット中に進行状況通知を表示",
+  "config.concurrencyLimit.description": "同時にフォーマットする最大ファイル数 (1-50、デフォルト: 10)",
+  "config.maxFileSize.description": "フォーマットする最大ファイルサイズ（バイト）(0 = 制限なし、デフォルト: 1MB)"
 }

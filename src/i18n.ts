@@ -88,6 +88,48 @@ const messages: { [locale: string]: Messages } = {
         'formatDirectory.customizeExclude': 'Personnaliser les modèles d\'exclusion?',
         'formatDirectory.inputExcludePatterns': 'Entrez les modèles d\'exclusion (séparés par des virgules)',
         'formatDirectory.excludePlaceholder': 'ex: **/node_modules/**, **/dist/**'
+    },
+    'de': {
+        'formatDirectory.default': 'Verzeichnis formatieren (Standardeinstellungen): {0}',
+        'formatDirectory.reconfigure': 'Einstellungen öffnen: {0}',
+        'formatDirectory.noFiles': 'Keine zu formatierenden Dateien gefunden',
+        'formatDirectory.failed': 'Fehler beim Formatieren des Verzeichnisses: {0}',
+        'formatDirectory.formatting': 'Dateien werden formatiert',
+        'formatDirectory.cancelled': 'Formatierung abgebrochen',
+        'formatDirectory.complete': 'Formatierung abgeschlossen: {0} Dateien erfolgreich',
+        'formatDirectory.completeFailed': 'Formatierung abgeschlossen: {0} Dateien erfolgreich, {1} Dateien fehlgeschlagen',
+        'formatDirectory.failedCount': '{0} Dateien konnten nicht formatiert werden',
+        'formatDirectory.viewDetails': 'Details anzeigen',
+        'formatDirectory.failedFiles': 'Fehlgeschlagene Dateien:',
+        'formatDirectory.inputExtensions': 'Geben Sie die zu formatierenden Dateierweiterungen ein (durch Kommas getrennt)',
+        'formatDirectory.extensionsPlaceholder': 'z.B.: .js, .ts, .json',
+        'formatDirectory.recursive': 'Unterverzeichnisse rekursiv formatieren?',
+        'formatDirectory.yes': 'Ja',
+        'formatDirectory.no': 'Nein',
+        'formatDirectory.customizeExclude': 'Ausschlussmuster anpassen?',
+        'formatDirectory.inputExcludePatterns': 'Geben Sie Ausschlussmuster ein (durch Kommas getrennt)',
+        'formatDirectory.excludePlaceholder': 'z.B.: **/node_modules/**, **/dist/**'
+    },
+    'es': {
+        'formatDirectory.default': 'Formatear directorio (Configuración predeterminada): {0}',
+        'formatDirectory.reconfigure': 'Abrir configuración: {0}',
+        'formatDirectory.noFiles': 'No se encontraron archivos para formatear',
+        'formatDirectory.failed': 'Error al formatear el directorio: {0}',
+        'formatDirectory.formatting': 'Formateando archivos',
+        'formatDirectory.cancelled': 'Formateo cancelado',
+        'formatDirectory.complete': 'Formateo completado: {0} archivos exitosos',
+        'formatDirectory.completeFailed': 'Formateo completado: {0} archivos exitosos, {1} archivos fallidos',
+        'formatDirectory.failedCount': '{0} archivos no se pudieron formatear',
+        'formatDirectory.viewDetails': 'Ver detalles',
+        'formatDirectory.failedFiles': 'Archivos fallidos:',
+        'formatDirectory.inputExtensions': 'Ingrese las extensiones de archivo a formatear (separadas por comas)',
+        'formatDirectory.extensionsPlaceholder': 'ej: .js, .ts, .json',
+        'formatDirectory.recursive': '¿Formatear subdirectorios recursivamente?',
+        'formatDirectory.yes': 'Sí',
+        'formatDirectory.no': 'No',
+        'formatDirectory.customizeExclude': '¿Personalizar patrones de exclusión?',
+        'formatDirectory.inputExcludePatterns': 'Ingrese patrones de exclusión (separados por comas)',
+        'formatDirectory.excludePlaceholder': 'ej: **/node_modules/**, **/dist/**'
     }
 };
 

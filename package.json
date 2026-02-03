@@ -2,7 +2,7 @@
   "name": "format-directory",
   "displayName": "%displayName%",
   "description": "%description%",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "publisher": "FormatDirectory",
   "engines": {
     "vscode": "^1.85.0"
@@ -99,6 +99,19 @@
           "type": "boolean",
           "default": true,
           "description": "%config.showProgress.description%"
+        },
+        "formatdir.concurrencyLimit": {
+          "type": "number",
+          "default": 10,
+          "minimum": 1,
+          "maximum": 50,
+          "description": "%config.concurrencyLimit.description%"
+        },
+        "formatdir.maxFileSize": {
+          "type": "number",
+          "default": 1048576,
+          "minimum": 0,
+          "description": "%config.maxFileSize.description%"
         }
       }
     }

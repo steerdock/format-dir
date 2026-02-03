@@ -7,5 +7,7 @@
   "config.fileExtensions.description": "File extensions to format",
   "config.recursive.description": "Recursively format files in subdirectories",
   "config.excludePatterns.description": "Glob patterns to exclude from formatting",
-  "config.showProgress.description": "Show progress notification when formatting"
+  "config.showProgress.description": "Show progress notification when formatting",
+  "config.concurrencyLimit.description": "Maximum number of files to format concurrently (1-50, default: 10)",
+  "config.maxFileSize.description": "Maximum file size in bytes to format (0 = no limit, default: 1MB)"
 }
