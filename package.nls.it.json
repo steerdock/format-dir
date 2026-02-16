@@ -1,0 +1,16 @@
+{
+    "displayName": "Format Directory",
+    "description": "Un'estensione VS Code per formattare intere directory con le opzioni del tasto destro.",
+    "command.formatWithDefault": "Formatta",
+    "command.formatFile": "Formatta file",
+    "config.title": "Format Directory",
+    "config.fileExtensions.description": "Estensioni dei file da formattare",
+    "config.recursive.description": "Formatta ricorsivamente i file nelle sottodirectory",
+    "config.excludePatterns.description": "Pattern Glob da escludere dalla formattazione",
+    "config.showProgress.description": "Mostra notifica di avanzamento durante la formattazione",
+    "config.concurrencyLimit.description": "Numero massimo di file da formattare contemporaneamente (1-50, predefinito: 10)",
+    "config.maxFileSize.description": "Dimensione massima del file in byte da formattare (0 = nessun limite, predefinito: 1MB)",
+    "config.logLevel.description": "Livello di registrazione per l'output dell'estensione",
+    "config.openOutputAfterFormat.description": "Apri il pannello di output dopo il completamento della formattazione",
+    "config.language.description": "Sovrascrivi la lingua utilizzata dall'estensione (auto per usare la lingua di VS Code)"
+}

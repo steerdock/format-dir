@@ -1,0 +1,16 @@
+{
+  "displayName": "Format Directory",
+  "description": "A VS Code extension to format entire directories with right-click options.",
+  "command.formatWithDefault": "Format",
+  "config.title": "Format Directory",
+  "config.fileExtensions.description": "File extensions to format",
+  "config.recursive.description": "Recursively format files in subdirectories",
+  "config.excludePatterns.description": "Glob patterns to exclude from formatting",
+  "config.showProgress.description": "Show progress notification when formatting",
+  "config.concurrencyLimit.description": "Maximum number of files to format concurrently (1-50, default: 10)",
+  "config.maxFileSize.description": "Maximum file size in bytes to format (0 = no limit, default: 1MB)",
+  "command.formatFile": "Format File",
+  "config.logLevel.description": "Log level for the extension output",
+  "config.openOutputAfterFormat.description": "Open output panel after formatting completes",
+  "config.language.description": "Override the language used by the extension (auto to use VS Code language)"
+}

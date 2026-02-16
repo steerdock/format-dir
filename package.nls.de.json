@@ -1,0 +1,15 @@
+{
+  "displayName": "Verzeichnis formatieren",
+  "description": "Formatieren Sie ganze Verzeichnisse mit einem Rechtsklick im Kontextmenü",
+  "command.formatWithDefault": "formatieren",
+  "config.title": "Verzeichnis formatieren",
+  "config.fileExtensions.description": "Array von Dateierweiterungen, die formatiert werden sollen",
+  "config.recursive.description": "Ob Dateien in Unterverzeichnissen rekursiv formatiert werden sollen",
+  "config.excludePatterns.description": "Glob-Muster zum Ausschließen vom Formatieren",
+  "config.showProgress.description": "Fortschrittsbenachrichtigung beim Formatieren anzeigen",
+  "config.concurrencyLimit.description": "Maximale Anzahl gleichzeitig zu formatierender Dateien (1-50, Standard: 10)",
+  "config.maxFileSize.description": "Maximale Dateigröße in Bytes zum Formatieren (0 = keine Begrenzung, Standard: 1MB)",
+  "config.logLevel.description": "Protokollierungsgrad für die Erweiterungsausgabe",
+  "config.openOutputAfterFormat.description": "Ausgabefenster nach Abschluss der Formatierung öffnen",
+  "config.language.description": "Überschreiben Sie die von der Erweiterung verwendete Sprache (auto für VS Code-Sprache)"
+}

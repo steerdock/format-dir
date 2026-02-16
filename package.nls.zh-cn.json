@@ -1,0 +1,16 @@
+{
+  "displayName": "格式化目录",
+  "description": "一个 VS Code 扩展，通过右键菜单格式化整个目录。",
+  "command.formatWithDefault": "执行格式化",
+  "config.title": "格式化目录",
+  "config.fileExtensions.description": "要格式化的文件扩展名",
+  "config.recursive.description": "递归格式化子目录中的文件",
+  "config.excludePatterns.description": "要排除的 glob 模式",
+  "config.showProgress.description": "显示格式化进度通知",
+  "config.concurrencyLimit.description": "同时格式化的最大文件数 (1-50，默认: 10)",
+  "config.maxFileSize.description": "要格式化的最大文件大小（字节）(0 = 无限制，默认: 1MB)",
+  "command.formatFile": "格式化文件",
+  "config.logLevel.description": "扩展输出的日志级别",
+  "config.openOutputAfterFormat.description": "格式化完成后打开输出面板",
+  "config.language.description": "覆盖扩展使用的语言（auto 表示使用 VS Code 语言）"
+}

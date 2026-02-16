@@ -1,0 +1,23 @@
+<svg width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="64" cy="64" r="60" fill="#007ACC" opacity="0.9"/>
+  
+  <!-- Folder icon -->
+  <path d="M 30 45 L 30 85 L 98 85 L 98 55 L 70 55 L 65 45 Z" fill="#FFD700" stroke="#FFA500" stroke-width="2"/>
+  
+  <!-- Format symbol (brackets with lines) -->
+  <g fill="white" stroke="white" stroke-width="2">
+    <!-- Left bracket -->
+    <path d="M 45 58 L 40 58 L 40 78 L 45 78" fill="none"/>
+    <!-- Right bracket -->
+    <path d="M 83 58 L 88 58 L 88 78 L 83 78" fill="none"/>
+    <!-- Lines inside -->
+    <line x1="50" y1="62" x2="73" y2="62" stroke-width="2"/>
+    <line x1="50" y1="68" x2="73" y2="68" stroke-width="2"/>
+    <line x1="50" y1="74" x2="73" y2="74" stroke-width="2"/>
+  </g>
+  
+  <!-- Sparkle effect -->
+  <circle cx="90" cy="40" r="3" fill="white" opacity="0.8"/>
+  <circle cx="95" cy="48" r="2" fill="white" opacity="0.6"/>
+</svg>

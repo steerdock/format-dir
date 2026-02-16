@@ -1,0 +1,16 @@
+{
+    "displayName": "Format Directory",
+    "description": "Расширение VS Code для форматирования целых каталогов через контекстное меню.",
+    "command.formatWithDefault": "Форматировать",
+    "command.formatFile": "Форматировать файл",
+    "config.title": "Format Directory",
+    "config.fileExtensions.description": "Расширения файлов для форматирования",
+    "config.recursive.description": "Рекурсивно форматировать файлы в подкаталогах",
+    "config.excludePatterns.description": "Glob-шаблоны для исключения из форматирования",
+    "config.showProgress.description": "Показывать уведомление о ходе выполнения",
+    "config.concurrencyLimit.description": "Максимальное количество файлов для одновременного форматирования (1-50, по умолчанию: 10)",
+    "config.maxFileSize.description": "Максимальный размер файла в байтах (0 = без ограничений, по умолчанию: 1 МБ)",
+    "config.logLevel.description": "Уровень логирования вывода расширения",
+    "config.openOutputAfterFormat.description": "Открыть панель вывода после завершения форматирования",
+    "config.language.description": "Переопределить язык, используемый расширением (auto для использования языка VS Code)"
+}

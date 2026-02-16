@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+
+# Build output
+out/
+dist/
+build/
+
+# VS Code
+.vscode-test/
+.vscode/
+
+# Package files
+*.vsix
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# TypeScript
+*.tsbuildinfo
+
+# Temporary files
+*.tmp
+.cache/
+install.txt
