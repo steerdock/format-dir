@@ -36,3 +36,16 @@ jobs:
         with:
           target_repo_url: "https://gitlab.com/silvancoder/formatdir.git"
           ssh_private_key: "${{ secrets.GITLAB_SSH_PRIVATE_KEY }}"
+
+  # Job 3: 同步到 GitHub
+  sync_to_github:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Mirror to GitHub
+        uses: pixta-dev/repository-mirroring-action@v1
+        with:
+          target_repo_url: "https://github.com/steerdock/format-dir.git"
+          ssh_private_key: "${{ secrets.HUB_SSH_PRIVATE_KEY }}"
