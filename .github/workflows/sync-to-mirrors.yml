@@ -21,7 +21,7 @@ jobs:
       - name: Mirror to Gitee
         uses: pixta-dev/repository-mirroring-action@v1
         with:
-          target_repo_url: "[email protected]:opcnlin/formatdir.git"
+          target_repo_url: "git@gitee.com:opcnlin/formatdir.git"
           ssh_private_key: "${{ secrets.GITEE_SSH_PRIVATE_KEY }}"
 
   # Job 2: 同步到 GitLab
@@ -34,5 +34,5 @@ jobs:
       - name: Mirror to GitLab
         uses: pixta-dev/repository-mirroring-action@v1
         with:
-          target_repo_url: "[email protected]:silvancoder/formatdir.git"
+          target_repo_url: "git@gitlab.com:silvancoder/formatdir.git"
           ssh_private_key: "${{ secrets.GITLAB_SSH_PRIVATE_KEY }}"
