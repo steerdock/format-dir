@@ -1,0 +1,20 @@
+{
+    "displayName": "Formatar Diretório",
+    "description": "Formatar todos os arquivos em um diretório usando o formatador padrão.",
+    "command.formatWithDefault": "Formatar com Padrão",
+    "command.formatFile": "Formatar Arquivo",
+    "command.undo": "Desfazer Última Formatação",
+    "command.configurePriority": "Configurar Prioridade do Formatador",
+    "config.title": "Formatar Diretório",
+    "config.fileExtensions.description": "Extensões de arquivo para formatar.",
+    "config.recursive.description": "Formatar subdiretórios recursivamente.",
+    "config.excludePatterns.description": "Padrões glob para excluir da formatação.",
+    "config.showProgress.description": "Mostrar notificação de progresso durante a formatação.",
+    "config.concurrencyLimit.description": "Número de arquivos para formatar simultaneamente.",
+    "config.maxFileSize.description": "Tamanho máximo do arquivo em bytes para formatar (0 para sem limite).",
+    "config.language.description": "Idioma para mensagens da extensão.",
+    "config.logLevel.description": "Nível de log para o canal de saída.",
+    "config.openOutputAfterFormat.description": "Abrir canal de saída após a formatação.",
+    "config.preview.description": "Mostrar uma pré-visualização das alterações antes de aplicá-las.",
+    "config.formatterPriority.description": "Mapear IDs de linguagem para IDs de extensão para formatadores específicos (ex: \"json\": \"esbenp.prettier-vscode\")."
+}

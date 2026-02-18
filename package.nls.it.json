@@ -12,5 +12,9 @@
     "config.maxFileSize.description": "Dimensione massima del file in byte da formattare (0 = nessun limite, predefinito: 1MB)",
     "config.logLevel.description": "Livello di registrazione per l'output dell'estensione",
     "config.openOutputAfterFormat.description": "Apri il pannello di output dopo il completamento della formattazione",
-    "config.language.description": "Sovrascrivi la lingua utilizzata dall'estensione (auto per usare la lingua di VS Code)"
+    "config.language.description": "Sovrascrivi la lingua utilizzata dall'estensione (auto per usare la lingua di VS Code)",
+    "command.undo": "Annulla l'ultima formattazione",
+    "command.configurePriority": "Configura priorità formattatore",
+    "config.preview.description": "Mostra un'anteprima delle modifiche prima di applicarle.",
+    "config.formatterPriority.description": "Mappa ID lingua a ID estensione per formattatori specifici (es. \"json\": \"esbenp.prettier-vscode\")."
 }

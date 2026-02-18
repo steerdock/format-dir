@@ -12,5 +12,9 @@
     "config.maxFileSize.description": "Максимальный размер файла в байтах (0 = без ограничений, по умолчанию: 1 МБ)",
     "config.logLevel.description": "Уровень логирования вывода расширения",
     "config.openOutputAfterFormat.description": "Открыть панель вывода после завершения форматирования",
-    "config.language.description": "Переопределить язык, используемый расширением (auto для использования языка VS Code)"
+    "config.language.description": "Переопределить язык, используемый расширением (auto для использования языка VS Code)",
+    "command.undo": "Отменить последнее форматирование",
+    "command.configurePriority": "Настроить приоритет форматирования",
+    "config.preview.description": "Показать предварительный просмотр изменений перед их применением.",
+    "config.formatterPriority.description": "Сопоставить ID языков с ID расширений для конкретных форматировщиков (например, \"json\": \"esbenp.prettier-vscode\")."
 }

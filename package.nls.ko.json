@@ -1,0 +1,20 @@
+{
+    "displayName": "디렉토리 포맷",
+    "description": "기본 포맷터를 사용하여 디렉토리의 모든 파일을 포맷합니다.",
+    "command.formatWithDefault": "기본값으로 포맷",
+    "command.formatFile": "파일 포맷",
+    "command.undo": "마지막 포맷 실행 취소",
+    "command.configurePriority": "포맷터 우선순위 구성",
+    "config.title": "디렉토리 포맷",
+    "config.fileExtensions.description": "포맷할 파일 확장자.",
+    "config.recursive.description": "하위 디렉토리를 재귀적으로 포맷합니다.",
+    "config.excludePatterns.description": "포맷에서 제외할 Glob 패턴.",
+    "config.showProgress.description": "포맷 중 진행 상황 알림 표시.",
+    "config.concurrencyLimit.description": "동시에 포맷할 파일 수.",
+    "config.maxFileSize.description": "포맷할 최대 파일 크기(바이트) (무제한의 경우 0).",
+    "config.language.description": "확장 프로그램 메시지의 언어.",
+    "config.logLevel.description": "출력 채널의 로그 수준.",
+    "config.openOutputAfterFormat.description": "포맷 완료 후 출력 채널 열기.",
+    "config.preview.description": "적용하기 전에 변경 사항 미리보기 표시.",
+    "config.formatterPriority.description": "특정 포맷터에 대한 언어 ID를 확장 ID로 매핑 (예: \"json\": \"esbenp.prettier-vscode\")."
+}

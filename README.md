@@ -4,6 +4,13 @@ A VS Code extension that allows you to format entire directories with a right-cl
 
 ## Changelog
 
+### v1.0.8
+- **Preview Mode**: Added optional preview before applying formatting changes (`formatdir.preview`).
+- **Undo Support**: Added ability to undo the last formatting operation (`Format Directory: Undo Last Format`).
+- **Formatter Priority**: New command to help configure language-specific default formatters.
+- **New Language Support**: Added Portuguese (Brazil) and Korean translations.
+- **Enhanced Internationalization**: Improved existing translations and standardized command naming.
+
 ### v1.0.7
 - **Language Selection**: Added setting to override extension language (supports `auto`, `en`, `zh-cn`, `ja`, `fr`, `de`, `es`, `it`, `ru`)
 - **Menu Refinement**: Simplified context menus (removed "Default Settings" and "Reconfigure" options)
@@ -71,6 +78,8 @@ The extension automatically detects your VS Code language setting and displays t
 - **Español (Spanish)**: When VS Code is set to Spanish
 - **Italiano (Italian)**: When VS Code is set to Italian
 - **Русский (Russian)**: When VS Code is set to Russian
+- **Português (Portuguese - Brazil)**: When VS Code is set to Portuguese (Brazil)
+- **한국어 (Korean)**: When VS Code is set to Korean
 
 All menu items, notifications, and prompts will be displayed in the appropriate language.
 
@@ -139,6 +148,8 @@ Override the language used by the extension.
 - `es`: Spanish
 - `it`: Italian
 - `ru`: Russian
+- `pt-br`: Portuguese (Brazil)
+- `ko`: Korean
 
 ## Example Configuration
 
