@@ -1,7 +1,7 @@
 {
     "displayName": "格式化目录",
     "description": "使用默认格式化程序格式化目录中的所有文件。",
-    "command.formatWithDefault": "使用默认设置格式化",
+    "command.formatWithDefault": "格式化",
     "command.formatFile": "格式化文件",
     "command.undo": "撤销上次格式化",
     "command.configurePriority": "配置格式化器优先级",

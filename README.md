@@ -4,36 +4,11 @@ A VS Code extension that allows you to format entire directories with a right-cl
 
 ## Changelog
 
-### v1.0.8
-- **Preview Mode**: Added optional preview before applying formatting changes (`formatdir.preview`).
-- **Undo Support**: Added ability to undo the last formatting operation (`Format Directory: Undo Last Format`).
-- **Formatter Priority**: New command to help configure language-specific default formatters.
-- **New Language Support**: Added Portuguese (Brazil) and Korean translations.
-- **Enhanced Internationalization**: Improved existing translations and standardized command naming.
+### v1.0.9
+- **Performance Optimization**: Replaced manual file recursion with high-performance `vscode.workspace.findFiles` API, significantly speeding up file scanning in large projects.
+- **New language support**: Added Traditional Chinese (繁體中文) and Turkish (Türkçe) translations.
 
-### v1.0.7
-- **Language Selection**: Added setting to override extension language (supports `auto`, `en`, `zh-cn`, `ja`, `fr`, `de`, `es`, `it`, `ru`)
-- **Menu Refinement**: Simplified context menus (removed "Default Settings" and "Reconfigure" options)
-- **Publisher Update**: Changed publisher to `steerdock`
-- **New language support**: Added Italian (Italiano) and Russian (Русский) translations
-- **Single File Formatting**: Added context menu for formatting single files
-- **Status Bar Integration**: Added progress tracking and status in the status bar
-- **Keyboard Shortcuts**: Added `Ctrl+Alt+L` (Cmd+Alt+L on Mac) to format current file
-- **Enhanced Logging**: Added configurable log levels and output panel options
-
-### v1.0.6
-- **Performance optimization**: Added configurable concurrency limit (1-50 files, default: 10)
-- **File size limit**: Added maximum file size configuration to skip large files (default: 1MB, 0 = no limit)
-- **New language support**: Added German (Deutsch) and Spanish (Español) translations
-- **Enhanced internationalization**: Now supports 6 languages (English, Chinese, Japanese, French, German, Spanish)
-
-### v1.0.5
-- **New language support**: Added Japanese (日本語) and French (Français) translations
-- **Enhanced internationalization**: Now supports 4 languages (English, Chinese, Japanese, French)
-- **Performance optimization**: Added concurrent file formatting (up to 10 files at once) for faster processing
-- **Enhanced reconfigure mode**: Now allows customizing exclude patterns in addition to file extensions and recursive mode
-- **Dependency updates**: Upgraded TypeScript to 5.7.2, ESLint to 9.17.0, and other dependencies
-- **Bug fix**: Synchronized default file extensions configuration across all files (now includes .sql)
+See [CHANGELOG.md](./CHANGELOG.md) for detailed release notes.
 
 ## Features
 
@@ -45,7 +20,7 @@ A VS Code extension that allows you to format entire directories with a right-cl
 - **Error handling**: Detailed error reporting for failed files
 - **Internationalization (i18n)**: automatically switches based on VS Code language settings
 - **Respects user settings**: Uses your configured formatters and editor settings from `settings.json`
-- **Performance optimization**: Concurrent file formatting for faster processing
+- **Performance optimization**: High-performance file scanning using VS Code's native index and concurrent file formatting for faster processing.
 - **Two formatting modes**:
   - **Default**: Use saved configuration settings
   - **Reconfigure**: Customize settings on-the-fly before formatting (including file extensions, recursive mode, and exclude patterns)
@@ -80,6 +55,8 @@ The extension automatically detects your VS Code language setting and displays t
 - **Русский (Russian)**: When VS Code is set to Russian
 - **Português (Portuguese - Brazil)**: When VS Code is set to Portuguese (Brazil)
 - **한국어 (Korean)**: When VS Code is set to Korean
+- **Türkçe (Turkish)**: When VS Code is set to Turkish
+- **繁體中文 (Traditional Chinese)**: When VS Code is set to Traditional Chinese
 
 All menu items, notifications, and prompts will be displayed in the appropriate language.
 
@@ -150,6 +127,8 @@ Override the language used by the extension.
 - `ru`: Russian
 - `pt-br`: Portuguese (Brazil)
 - `ko`: Korean
+- `tr`: Turkish
+- `zh-tw`: Traditional Chinese
 
 ## Example Configuration
 
@@ -188,6 +167,27 @@ The extension uses VS Code's built-in formatting API (`vscode.executeFormatDocum
 3. **Apply workspace settings**: Uses workspace-specific settings if available
 
 Make sure you have the appropriate formatters installed and configured in your `settings.json`.
+
+## FAQ
+
+### Why are some files being skipped?
+Files might be skipped if:
+- They don't match the configured `formatdir.fileExtensions`.
+- They match an entry in `formatdir.excludePatterns`.
+- Their file size exceeds `formatdir.maxFileSize` (default 1MB).
+- There is no formatter installed/configured in VS Code for that file type.
+
+### How do I use a specific formatter (e.g. Prettier instead of built-in)?
+This extension uses your VS Code settings. Set the default formatter for a language in your `settings.json`:
+```json
+"[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+}
+```
+You can also use the **"Format Directory: Configure Formatter Priority"** command to quickly jump to these settings.
+
+### Can I undo a formatting operation?
+Yes! Use the command **"Format Directory: Undo Last Format"** from the Command Palette (`Ctrl+Shift+P`) to revert the changes.
 
 ## License
 

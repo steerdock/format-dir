@@ -1,7 +1,7 @@
 {
     "displayName": "Format Directory",
     "description": "Format all files in a directory using the default formatter.",
-    "command.formatWithDefault": "Format with Default",
+    "command.formatWithDefault": "Format",
     "command.formatFile": "Format File",
     "command.undo": "Undo Last Format",
     "command.configurePriority": "Configure Formatter Priority",

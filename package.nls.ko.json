@@ -1,7 +1,7 @@
 {
     "displayName": "디렉토리 포맷",
     "description": "기본 포맷터를 사용하여 디렉토리의 모든 파일을 포맷합니다.",
-    "command.formatWithDefault": "기본값으로 포맷",
+    "command.formatWithDefault": "포맷",
     "command.formatFile": "파일 포맷",
     "command.undo": "마지막 포맷 실행 취소",
     "command.configurePriority": "포맷터 우선순위 구성",

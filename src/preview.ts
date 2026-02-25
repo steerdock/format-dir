@@ -4,7 +4,6 @@ import * as path from 'path';
 
 export class PreviewManager {
     private panel: vscode.WebviewPanel | undefined;
-    private pendingEdits: Map<string, vscode.TextEdit[]> = new Map();
 
     constructor(private context: vscode.ExtensionContext) { }
 

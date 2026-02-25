@@ -1,0 +1,20 @@
+{
+    "displayName": "Dizini Formatla",
+    "description": "Dizindeki tüm dosyaları varsayılan formatlayıcıyı kullanarak formatla.",
+    "command.formatWithDefault": "Formatla",
+    "command.formatFile": "Dosyayı Formatla",
+    "command.undo": "Son Formatlamayı Geri Al",
+    "command.configurePriority": "Formatlayıcı Önceliğini Yapılandır",
+    "config.title": "Dizin Formatlama Yapılandırması",
+    "config.fileExtensions.description": "Formatlanacak dosya uzantıları.",
+    "config.recursive.description": "Alt dizinleri özyinelemeli olarak formatla.",
+    "config.excludePatterns.description": "Hariç tutulacak Glob desenleri.",
+    "config.showProgress.description": "Formatlama sırasında ilerleme bildirimlerini göster.",
+    "config.concurrencyLimit.description": "Eşzamanlı formatlanacak dosya sayısı.",
+    "config.maxFileSize.description": "Formatlanacak maksimum dosya boyutu (bayt cinsinden) (0 sınırsız demektir).",
+    "config.language.description": "Uzatma mesajlarının dili.",
+    "config.logLevel.description": "Çıkış kanalı için günlük seviyesi.",
+    "config.openOutputAfterFormat.description": "Formatlama tamamlandıktan sonra çıkış kanalını aç.",
+    "config.preview.description": "Değişiklikleri uygulamadan önce önizlemeyi göster.",
+    "config.formatterPriority.description": "Belirli formatlayıcılar için dil kimliğini uzantı kimliğiyle eşleştir (örn. \"json\": \"esbenp.prettier-vscode\")."
+}

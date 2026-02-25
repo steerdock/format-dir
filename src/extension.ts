@@ -1,5 +1,4 @@
 /*
- * @Date: 2026-01-10 14:29:09
  * @Author: Anthony Rivera && opcnlin@gmail.com
  * @FilePath: \src\extension.ts
  * Copyright (c) 2026 SteerDock Contributors
@@ -194,58 +193,45 @@ async function getFormatConfig(reconfigure: boolean): Promise<FormatConfig | nul
 }
 
 async function collectFiles(uri: vscode.Uri, config: FormatConfig): Promise<vscode.Uri[]> {
-    const files: vscode.Uri[] = [];
+    const isFile = (await vscode.workspace.fs.stat(uri)).type === vscode.FileType.File;
 
-    async function traverse(currentUri: vscode.Uri, depth: number = 0) {
-        const entries = await vscode.workspace.fs.readDirectory(currentUri);
+    if (isFile) {
+        return [uri];
+    }
 
-        for (const [name, fileType] of entries) {
-            const itemUri = vscode.Uri.joinPath(currentUri, name);
-            const relativePath = vscode.workspace.asRelativePath(itemUri);
+    // 1. Build include pattern from extensions: {*.js,*.ts,...}
+    const exts = config.fileExtensions.map(ext => ext.startsWith('.') ? `*${ext}` : `*${ext}`).join(',');
+    const includePattern = new vscode.RelativePattern(uri, config.recursive ? `**/{${exts}}` : `{${exts}}`);
 
-            if (isExcluded(relativePath, config.excludePatterns)) {
-                continue;
-            }
+    // 2. Build exclude pattern for findFiles (it only supports string, not array, but we can join with commas)
+    // Actually VS Code findFiles second param is a glob string or null.
+    // Multiple patterns are usually handled by {p1,p2}
+    const excludeGlob = config.excludePatterns.length > 0
+        ? `{${config.excludePatterns.join(',')}}`
+        : undefined;
 
-            if (fileType === vscode.FileType.File) {
-                const ext = path.extname(name);
-                if (config.fileExtensions.includes(ext)) {
-                    if (config.maxFileSize > 0) {
-                        try {
-                            const stat = await vscode.workspace.fs.stat(itemUri);
-                            if (stat.size > config.maxFileSize) {
-                                log('info', `Skipping ${name}: file size ${stat.size} exceeds limit ${config.maxFileSize}`);
-                                continue;
-                            }
-                        } catch (error) {
-                            console.error(`Failed to get file size for ${name}:`, error);
-                        }
-                    }
-                    files.push(itemUri);
+    // 3. Use findFiles for high performance
+    const files = await vscode.workspace.findFiles(includePattern, excludeGlob);
+
+    // 4. File size filtering (still needed since findFiles doesn't check size)
+    if (config.maxFileSize > 0) {
+        const filteredFiles: vscode.Uri[] = [];
+        for (const file of files) {
+            try {
+                const stat = await vscode.workspace.fs.stat(file);
+                if (stat.size <= config.maxFileSize) {
+                    filteredFiles.push(file);
+                } else {
+                    log('info', `Skipping ${path.basename(file.fsPath)}: exceeds size limit`);
                 }
-            } else if (fileType === vscode.FileType.Directory && config.recursive) {
-                await traverse(itemUri, depth + 1);
+            } catch (e) {
+                log('debug', `Failed to stat ${file.fsPath}`);
             }
         }
+        return filteredFiles;
     }
 
-    await traverse(uri);
     return files;
-}
-
-function isExcluded(relativePath: string, patterns: string[]): boolean {
-    for (const pattern of patterns) {
-        const regex = new RegExp(
-            pattern
-                .replace(/\*\*/g, '.*')
-                .replace(/\*/g, '[^/]*')
-                .replace(/\?/g, '.')
-        );
-        if (regex.test(relativePath)) {
-            return true;
-        }
-    }
-    return false;
 }
 
 async function formatFiles(files: vscode.Uri[], config: FormatConfig) {

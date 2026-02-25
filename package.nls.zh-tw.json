@@ -1,0 +1,20 @@
+{
+    "displayName": "格式化目錄",
+    "description": "使用預設格式化程式格式化目錄中的所有檔案。",
+    "command.formatWithDefault": "格式化",
+    "command.formatFile": "格式化檔案",
+    "command.undo": "復原上次格式化",
+    "command.configurePriority": "配置格式化器優先級",
+    "config.title": "格式化目錄配置",
+    "config.fileExtensions.description": "要格式化的檔案副檔名。",
+    "config.recursive.description": "遞迴格式化子目錄。",
+    "config.excludePatterns.description": "要排除的 Glob 模式。",
+    "config.showProgress.description": "格式化期間顯示進度通知。",
+    "config.concurrencyLimit.description": "並發格式化的檔案數。",
+    "config.maxFileSize.description": "要格式化的最大檔案大小（位元組）（0 表示無限制）。",
+    "config.language.description": "擴展消息的語言。",
+    "config.logLevel.description": "輸出通道的日誌級別。",
+    "config.openOutputAfterFormat.description": "格式化完成後開啟輸出通道。",
+    "config.preview.description": "在套用更改之前顯示預覽。",
+    "config.formatterPriority.description": "為特定格式化程式映射語言 ID 到擴展 ID（例如 \"json\": \"esbenp.prettier-vscode\"）。"
+}
