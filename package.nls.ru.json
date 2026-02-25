@@ -1,7 +1,7 @@
 {
     "displayName": "Format Directory",
     "description": "Расширение VS Code для форматирования целых каталогов через контекстное меню.",
-    "command.formatWithDefault": "Форматировать",
+    "command.formatWithDefault": "Пакетное форматирование",
     "command.formatFile": "Форматировать файл",
     "config.title": "Format Directory",
     "config.fileExtensions.description": "Расширения файлов для форматирования",
@@ -16,5 +16,9 @@
     "command.undo": "Отменить последнее форматирование",
     "command.configurePriority": "Настроить приоритет форматирования",
     "config.preview.description": "Показать предварительный просмотр изменений перед их применением.",
-    "config.formatterPriority.description": "Сопоставить ID языков с ID расширений для конкретных форматировщиков (например, \"json\": \"esbenp.prettier-vscode\")."
+    "config.formatterPriority.description": "Сопоставить ID языков с ID расширений для конкретных форматировщиков (например, \"json\": \"esbenp.prettier-vscode\").",
+    "config.respectGitignore.description": "Автоматически исключать файлы, соответствующие шаблонам в .gitignore.",
+    "command.installFormatters": "Установить рекомендуемые форматеры",
+    "config.installRecommendedFormattersHelp.markdownDescription": "[Установить рекомендованные форматеры](command:formatdir.installFormatters)",
+    "config.installRecommendedFormattersHelp.default": "Нажмите на ссылку выше, чтобы установить рекомендуемые форматеры."
 }

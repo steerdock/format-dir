@@ -1,7 +1,7 @@
 {
     "displayName": "格式化目录",
     "description": "使用默认格式化程序格式化目录中的所有文件。",
-    "command.formatWithDefault": "使用默认设置格式化",
+    "command.formatWithDefault": "批量格式化",
     "command.formatFile": "格式化文件",
     "command.undo": "撤销上次格式化",
     "command.configurePriority": "配置格式化器优先级",
@@ -16,5 +16,9 @@
     "config.logLevel.description": "输出通道的日志级别。",
     "config.openOutputAfterFormat.description": "格式化完成后打开输出通道。",
     "config.preview.description": "在应用更改之前显示预览。",
-    "config.formatterPriority.description": "为特定格式化程序映射语言 ID 到扩展 ID（例如 \"json\": \"esbenp.prettier-vscode\"）。"
+    "config.formatterPriority.description": "为特定格式化程序映射语言 ID 到扩展 ID（例如 \"json\": \"esbenp.prettier-vscode\"）。",
+    "config.respectGitignore.description": "自动排除 .gitignore 中匹配的文件。",
+    "command.installFormatters": "安装推荐的格式化插件",
+    "config.installRecommendedFormattersHelp.markdownDescription": "[安装推荐的格式化插件](command:formatdir.installFormatters)",
+    "config.installRecommendedFormattersHelp.default": "点击上方的链接为您安装推荐的格式化插件。"
 }

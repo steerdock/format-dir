@@ -2,7 +2,7 @@
     "name": "format-directory",
     "displayName": "%displayName%",
     "description": "%description%",
-    "version": "1.0.8",
+    "version": "1.1.0",
     "publisher": "FormatDirectory",
     "engines": {
         "vscode": "^1.85.0"
@@ -29,7 +29,7 @@
     },
     "homepage": "https://github.com/steerdock/format-dir#readme",
     "license": "MIT",
-    "icon": "icon.png",
+    "icon": "icon_v2.png",
     "activationEvents": [
         "onStartupFinished"
     ],
@@ -51,6 +51,10 @@
             {
               "command": "formatdir.configurePriority",
               "title": "%command.configurePriority%"
+            },
+            {
+              "command": "formatdir.installFormatters",
+              "title": "%command.installFormatters%"
             }
           ],
           "menus": {
@@ -127,7 +131,15 @@
                         "**/.git/**",
                         "**/vendor/**",
                         "**/*.min.js",
-                        "**/*.min.css"
+                        "**/*.min.css",
+                        "**/.next/**",
+                        "**/.nuxt/**",
+                        "**/coverage/**",
+                        "**/__pycache__/**",
+                        "**/target/**",
+                        "**/.gradle/**",
+                        "**/Pods/**",
+                        "**/*.min.d.ts"
                     ],
                     "description": "%config.excludePatterns.description%",
                     "items": {
@@ -165,7 +177,11 @@
                         "it",
                         "ru",
                         "pt-br",
-                        "ko"
+                        "ko",
+                        "zh-tw",
+                        "tr",
+                        "ar",
+                        "hi"
                       ],
                       "default": "auto",
                       "description": "%config.language.description%"
@@ -198,6 +214,16 @@
                   "additionalProperties": {
                     "type": "string"
                   }
+                },
+                "formatdir.respectGitignore": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "%config.respectGitignore.description%"
+                },
+                "formatdir.installRecommendedFormattersHelp": {
+                  "type": "string",
+                  "default": "%config.installRecommendedFormattersHelp.default%",
+                  "markdownDescription": "%config.installRecommendedFormattersHelp.markdownDescription%"
                 }
             }
           }

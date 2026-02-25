@@ -1,70 +1,40 @@
 # Format Directory - VS Code Extension
 
-A VS Code extension that allows you to format entire directories with a right-click context menu option.
+that formats entire directories or individual files using your configured VS Code formatter settings, accessible via right-click context menu.
 
 ## Changelog
 
-### v1.0.8
-- **Preview Mode**: Added optional preview before applying formatting changes (`formatdir.preview`).
-- **Undo Support**: Added ability to undo the last formatting operation (`Format Directory: Undo Last Format`).
-- **Formatter Priority**: New command to help configure language-specific default formatters.
-- **New Language Support**: Added Portuguese (Brazil) and Korean translations.
-- **Enhanced Internationalization**: Improved existing translations and standardized command naming.
+### v1.1.0
+- **Icon Update**: Redesigned the extension icon to remove the blue background and enlarge the icon elements for better visibility and a more modern look.
+- **Exclusions**: Added more exclusion options to default formatting behavior.
+- **New language support**: Added Arabic (العربية) and Hindi (हिन्दी) translations. Now supports 14 languages.
+- **.gitignore support**: Added `respectGitignore` setting to automatically exclude files matching patterns in `.gitignore` (enabled by default).
+- **Menu improvement**: Renamed context menu to "Batch Format" for directories and "Format File" for single files for clearer distinction.
+- **Formatter installer**: Added "Install Recommended Formatters" command to help users quickly install popular formatters (Prettier, ESLint, Black, etc.) with one click.
 
-### v1.0.7
-- **Language Selection**: Added setting to override extension language (supports `auto`, `en`, `zh-cn`, `ja`, `fr`, `de`, `es`, `it`, `ru`)
-- **Menu Refinement**: Simplified context menus (removed "Default Settings" and "Reconfigure" options)
-- **Publisher Update**: Changed publisher to `steerdock`
-- **New language support**: Added Italian (Italiano) and Russian (Русский) translations
-- **Single File Formatting**: Added context menu for formatting single files
-- **Status Bar Integration**: Added progress tracking and status in the status bar
-- **Keyboard Shortcuts**: Added `Ctrl+Alt+L` (Cmd+Alt+L on Mac) to format current file
-- **Enhanced Logging**: Added configurable log levels and output panel options
-
-### v1.0.6
-- **Performance optimization**: Added configurable concurrency limit (1-50 files, default: 10)
-- **File size limit**: Added maximum file size configuration to skip large files (default: 1MB, 0 = no limit)
-- **New language support**: Added German (Deutsch) and Spanish (Español) translations
-- **Enhanced internationalization**: Now supports 6 languages (English, Chinese, Japanese, French, German, Spanish)
-
-### v1.0.5
-- **New language support**: Added Japanese (日本語) and French (Français) translations
-- **Enhanced internationalization**: Now supports 4 languages (English, Chinese, Japanese, French)
-- **Performance optimization**: Added concurrent file formatting (up to 10 files at once) for faster processing
-- **Enhanced reconfigure mode**: Now allows customizing exclude patterns in addition to file extensions and recursive mode
-- **Dependency updates**: Upgraded TypeScript to 5.7.2, ESLint to 9.17.0, and other dependencies
-- **Bug fix**: Synchronized default file extensions configuration across all files (now includes .sql)
+See [CHANGELOG.md](./CHANGELOG.md) for detailed release notes.
 
 ## Features
 
-- **Right-click directory formatting**: Format all files in a directory directly from the Explorer
+- **Right-click formatting**: Format individual files or entire directories directly from the Explorer
 - **Recursive formatting**: Optionally format files in subdirectories
 - **Customizable file types**: Configure which file extensions to format
 - **Exclude patterns**: Skip specific directories or files (e.g., node_modules, dist)
+- **.gitignore support**: Optionally respect `.gitignore` patterns for automatic exclusions
 - **Progress tracking**: Visual progress notification with cancellation support
 - **Error handling**: Detailed error reporting for failed files
 - **Internationalization (i18n)**: automatically switches based on VS Code language settings
 - **Respects user settings**: Uses your configured formatters and editor settings from `settings.json`
-- **Performance optimization**: Concurrent file formatting for faster processing
-- **Two formatting modes**:
-  - **Default**: Use saved configuration settings
-  - **Reconfigure**: Customize settings on-the-fly before formatting (including file extensions, recursive mode, and exclude patterns)
+- **Install recommended formatters**: Quickly discover and install popular formatting extensions via the settings page or command palette
+- **Performance optimization**: High-performance file scanning using VS Code's native index and concurrent file formatting for faster processing.
 
 ## Usage
 
 ### Format with Default Settings
 
-1. Right-click on any folder in the Explorer
-2. Select **"Format Directory (Default Settings)"** or **"格式化目录 (默认配置)"** (depending on your VS Code language)
+1. Right-click on any file or folder in the Explorer
+2. Select **"Format"** 
 3. The extension will format all matching files based on your settings
-
-### Format with Custom Settings
-
-1. Right-click on any folder in the Explorer
-2. Select **"Format Directory (Reconfigure)"** or **"格式化目录 (重新配置)"**
-3. Enter file extensions to format (comma-separated)
-4. Choose whether to format subdirectories recursively
-5. Formatting will begin with your custom settings
 
 ## Internationalization
 
@@ -80,6 +50,10 @@ The extension automatically detects your VS Code language setting and displays t
 - **Русский (Russian)**: When VS Code is set to Russian
 - **Português (Portuguese - Brazil)**: When VS Code is set to Portuguese (Brazil)
 - **한국어 (Korean)**: When VS Code is set to Korean
+- **Türkçe (Turkish)**: When VS Code is set to Turkish
+- **繁體中文 (Traditional Chinese)**: When VS Code is set to Traditional Chinese
+- **العربية (Arabic)**: When VS Code is set to Arabic
+- **हिन्दी (Hindi)**: When VS Code is set to Hindi
 
 All menu items, notifications, and prompts will be displayed in the appropriate language.
 
@@ -117,7 +91,15 @@ Glob patterns to exclude from formatting.
   "**/.git/**",
   "**/vendor/**",
   "**/*.min.js",
-  "**/*.min.css"
+  "**/*.min.css",
+  "**/.next/**",
+  "**/.nuxt/**",
+  "**/coverage/**",
+  "**/__pycache__/**",
+  "**/target/**",
+  "**/.gradle/**",
+  "**/Pods/**",
+  "**/*.min.d.ts"
 ]
 ```
 
@@ -150,6 +132,15 @@ Override the language used by the extension.
 - `ru`: Russian
 - `pt-br`: Portuguese (Brazil)
 - `ko`: Korean
+- `tr`: Turkish
+- `zh-tw`: Chinese (Traditional)
+- `ar`: Arabic
+- `hi`: Hindi
+
+### `formatdir.respectGitignore`
+Automatically exclude files matching patterns in `.gitignore`. When enabled, the extension reads `.gitignore` from the workspace root and applies its patterns alongside the configured `excludePatterns`.
+
+**Default:** `true`
 
 ## Example Configuration
 
@@ -166,7 +157,8 @@ Add to your `settings.json`:
   "formatdir.showProgress": true,
   "formatdir.concurrencyLimit": 10,
   "formatdir.maxFileSize": 1048576,
-  "formatdir.language": "auto"
+  "formatdir.language": "auto",
+  "formatdir.respectGitignore": true
 }
 ```
 
@@ -188,6 +180,31 @@ The extension uses VS Code's built-in formatting API (`vscode.executeFormatDocum
 3. **Apply workspace settings**: Uses workspace-specific settings if available
 
 Make sure you have the appropriate formatters installed and configured in your `settings.json`.
+
+## FAQ
+
+### Why are some files being skipped?
+Files might be skipped if:
+- They don't match the configured `formatdir.fileExtensions`.
+- They match an entry in `formatdir.excludePatterns`.
+- They match patterns in `.gitignore` (if `respectGitignore` is enabled).
+- Their file size exceeds `formatdir.maxFileSize` (default 1MB).
+- There is no formatter installed/configured in VS Code for that file type.
+
+### How do I use a specific formatter (e.g. Prettier instead of built-in)?
+This extension uses your VS Code settings. Set the default formatter for a language in your `settings.json`:
+```json
+"[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+}
+```
+You can also use the **"Format Directory: Configure Formatter Priority"** command to quickly jump to these settings.
+
+### Can I undo a formatting operation?
+Yes! Use the command **"Format Directory: Undo Last Format"** from the Command Palette (`Ctrl+Shift+P`) to revert the changes.
+
+### How do I install formatters for my project?
+Use the command **"Format Directory: Install Recommended Formatters"** from the Command Palette (`Ctrl+Shift+P`). This will show a list of popular formatters (Prettier, ESLint, Black, etc.) that you can select and install with one click.
 
 ## License
 

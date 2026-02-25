@@ -1,7 +1,7 @@
 {
     "displayName": "Formatear directorio",
     "description": "Formatee directorios completos con una opción del menú contextual al hacer clic derecho",
-    "command.formatWithDefault": "Formatear",
+    "command.formatWithDefault": "Formatear por lotes",
     "config.title": "Formatear directorio",
     "config.fileExtensions.description": "Array de extensiones de archivo a formatear",
     "config.recursive.description": "Si se deben formatear archivos en subdirectorios de forma recursiva",
@@ -16,5 +16,9 @@
     "command.undo": "Deshacer último formato",
     "command.configurePriority": "Configurar prioridad de formateador",
     "config.preview.description": "Mostrar una vista previa de los cambios antes de aplicarlos.",
-    "config.formatterPriority.description": "Asignar IDs de lenguaje a IDs de extensión para formateadores específicos (ej. \"json\": \"esbenp.prettier-vscode\")."
+    "config.formatterPriority.description": "Asignar IDs de lenguaje a IDs de extensión para formateadores específicos (ej. \"json\": \"esbenp.prettier-vscode\").",
+    "config.respectGitignore.description": "Excluir automáticamente archivos que coincidan con patrones en .gitignore.",
+    "command.installFormatters": "Instalar formateadores recomendados",
+    "config.installRecommendedFormattersHelp.markdownDescription": "[Instalar formateadores recomendados](command:formatdir.installFormatters)",
+    "config.installRecommendedFormattersHelp.default": "Haga clic en el enlace de arriba para instalar los formateadores recomendados."
 }

@@ -1,7 +1,7 @@
 {
     "displayName": "ディレクトリのフォーマット",
     "description": "右クリックメニューからディレクトリ全体をフォーマットするVS Code拡張機能。",
-    "command.formatWithDefault": "フォーマット",
+    "command.formatWithDefault": "一括フォーマット",
     "config.title": "ディレクトリのフォーマット",
     "config.fileExtensions.description": "フォーマットするファイル拡張子",
     "config.recursive.description": "サブディレクトリ内のファイルを再帰的にフォーマット",
@@ -16,5 +16,9 @@
     "command.undo": "最後のフォーマットを元に戻す",
     "command.configurePriority": "フォーマット優先順位の構成",
     "config.preview.description": "変更を適用する前にプレビューを表示します。",
-    "config.formatterPriority.description": "特定のフォーマッタの拡張機能IDに言語IDをマップします（例: \"json\": \"esbenp.prettier-vscode\"）。"
+    "config.formatterPriority.description": "特定のフォーマッタの拡張機能IDに言語IDをマップします（例: \"json\": \"esbenp.prettier-vscode\"）。",
+    "config.respectGitignore.description": ".gitignore のパターンに一致するファイルを自動的に除外します。",
+    "command.installFormatters": "推奨フォーマッタのインストール",
+    "config.installRecommendedFormattersHelp.markdownDescription": "[推奨フォーマッタのインストール](command:formatdir.installFormatters)",
+    "config.installRecommendedFormattersHelp.default": "上のリンクをクリックして、推奨フォーマッタをインストールします。"
 }

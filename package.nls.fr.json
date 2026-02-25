@@ -1,7 +1,7 @@
 {
     "displayName": "Formater le Répertoire",
     "description": "Une extension VS Code pour formater des répertoires entiers avec des options de clic droit.",
-    "command.formatWithDefault": "Formater",
+    "command.formatWithDefault": "Formater par lot",
     "config.title": "Formater le Répertoire",
     "config.fileExtensions.description": "Extensions de fichiers à formater",
     "config.recursive.description": "Formater récursivement les fichiers dans les sous-répertoires",
@@ -16,5 +16,9 @@
     "command.undo": "Annuler le dernier formatage",
     "command.configurePriority": "Configurer la priorité du formateur",
     "config.preview.description": "Afficher un aperçu des modifications avant de les appliquer.",
-    "config.formatterPriority.description": "Mapper les ID de langue aux ID d'extension pour des formateurs spécifiques (par ex. \"json\": \"esbenp.prettier-vscode\")."
+    "config.formatterPriority.description": "Mapper les ID de langue aux ID d'extension pour des formateurs spécifiques (par ex. \"json\": \"esbenp.prettier-vscode\").",
+    "config.respectGitignore.description": "Exclure automatiquement les fichiers correspondant aux motifs dans .gitignore.",
+    "command.installFormatters": "Installer les formateurs recommandés",
+    "config.installRecommendedFormattersHelp.markdownDescription": "[Installer les formateurs recommandés](command:formatdir.installFormatters)",
+    "config.installRecommendedFormattersHelp.default": "Cliquez sur le lien ci-dessus pour installer les formateurs recommandés."
 }

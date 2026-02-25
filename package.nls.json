@@ -1,7 +1,7 @@
 {
     "displayName": "Format Directory",
     "description": "Format all files in a directory using the default formatter.",
-    "command.formatWithDefault": "Format with Default",
+    "command.formatWithDefault": "Batch Format",
     "command.formatFile": "Format File",
     "command.undo": "Undo Last Format",
     "command.configurePriority": "Configure Formatter Priority",
@@ -16,5 +16,9 @@
     "config.logLevel.description": "Log level for the output channel.",
     "config.openOutputAfterFormat.description": "Open output channel after formatting is complete.",
     "config.preview.description": "Show a preview of changes before applying them.",
-    "config.formatterPriority.description": "Map language IDs to extension IDs for specific formatters (e.g., \"json\": \"esbenp.prettier-vscode\")."
+    "config.formatterPriority.description": "Map language IDs to extension IDs for specific formatters (e.g., \"json\": \"esbenp.prettier-vscode\").",
+    "config.respectGitignore.description": "Automatically exclude files matching patterns in .gitignore.",
+    "command.installFormatters": "Install Recommended Formatters",
+    "config.installRecommendedFormattersHelp.markdownDescription": "[Install Recommended Formatters](command:formatdir.installFormatters)",
+    "config.installRecommendedFormattersHelp.default": "Click the link above to install the uninstalled formatters."
 }

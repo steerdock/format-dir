@@ -1,5 +1,4 @@
 /*
- * @Date: 2026-01-10 14:29:09
  * @Author: Anthony Rivera && opcnlin@gmail.com
  * @FilePath: \src\extension.ts
  * Copyright (c) 2026 SteerDock Contributors
@@ -22,6 +21,7 @@ interface FormatConfig {
     openOutputAfterFormat: boolean;
     preview: boolean;
     formatterPriority: Record<string, string>;
+    respectGitignore: boolean;
 }
 
 let statusBarItem: vscode.StatusBarItem;
@@ -59,7 +59,8 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand('formatdir.formatWithDefault', (uri) => handleFormatCommand(uri, false)),
         vscode.commands.registerCommand('formatdir.formatFileWithDefault', (uri) => handleFormatCommand(uri, false)),
         vscode.commands.registerCommand('formatdir.undo', () => historyManager.undo()),
-        vscode.commands.registerCommand('formatdir.configurePriority', () => configurePriority())
+        vscode.commands.registerCommand('formatdir.configurePriority', () => configurePriority()),
+        vscode.commands.registerCommand('formatdir.installFormatters', () => installRecommendedFormatters())
     );
 
     // Listen for configuration changes to update locale
@@ -133,7 +134,9 @@ async function getFormatConfig(reconfigure: boolean): Promise<FormatConfig | nul
     let recursive = workspaceConfig.get<boolean>('recursive', true);
     let excludePatterns = workspaceConfig.get<string[]>('excludePatterns', [
         '**/node_modules/**', '**/dist/**', '**/build/**', '**/out/**',
-        '**/.git/**', '**/vendor/**', '**/*.min.js', '**/*.min.css'
+        '**/.git/**', '**/vendor/**', '**/*.min.js', '**/*.min.css',
+        '**/.next/**', '**/.nuxt/**', '**/coverage/**', '**/__pycache__/**',
+        '**/target/**', '**/.gradle/**', '**/Pods/**', '**/*.min.d.ts'
     ]);
     let showProgress = workspaceConfig.get<boolean>('showProgress', true);
     let concurrencyLimit = workspaceConfig.get<number>('concurrencyLimit', 10);
@@ -142,11 +145,9 @@ async function getFormatConfig(reconfigure: boolean): Promise<FormatConfig | nul
     let openOutputAfterFormat = workspaceConfig.get<boolean>('openOutputAfterFormat', false);
     let preview = workspaceConfig.get<boolean>('preview', false); // Default to false
     let formatterPriority = workspaceConfig.get<Record<string, string>>('formatterPriority', {});
+    let respectGitignore = workspaceConfig.get<boolean>('respectGitignore', true);
 
     if (reconfigure) {
-        // ... (Existing reconfigure logic could stay, but simplification for new features is fine too)
-        // For brevity and to keep existing flow, we just return current config if reconfigure is complex or not fully ported.
-        // But original code had logic here. Let's keep it mostly.
         const extensionsInput = await vscode.window.showInputBox({
             prompt: t('formatDirectory.inputExtensions'),
             value: fileExtensions.join(', '),
@@ -168,9 +169,7 @@ async function getFormatConfig(reconfigure: boolean): Promise<FormatConfig | nul
         }
 
         recursive = recursiveChoice === t('formatDirectory.yes');
-        // Skipping exclude customization in this re-implementation to save tokens/complexity if not strictly requested, 
-        // but let's keep it to be safe.
-        // Allow customizing exclude patterns
+
         const customizeExclude = await vscode.window.showQuickPick([t('formatDirectory.yes'), t('formatDirectory.no')], {
             placeHolder: t('formatDirectory.customizeExclude')
         });
@@ -190,62 +189,117 @@ async function getFormatConfig(reconfigure: boolean): Promise<FormatConfig | nul
         }
     }
 
-    return { fileExtensions, recursive, excludePatterns, showProgress, concurrencyLimit, maxFileSize, logLevel, openOutputAfterFormat, preview, formatterPriority };
+    return { fileExtensions, recursive, excludePatterns, showProgress, concurrencyLimit, maxFileSize, logLevel, openOutputAfterFormat, preview, formatterPriority, respectGitignore };
 }
 
-async function collectFiles(uri: vscode.Uri, config: FormatConfig): Promise<vscode.Uri[]> {
-    const files: vscode.Uri[] = [];
+/**
+ * Parse .gitignore file and convert patterns to glob exclude patterns
+ */
+async function parseGitignore(workspaceRoot: vscode.Uri): Promise<string[]> {
+    const gitignoreUri = vscode.Uri.joinPath(workspaceRoot, '.gitignore');
+    const patterns: string[] = [];
 
-    async function traverse(currentUri: vscode.Uri, depth: number = 0) {
-        const entries = await vscode.workspace.fs.readDirectory(currentUri);
+    try {
+        const content = await vscode.workspace.fs.readFile(gitignoreUri);
+        const text = Buffer.from(content).toString('utf-8');
+        const lines = text.split(/\r?\n/);
 
-        for (const [name, fileType] of entries) {
-            const itemUri = vscode.Uri.joinPath(currentUri, name);
-            const relativePath = vscode.workspace.asRelativePath(itemUri);
+        for (const line of lines) {
+            const trimmed = line.trim();
 
-            if (isExcluded(relativePath, config.excludePatterns)) {
+            // Skip empty lines and comments
+            if (!trimmed || trimmed.startsWith('#')) {
                 continue;
             }
 
-            if (fileType === vscode.FileType.File) {
-                const ext = path.extname(name);
-                if (config.fileExtensions.includes(ext)) {
-                    if (config.maxFileSize > 0) {
-                        try {
-                            const stat = await vscode.workspace.fs.stat(itemUri);
-                            if (stat.size > config.maxFileSize) {
-                                log('info', `Skipping ${name}: file size ${stat.size} exceeds limit ${config.maxFileSize}`);
-                                continue;
-                            }
-                        } catch (error) {
-                            console.error(`Failed to get file size for ${name}:`, error);
-                        }
-                    }
-                    files.push(itemUri);
-                }
-            } else if (fileType === vscode.FileType.Directory && config.recursive) {
-                await traverse(itemUri, depth + 1);
+            // Skip negation patterns (they require special handling)
+            if (trimmed.startsWith('!')) {
+                continue;
+            }
+
+            // Convert .gitignore pattern to glob pattern
+            let globPattern = trimmed;
+
+            // Remove trailing slashes
+            if (globPattern.endsWith('/')) {
+                globPattern = globPattern.slice(0, -1);
+            }
+
+            // Handle patterns starting with /
+            if (globPattern.startsWith('/')) {
+                globPattern = globPattern.slice(1);
+            } else {
+                // If pattern doesn't start with /, it can match anywhere
+                globPattern = '**/' + globPattern;
+            }
+
+            // Handle directory patterns (without wildcard)
+            if (!globPattern.includes('*')) {
+                // Add both the path itself and everything inside
+                patterns.push(globPattern);
+                patterns.push(globPattern + '/**');
+            } else {
+                patterns.push(globPattern);
             }
         }
+
+        log('info', `Parsed ${patterns.length} patterns from .gitignore`);
+    } catch (e) {
+        log('debug', 'No .gitignore found or unable to read it');
     }
 
-    await traverse(uri);
-    return files;
+    return patterns;
 }
 
-function isExcluded(relativePath: string, patterns: string[]): boolean {
-    for (const pattern of patterns) {
-        const regex = new RegExp(
-            pattern
-                .replace(/\*\*/g, '.*')
-                .replace(/\*/g, '[^/]*')
-                .replace(/\?/g, '.')
-        );
-        if (regex.test(relativePath)) {
-            return true;
+async function collectFiles(uri: vscode.Uri, config: FormatConfig): Promise<vscode.Uri[]> {
+    const isFile = (await vscode.workspace.fs.stat(uri)).type === vscode.FileType.File;
+
+    if (isFile) {
+        return [uri];
+    }
+
+    // 1. Build include pattern from extensions: {*.js,*.ts,...}
+    const exts = config.fileExtensions.map(ext => ext.startsWith('.') ? `*${ext}` : `*${ext}`).join(',');
+    const includePattern = new vscode.RelativePattern(uri, config.recursive ? `**/{${exts}}` : `{${exts}}`);
+
+    // 2. Build exclude patterns (combine configured patterns with .gitignore if enabled)
+    let allExcludePatterns = [...config.excludePatterns];
+
+    if (config.respectGitignore) {
+        const workspaceFolders = vscode.workspace.workspaceFolders;
+        if (workspaceFolders && workspaceFolders.length > 0) {
+            const gitignorePatterns = await parseGitignore(workspaceFolders[0].uri);
+            allExcludePatterns = [...allExcludePatterns, ...gitignorePatterns];
         }
     }
-    return false;
+
+    // 3. Build exclude glob for findFiles
+    const excludeGlob = allExcludePatterns.length > 0
+        ? `{${allExcludePatterns.join(',')}}`
+        : undefined;
+
+    // 4. Use findFiles for high performance
+    const files = await vscode.workspace.findFiles(includePattern, excludeGlob);
+
+    // 5. File size filtering (still needed since findFiles doesn't check size)
+    if (config.maxFileSize > 0) {
+        const filteredFiles: vscode.Uri[] = [];
+        for (const file of files) {
+            try {
+                const stat = await vscode.workspace.fs.stat(file);
+                if (stat.size <= config.maxFileSize) {
+                    filteredFiles.push(file);
+                } else {
+                    log('info', `Skipping ${path.basename(file.fsPath)}: exceeds size limit`);
+                }
+            } catch (e) {
+                log('debug', `Failed to stat ${file.fsPath}`);
+            }
+        }
+        return filteredFiles;
+    }
+
+    return files;
 }
 
 async function formatFiles(files: vscode.Uri[], config: FormatConfig) {
@@ -412,4 +466,154 @@ async function configurePriority() {
     vscode.commands.executeCommand('workbench.action.openSettings', `@lang:${lang} editor.defaultFormatter`);
 
     vscode.window.showInformationMessage(t('formatDirectory.configurePriority') + ': ' + lang);
+}
+
+/**
+ * Recommended formatters loaded from configuration
+ */
+interface RecommendedFormatter {
+    id: string;
+    name: string;
+    description: string;
+}
+
+async function installRecommendedFormatters() {
+    // Get installed extensions
+    const installed = vscode.extensions.all.map(ext => ext.id);
+
+    // Hardcoded recommended formatters instead of reading from configuration
+    // to avoid cluttering the user's settings.json file
+    const recommendedFormatters: RecommendedFormatter[] = [
+        {
+            "id": "esbenp.prettier-vscode",
+            "name": "Prettier",
+            "description": "JavaScript, TypeScript, CSS, JSON, HTML, YAML, PHP, Markdown"
+        },
+        {
+            "id": "ms-python.black-formatter",
+            "name": "Black Formatter",
+            "description": "Python"
+        },
+        {
+            "id": "golang.go",
+            "name": "Go",
+            "description": "Go"
+        },
+        {
+            "id": "rust-lang.rust-analyzer",
+            "name": "rust-analyzer",
+            "description": "Rust"
+        },
+        {
+            "id": "redhat.java",
+            "name": "Red Hat Java",
+            "description": "Java"
+        },
+        {
+            "id": "ms-vscode.cpptools",
+            "name": "C/C++",
+            "description": "C, C++"
+        },
+        {
+            "id": "kokororin.vscode-phpfmt",
+            "name": "phpfmt",
+            "description": "PHP"
+        },
+        {
+            "id": "Vue.volar",
+            "name": "Vue - Official",
+            "description": "Vue"
+        },
+        {
+            "id": "redhat.vscode-yaml",
+            "name": "YAML",
+            "description": "YAML"
+        },
+        {
+            "id": "rebornix.ruby",
+            "name": "Ruby",
+            "description": "Ruby"
+        },
+        {
+            "id": "DotJoshJohnson.xml",
+            "name": "XML Tools",
+            "description": "XML"
+        },
+        {
+            "id": "yzhang.markdown-all-in-one",
+            "name": "Markdown All in One",
+            "description": "Markdown"
+        },
+        {
+            "id": "bowlerhatllc.vscode-as3mxml",
+            "name": "ActionScript & MXML",
+            "description": "ActionScript, MXML"
+        },
+        {
+            "id": "GuTheSoftware.sqlinform",
+            "name": "SQLinForm",
+            "description": "SQL"
+        }
+    ];
+
+    // Filter out already installed
+    const notInstalled = recommendedFormatters.filter(f => !installed.includes(f.id));
+
+    if (notInstalled.length === 0) {
+        vscode.window.showInformationMessage(t('formatDirectory.allFormattersInstalled'));
+        return;
+    }
+
+    // Show quick pick with multi-select
+    const selected = await vscode.window.showQuickPick(
+        notInstalled.map(f => ({
+            label: f.name,
+            description: f.description,
+            detail: f.id,
+            id: f.id,
+            picked: true
+        })),
+        {
+            placeHolder: t('formatDirectory.selectFormatters'),
+            canPickMany: true
+        }
+    );
+
+    if (!selected || selected.length === 0) {
+        return;
+    }
+
+    // Install selected extensions
+    let installedCount = 0;
+    let failedCount = 0;
+
+    await vscode.window.withProgress({
+        location: vscode.ProgressLocation.Notification,
+        title: t('formatDirectory.installingFormatters'),
+        cancellable: false
+    }, async (progress) => {
+        for (let i = 0; i < selected.length; i++) {
+            const item = selected[i];
+            progress.report({
+                message: `${i + 1}/${selected.length}: ${item.label}`,
+                increment: 100 / selected.length
+            });
+
+            try {
+                await vscode.commands.executeCommand('workbench.extensions.installExtension', item.id);
+                installedCount++;
+                log('info', `Installed: ${item.label}`);
+            } catch (e) {
+                failedCount++;
+                log('error', `Failed to install ${item.label}: ${e}`);
+            }
+        }
+    });
+
+    // Show result
+    if (failedCount === 0) {
+        vscode.window.showInformationMessage(t('formatDirectory.installComplete', installedCount));
+    } else {
+        vscode.window.showWarningMessage(t('formatDirectory.installPartial', installedCount, failedCount));
+    }
 }

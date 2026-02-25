@@ -1,7 +1,7 @@
 {
     "displayName": "Format Directory",
     "description": "Un'estensione VS Code per formattare intere directory con le opzioni del tasto destro.",
-    "command.formatWithDefault": "Formatta",
+    "command.formatWithDefault": "Formatta in batch",
     "command.formatFile": "Formatta file",
     "config.title": "Format Directory",
     "config.fileExtensions.description": "Estensioni dei file da formattare",
@@ -16,5 +16,9 @@
     "command.undo": "Annulla l'ultima formattazione",
     "command.configurePriority": "Configura priorità formattatore",
     "config.preview.description": "Mostra un'anteprima delle modifiche prima di applicarle.",
-    "config.formatterPriority.description": "Mappa ID lingua a ID estensione per formattatori specifici (es. \"json\": \"esbenp.prettier-vscode\")."
+    "config.formatterPriority.description": "Mappa ID lingua a ID estensione per formattatori specifici (es. \"json\": \"esbenp.prettier-vscode\").",
+    "config.respectGitignore.description": "Escludere automaticamente i file che corrispondono ai pattern in .gitignore.",
+    "command.installFormatters": "Installa formattatori consigliati",
+    "config.installRecommendedFormattersHelp.markdownDescription": "[Installa formattatori consigliati](command:formatdir.installFormatters)",
+    "config.installRecommendedFormattersHelp.default": "Fai clic sul link sopra per installare i formattatori consigliati."
 }

@@ -1,7 +1,7 @@
 {
     "displayName": "디렉토리 포맷",
     "description": "기본 포맷터를 사용하여 디렉토리의 모든 파일을 포맷합니다.",
-    "command.formatWithDefault": "기본값으로 포맷",
+    "command.formatWithDefault": "일괄 포맷",
     "command.formatFile": "파일 포맷",
     "command.undo": "마지막 포맷 실행 취소",
     "command.configurePriority": "포맷터 우선순위 구성",
@@ -16,5 +16,9 @@
     "config.logLevel.description": "출력 채널의 로그 수준.",
     "config.openOutputAfterFormat.description": "포맷 완료 후 출력 채널 열기.",
     "config.preview.description": "적용하기 전에 변경 사항 미리보기 표시.",
-    "config.formatterPriority.description": "특정 포맷터에 대한 언어 ID를 확장 ID로 매핑 (예: \"json\": \"esbenp.prettier-vscode\")."
+    "config.formatterPriority.description": "특정 포맷터에 대한 언어 ID를 확장 ID로 매핑 (예: \"json\": \"esbenp.prettier-vscode\").",
+    "config.respectGitignore.description": ".gitignore 패턴과 일치하는 파일을 자동으로 제외합니다.",
+    "command.installFormatters": "추천 포맷터 설치",
+    "config.installRecommendedFormattersHelp.markdownDescription": "[권장 포맷터 설치](command:formatdir.installFormatters)",
+    "config.installRecommendedFormattersHelp.default": "위의 링크를 클릭하여 추천 포맷터를 설치하세요."
 }

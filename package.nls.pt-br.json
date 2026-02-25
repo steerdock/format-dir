@@ -1,7 +1,7 @@
 {
     "displayName": "Formatar Diretório",
     "description": "Formatar todos os arquivos em um diretório usando o formatador padrão.",
-    "command.formatWithDefault": "Formatar com Padrão",
+    "command.formatWithDefault": "Formatação em lote",
     "command.formatFile": "Formatar Arquivo",
     "command.undo": "Desfazer Última Formatação",
     "command.configurePriority": "Configurar Prioridade do Formatador",
@@ -16,5 +16,9 @@
     "config.logLevel.description": "Nível de log para o canal de saída.",
     "config.openOutputAfterFormat.description": "Abrir canal de saída após a formatação.",
     "config.preview.description": "Mostrar uma pré-visualização das alterações antes de aplicá-las.",
-    "config.formatterPriority.description": "Mapear IDs de linguagem para IDs de extensão para formatadores específicos (ex: \"json\": \"esbenp.prettier-vscode\")."
+    "config.formatterPriority.description": "Mapear IDs de linguagem para IDs de extensão para formatadores específicos (ex: \"json\": \"esbenp.prettier-vscode\").",
+    "config.respectGitignore.description": "Excluir automaticamente arquivos que correspondem aos padrões no .gitignore.",
+    "command.installFormatters": "Instalar Formatadores Recomendados",
+    "config.installRecommendedFormattersHelp.markdownDescription": "[Instalar formatadores recomendados](command:formatdir.installFormatters)",
+    "config.installRecommendedFormattersHelp.default": "Clique no link acima para instalar os formatadores recomendados."
 }
