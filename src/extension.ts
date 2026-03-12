@@ -9,6 +9,7 @@ import * as path from 'path';
 import { initializeLocale, t } from './i18n';
 import { PreviewManager } from './preview';
 import { HistoryManager } from './history';
+import { ReconfigureWebview } from './reconfigure';
 
 interface FormatConfig {
     fileExtensions: string[];
@@ -28,6 +29,7 @@ let statusBarItem: vscode.StatusBarItem;
 let outputChannel: vscode.OutputChannel;
 let previewManager: PreviewManager;
 let historyManager: HistoryManager;
+let reconfigureWebview: ReconfigureWebview;
 
 export function activate(context: vscode.ExtensionContext) {
     initializeLocale();
@@ -42,6 +44,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     previewManager = new PreviewManager(context);
     historyManager = new HistoryManager(context);
+    reconfigureWebview = new ReconfigureWebview(context);
 
     const handleFormatCommand = async (uri: vscode.Uri | undefined, reconfigure: boolean) => {
         if (!uri) {
@@ -148,45 +151,21 @@ async function getFormatConfig(reconfigure: boolean): Promise<FormatConfig | nul
     let respectGitignore = workspaceConfig.get<boolean>('respectGitignore', true);
 
     if (reconfigure) {
-        const extensionsInput = await vscode.window.showInputBox({
-            prompt: t('formatDirectory.inputExtensions'),
-            value: fileExtensions.join(', '),
-            placeHolder: t('formatDirectory.extensionsPlaceholder')
+        const result = await reconfigureWebview.show({
+            fileExtensions,
+            recursive,
+            excludePatterns,
+            respectGitignore
         });
 
-        if (extensionsInput === undefined) {
+        if (!result) {
             return null;
         }
 
-        fileExtensions = extensionsInput.split(',').map(ext => ext.trim()).filter(ext => ext);
-
-        const recursiveChoice = await vscode.window.showQuickPick([t('formatDirectory.yes'), t('formatDirectory.no')], {
-            placeHolder: t('formatDirectory.recursive')
-        });
-
-        if (recursiveChoice === undefined) {
-            return null;
-        }
-
-        recursive = recursiveChoice === t('formatDirectory.yes');
-
-        const customizeExclude = await vscode.window.showQuickPick([t('formatDirectory.yes'), t('formatDirectory.no')], {
-            placeHolder: t('formatDirectory.customizeExclude')
-        });
-
-        if (customizeExclude === t('formatDirectory.yes')) {
-            const excludeInput = await vscode.window.showInputBox({
-                prompt: t('formatDirectory.inputExcludePatterns'),
-                value: excludePatterns.join(', '),
-                placeHolder: t('formatDirectory.excludePlaceholder')
-            });
-
-            if (excludeInput === undefined) {
-                return null;
-            }
-
-            excludePatterns = excludeInput.split(',').map(pattern => pattern.trim()).filter(pattern => pattern);
-        }
+        fileExtensions = result.fileExtensions;
+        recursive = result.recursive;
+        excludePatterns = result.excludePatterns;
+        respectGitignore = result.respectGitignore;
     }
 
     return { fileExtensions, recursive, excludePatterns, showProgress, concurrencyLimit, maxFileSize, logLevel, openOutputAfterFormat, preview, formatterPriority, respectGitignore };

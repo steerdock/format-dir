@@ -5,6 +5,12 @@ All notable changes to the "Format Directory" extension will be documented in th
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+### v1.1.1
+- **Enhanced Reconfigure UI**: Replaced sequential InputBox/QuickPick flow with a modern, intuitive Webview-based interface.
+- **Smart Formatter Discovery**: Automatically detects installed formatting extensions and lists them for easy selection and configuration.
+- **New Language Support**: Added Dutch (Nederlands) and Vietnamese (Tiếng Việt) translations. Now supports 16 languages.
+- **Improved I18n**: Completed translations for all 16 supported languages for the new Webview UI.
+
 ### v1.1.0
 - **Icon Update**: Redesigned the extension icon to remove the blue background and enlarge the icon elements for better visibility and a more modern look.
 - **Exclusions**: Added more exclusion options to default formatting behavior.

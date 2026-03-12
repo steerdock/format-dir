@@ -4,13 +4,11 @@ that formats entire directories or individual files using your configured VS Cod
 
 ## Changelog
 
-### v1.1.0
-- **Icon Update**: Redesigned the extension icon to remove the blue background and enlarge the icon elements for better visibility and a more modern look.
-- **Exclusions**: Added more exclusion options to default formatting behavior.
-- **New language support**: Added Arabic (العربية) and Hindi (हिन्दी) translations. Now supports 14 languages.
-- **.gitignore support**: Added `respectGitignore` setting to automatically exclude files matching patterns in `.gitignore` (enabled by default).
-- **Menu improvement**: Renamed context menu to "Batch Format" for directories and "Format File" for single files for clearer distinction.
-- **Formatter installer**: Added "Install Recommended Formatters" command to help users quickly install popular formatters (Prettier, ESLint, Black, etc.) with one click.
+### v1.1.1
+- **Enhanced Reconfigure UI**: Replaced sequential InputBox/QuickPick flow with a modern, intuitive Webview-based interface.
+- **Smart Formatter Discovery**: Automatically detects installed formatting extensions and lists them for easy selection and configuration.
+- **New Language Support**: Added Dutch (Nederlands) and Vietnamese (Tiếng Việt) translations. Now supports 16 languages.
+- **Improved I18n**: Completed translations for all 16 supported languages for the new Webview UI.
 
 See [CHANGELOG.md](./CHANGELOG.md) for detailed release notes.
 

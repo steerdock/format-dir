@@ -2,7 +2,7 @@
     "name": "format-directory",
     "displayName": "%displayName%",
     "description": "%description%",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "publisher": "FormatDirectory",
     "engines": {
         "vscode": "^1.85.0"
@@ -181,7 +181,9 @@
                         "zh-tw",
                         "tr",
                         "ar",
-                        "hi"
+                        "hi",
+                        "nl",
+                        "vi"
                       ],
                       "default": "auto",
                       "description": "%config.language.description%"
