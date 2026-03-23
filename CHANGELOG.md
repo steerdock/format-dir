@@ -5,6 +5,13 @@ All notable changes to the "Format Directory" extension will be documented in th
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+### v1.1.2
+- **Performance**: Optimized directory scanning with concurrent file size filtering, making it significantly faster on large projects.
+- **Memory Optimization**: Fixed a severe storage leak in the Undo history. Backups now correctly use the extension's local storage instead of VS Code's internal state database.
+- **Improved Preview**: The preview feature now generates a true Diff view, allowing users to accurately inspect formatting changes before applying.
+- **Accurate Reporting**: Formatting results now precisely report whether files were successfully formatted, already formatted (skipped), or skipped due to missing formatters.
+- **New Language Support**: Added Polish (Polski), Thai (ไทย), and Indonesian (Bahasa Indonesia) translations. Now supports 19 languages.
+
 ### v1.1.1
 - **Enhanced Reconfigure UI**: Replaced sequential InputBox/QuickPick flow with a modern, intuitive Webview-based interface.
 - **Smart Formatter Discovery**: Automatically detects installed formatting extensions and lists them for easy selection and configuration.

@@ -263,17 +263,22 @@ async function collectFiles(uri: vscode.Uri, config: FormatConfig): Promise<vsco
     // 5. File size filtering (still needed since findFiles doesn't check size)
     if (config.maxFileSize > 0) {
         const filteredFiles: vscode.Uri[] = [];
-        for (const file of files) {
-            try {
-                const stat = await vscode.workspace.fs.stat(file);
-                if (stat.size <= config.maxFileSize) {
-                    filteredFiles.push(file);
-                } else {
-                    log('info', `Skipping ${path.basename(file.fsPath)}: exceeds size limit`);
+        const CONCURRENCY = 50;
+
+        for (let i = 0; i < files.length; i += CONCURRENCY) {
+            const batch = files.slice(i, i + CONCURRENCY);
+            await Promise.all(batch.map(async file => {
+                try {
+                    const stat = await vscode.workspace.fs.stat(file);
+                    if (stat.size <= config.maxFileSize) {
+                        filteredFiles.push(file);
+                    } else {
+                        log('info', `Skipping ${path.basename(file.fsPath)}: exceeds size limit`);
+                    }
+                } catch (e) {
+                    log('debug', `Failed to stat ${file.fsPath}`);
                 }
-            } catch (e) {
-                log('debug', `Failed to stat ${file.fsPath}`);
-            }
+            }));
         }
         return filteredFiles;
     }
@@ -283,6 +288,8 @@ async function collectFiles(uri: vscode.Uri, config: FormatConfig): Promise<vsco
 
 async function formatFiles(files: vscode.Uri[], config: FormatConfig) {
     let successCount = 0;
+    let skippedCount = 0;
+    let noFormatterCount = 0;
     let failCount = 0;
     const failedFiles: string[] = [];
 
@@ -318,8 +325,12 @@ async function formatFiles(files: vscode.Uri[], config: FormatConfig) {
 
                     statusBarItem.text = `$(sync~spin) Formatting: ${i + j + 1}/${files.length}`;
 
-                    if (results[j]) {
+                    if (results[j] === 'formatted') {
                         successCount++;
+                    } else if (results[j] === 'skipped') {
+                        skippedCount++;
+                    } else if (results[j] === 'no_formatter') {
+                        noFormatterCount++;
                     } else {
                         failCount++;
                         failedFiles.push(fileName);
@@ -331,8 +342,12 @@ async function formatFiles(files: vscode.Uri[], config: FormatConfig) {
         statusBarItem.text = `$(sync~spin) Formatting...`;
         const results = await Promise.all(files.map(file => formatFile(file, config)));
         results.forEach((result, index) => {
-            if (result) {
+            if (result === 'formatted') {
                 successCount++;
+            } else if (result === 'skipped') {
+                skippedCount++;
+            } else if (result === 'no_formatter') {
+                noFormatterCount++;
             } else {
                 failCount++;
                 failedFiles.push(path.basename(files[index].fsPath));
@@ -343,11 +358,17 @@ async function formatFiles(files: vscode.Uri[], config: FormatConfig) {
     statusBarItem.text = `$(check) Format Directory Done`;
     setTimeout(() => statusBarItem.hide(), 3000);
 
-    let message = t('formatDirectory.complete', successCount);
+    let message = t('formatDirectory.complete', successCount + skippedCount);
+    if (noFormatterCount > 0) {
+        message += ` (${noFormatterCount} skipped/no formatter)`;
+    }
     log('info', message);
 
     if (failCount > 0) {
-        message = t('formatDirectory.completeFailed', successCount, failCount);
+        message = t('formatDirectory.completeFailed', successCount + skippedCount, failCount);
+        if (noFormatterCount > 0) {
+            message += ` (${noFormatterCount} no formatter)`;
+        }
         log('warning', message);
         vscode.window.showWarningMessage(message);
 
@@ -370,7 +391,8 @@ async function formatFiles(files: vscode.Uri[], config: FormatConfig) {
     }
 }
 
-async function formatFile(uri: vscode.Uri, config: FormatConfig): Promise<boolean> {
+// Return states: 'formatted', 'skipped' (already fine), 'no_formatter', 'failed'
+async function formatFile(uri: vscode.Uri, config: FormatConfig): Promise<string> {
     try {
         log('debug', `Formatting file: ${uri.fsPath}`);
         const document = await vscode.workspace.openTextDocument(uri);
@@ -392,18 +414,22 @@ async function formatFile(uri: vscode.Uri, config: FormatConfig): Promise<boolea
             options
         );
 
-        if (edits && edits.length > 0) {
-            const workspaceEdit = new vscode.WorkspaceEdit();
-            workspaceEdit.set(document.uri, edits);
-            await vscode.workspace.applyEdit(workspaceEdit);
-            await document.save();
-            return true;
+        if (edits) {
+            if (edits.length > 0) {
+                const workspaceEdit = new vscode.WorkspaceEdit();
+                workspaceEdit.set(document.uri, edits);
+                await vscode.workspace.applyEdit(workspaceEdit);
+                await document.save();
+                return 'formatted';
+            } else {
+                return 'skipped';
+            }
         }
 
-        return true;
+        return 'no_formatter';
     } catch (error: any) {
         log('error', `Failed to format ${uri.fsPath}: ${error}`);
-        return false;
+        return 'failed';
     }
 }
 

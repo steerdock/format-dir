@@ -4,11 +4,12 @@ that formats entire directories or individual files using your configured VS Cod
 
 ## Changelog
 
-### v1.1.1
-- **Enhanced Reconfigure UI**: Replaced sequential InputBox/QuickPick flow with a modern, intuitive Webview-based interface.
-- **Smart Formatter Discovery**: Automatically detects installed formatting extensions and lists them for easy selection and configuration.
-- **New Language Support**: Added Dutch (Nederlands) and Vietnamese (Tiếng Việt) translations. Now supports 16 languages.
-- **Improved I18n**: Completed translations for all 16 supported languages for the new Webview UI.
+### v1.1.2
+- **Performance**: Optimized directory scanning with concurrent file size filtering, making it significantly faster on large projects.
+- **Memory Optimization**: Fixed a severe storage leak in the Undo history. Backups now correctly use the extension's local storage instead of VS Code's internal state database.
+- **Improved Preview**: The preview feature now generates a true Diff view, allowing users to accurately inspect formatting changes before applying.
+- **Accurate Reporting**: Formatting results now precisely report whether files were successfully formatted, already formatted (skipped), or skipped due to missing formatters.
+- **New Language Support**: Added Polish (Polski), Thai (ไทย), and Indonesian (Bahasa Indonesia) translations. Now supports 19 languages.
 
 See [CHANGELOG.md](./CHANGELOG.md) for detailed release notes.
 
@@ -52,7 +53,11 @@ The extension automatically detects your VS Code language setting and displays t
 - **繁體中文 (Traditional Chinese)**: When VS Code is set to Traditional Chinese
 - **العربية (Arabic)**: When VS Code is set to Arabic
 - **हिन्दी (Hindi)**: When VS Code is set to Hindi
-
+- **Nederlands (Dutch)**: When VS Code is set to Dutch
+- **Tiếng Việt (Vietnamese)**: When VS Code is set to Vietnamese
+- **Polski (Polish)**: When VS Code is set to Polish
+- **ไทย (Thai)**: When VS Code is set to Thai
+- **Bahasa Indonesia (Indonesian)**: When VS Code is set to Indonesian
 All menu items, notifications, and prompts will be displayed in the appropriate language.
 
 ## Configuration
@@ -134,7 +139,11 @@ Override the language used by the extension.
 - `zh-tw`: Chinese (Traditional)
 - `ar`: Arabic
 - `hi`: Hindi
-
+- `nl`: Dutch
+- `vi`: Vietnamese
+- `pl`: Polish
+- `th`: Thai
+- `id`: Indonesian
 ### `formatdir.respectGitignore`
 Automatically exclude files matching patterns in `.gitignore`. When enabled, the extension reads `.gitignore` from the workspace root and applies its patterns alongside the configured `excludePatterns`.
 

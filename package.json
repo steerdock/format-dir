@@ -2,7 +2,7 @@
     "name": "format-directory",
     "displayName": "%displayName%",
     "description": "%description%",
-    "version": "1.1.1",
+    "version": "1.1.2",
     "publisher": "FormatDirectory",
     "engines": {
         "vscode": "^1.85.0"
@@ -36,55 +36,55 @@
     "main": "./out/extension.js",
     "contributes": {
         "commands": [
-          {
-            "command": "formatdir.formatWithDefault",
-            "title": "%command.formatWithDefault%"
-          },
-          {
-            "command": "formatdir.formatFileWithDefault",
-            "title": "%command.formatFile%"
+            {
+              "command": "formatdir.formatWithDefault",
+              "title": "%command.formatWithDefault%"
             },
             {
-              "command": "formatdir.undo",
-              "title": "%command.undo%"
+              "command": "formatdir.formatFileWithDefault",
+              "title": "%command.formatFile%"
             },
             {
-              "command": "formatdir.configurePriority",
-              "title": "%command.configurePriority%"
+                "command": "formatdir.undo",
+                "title": "%command.undo%"
             },
             {
-              "command": "formatdir.installFormatters",
-              "title": "%command.installFormatters%"
+                "command": "formatdir.configurePriority",
+                "title": "%command.configurePriority%"
+            },
+            {
+                "command": "formatdir.installFormatters",
+                "title": "%command.installFormatters%"
             }
-          ],
-          "menus": {
+        ],
+        "menus": {
             "explorer/context": [
-              {
-                "command": "formatdir.formatWithDefault",
-                "group": "navigation",
-                "when": "explorerResourceIsFolder"
-              },
-              {
-                "command": "formatdir.formatFileWithDefault",
-                "group": "navigation",
-                "when": "!explorerResourceIsFolder && resourceScheme == file"
-              }
+                {
+                  "command": "formatdir.formatWithDefault",
+                  "group": "navigation",
+                  "when": "explorerResourceIsFolder"
+                },
+                {
+                  "command": "formatdir.formatFileWithDefault",
+                  "group": "navigation",
+                  "when": "!explorerResourceIsFolder && resourceScheme == file"
+                }
             ]
         },
         "keybindings": [
             {
-              "command": "formatdir.formatFileWithDefault",
-              "key": "ctrl+alt+l",
-              "mac": "cmd+alt+l",
-              "when": "editorTextFocus"
+                "command": "formatdir.formatFileWithDefault",
+                "key": "ctrl+alt+l",
+                "mac": "cmd+alt+l",
+                "when": "editorTextFocus"
             }
         ],
         "configuration": {
             "title": "%config.title%",
             "properties": {
-              "formatdir.fileExtensions": {
-                "type": "array",
-                "default": [
+                "formatdir.fileExtensions": {
+                  "type": "array",
+                  "default": [
                         ".js",
                         ".ts",
                         ".jsx",
@@ -115,13 +115,13 @@
                     "items": {
                         "type": "string"
                     }
-                  },
-                  "formatdir.recursive": {
+                },
+                "formatdir.recursive": {
                     "type": "boolean",
                     "default": true,
                     "description": "%config.recursive.description%"
-                  },
-                  "formatdir.excludePatterns": {
+                },
+                "formatdir.excludePatterns": {
                     "type": "array",
                     "default": [
                         "**/node_modules/**",
@@ -145,26 +145,26 @@
                     "items": {
                         "type": "string"
                     }
-                  },
-                  "formatdir.showProgress": {
+                },
+                "formatdir.showProgress": {
                     "type": "boolean",
                     "default": true,
                     "description": "%config.showProgress.description%"
-                  },
-                  "formatdir.concurrencyLimit": {
+                },
+                "formatdir.concurrencyLimit": {
                     "type": "number",
                     "default": 10,
                     "minimum": 1,
                     "maximum": 50,
                     "description": "%config.concurrencyLimit.description%"
-                  },
-                  "formatdir.maxFileSize": {
+                },
+                "formatdir.maxFileSize": {
                     "type": "number",
                     "default": 1048576,
                     "minimum": 0,
                     "description": "%config.maxFileSize.description%"
-                  },
-                  "formatdir.language": {
+                },
+                "formatdir.language": {
                     "type": "string",
                     "enum": [
                         "auto",
@@ -183,7 +183,10 @@
                         "ar",
                         "hi",
                         "nl",
-                        "vi"
+                        "vi",
+                        "pl",
+                        "th",
+                        "id"
                       ],
                       "default": "auto",
                       "description": "%config.language.description%"
@@ -198,55 +201,55 @@
                     ],
                     "default": "info",
                     "description": "%config.logLevel.description%"
-                  },
-                  "formatdir.openOutputAfterFormat": {
+                },
+                "formatdir.openOutputAfterFormat": {
                     "type": "boolean",
                     "default": false,
                     "description": "%config.openOutputAfterFormat.description%"
                 },
                 "formatdir.preview": {
-                  "type": "boolean",
-                  "default": false,
-                  "description": "%config.preview.description%"
+                    "type": "boolean",
+                    "default": false,
+                    "description": "%config.preview.description%"
                 },
                 "formatdir.formatterPriority": {
-                  "type": "object",
-                  "default": {},
-                  "description": "%config.formatterPriority.description%",
-                  "additionalProperties": {
-                    "type": "string"
-                  }
+                    "type": "object",
+                    "default": {},
+                    "description": "%config.formatterPriority.description%",
+                    "additionalProperties": {
+                      "type": "string"
+                    }
                 },
                 "formatdir.respectGitignore": {
-                  "type": "boolean",
-                  "default": true,
-                  "description": "%config.respectGitignore.description%"
+                    "type": "boolean",
+                    "default": true,
+                    "description": "%config.respectGitignore.description%"
                 },
                 "formatdir.installRecommendedFormattersHelp": {
-                  "type": "string",
-                  "default": "%config.installRecommendedFormattersHelp.default%",
-                  "markdownDescription": "%config.installRecommendedFormattersHelp.markdownDescription%"
+                    "type": "string",
+                    "default": "%config.installRecommendedFormattersHelp.default%",
+                    "markdownDescription": "%config.installRecommendedFormattersHelp.markdownDescription%"
                 }
             }
-          }
-        },
-        "scripts": {
-          "vscode:prepublish": "npm run compile",
-          "compile": "tsc -p ./",
-          "watch": "tsc -watch -p ./",
-          "pretest": "npm run compile && npm run lint",
-          "lint": "eslint src --ext ts",
-          "test": "vscode-test"
-        },
-        "devDependencies": {
-          "@types/vscode": "^1.85.0",
-          "@types/mocha": "^10.0.9",
-          "@types/node": "^22.10.2",
-          "@typescript-eslint/eslint-plugin": "^8.19.1",
-          "@typescript-eslint/parser": "^8.19.1",
-          "eslint": "^9.17.0",
-          "typescript": "^5.7.2",
-          "@vscode/test-cli": "^0.0.10",
-          "@vscode/test-electron": "^2.4.1"
         }
+      },
+      "scripts": {
+        "vscode:prepublish": "npm run compile",
+        "compile": "tsc -p ./",
+        "watch": "tsc -watch -p ./",
+        "pretest": "npm run compile && npm run lint",
+        "lint": "eslint src --ext ts",
+        "test": "vscode-test"
+      },
+      "devDependencies": {
+        "@types/vscode": "^1.85.0",
+        "@types/mocha": "^10.0.9",
+        "@types/node": "^22.10.2",
+        "@typescript-eslint/eslint-plugin": "^8.19.1",
+        "@typescript-eslint/parser": "^8.19.1",
+        "eslint": "^9.17.0",
+        "typescript": "^5.7.2",
+        "@vscode/test-cli": "^0.0.10",
+        "@vscode/test-electron": "^2.4.1"
+      }
 }

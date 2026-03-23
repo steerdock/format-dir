@@ -62,27 +62,63 @@ export class PreviewManager {
         }
     }
 
-    private async openDiff(uri: vscode.Uri) {
-        // To show a diff, we need the "formatted" content.
-        // We can't easily show a diff of just "edits" without applying them to a virtual doc.
-        // For now, let's just open the file. 
-        // ideally we would generate a "formatted" version in memory and diff against that.
+    private async createPreviewDir(): Promise<vscode.Uri> {
+        const previewDir = vscode.Uri.joinPath(this.context.globalStorageUri, 'preview');
+        try {
+            await vscode.workspace.fs.createDirectory(previewDir);
+        } catch (e) {}
+        return previewDir;
+    }
 
+    private async openDiff(uri: vscode.Uri) {
         try {
             const document = await vscode.workspace.openTextDocument(uri);
-            // We need to calculate edits again or cache them to show the diff...
-            // For this MVP, let's just open the file so they can see it. 
-            // OR better: Execute the format provider on a virtual document?
+            const editorConfig = vscode.workspace.getConfiguration('editor', document.uri);
+            const options = {
+                insertSpaces: editorConfig.get<boolean>('insertSpaces', true),
+                tabSize: editorConfig.get<number>('tabSize', 4)
+            };
 
-            // A better user experience for "Preview" in this context (batch operation) 
-            // might be just listing the files and letting them trust the formatter, 
-            // or truly generating the diff.
+            const edits = await vscode.commands.executeCommand<vscode.TextEdit[]>(
+                'vscode.executeFormatDocumentProvider',
+                document.uri,
+                options
+            );
 
-            // Generating a true diff for potentially hundreds of files is expensive. 
-            // Let's settle for opening the document.
-            await vscode.window.showTextDocument(document);
-        } catch (e) {
+            if (!edits || edits.length === 0) {
+                vscode.window.showInformationMessage('No formatting changes or no formatter available for this file.');
+                return;
+            }
+
+            // Apply edits to memory string (sort backwards to avoid offset shifting)
+            let content = document.getText();
+            const sortedEdits = [...edits].sort((a, b) => {
+                const lineDiff = b.range.start.line - a.range.start.line;
+                if (lineDiff !== 0) return lineDiff;
+                return b.range.start.character - a.range.start.character;
+            });
+
+            for (const edit of sortedEdits) {
+                const startOffset = document.offsetAt(edit.range.start);
+                const endOffset = document.offsetAt(edit.range.end);
+                content = content.slice(0, startOffset) + edit.newText + content.slice(endOffset);
+            }
+
+            const previewDir = await this.createPreviewDir();
+            const safeName = uri.fsPath.replace(/[^a-zA-Z0-9.\-]/g, '_');
+            const previewUri = vscode.Uri.joinPath(previewDir, `${safeName}.preview`);
+
+            await vscode.workspace.fs.writeFile(previewUri, Buffer.from(content, 'utf8'));
+
+            await vscode.commands.executeCommand('vscode.diff', 
+                uri, 
+                previewUri, 
+                `Preview: ${path.basename(uri.fsPath)}`
+            );
+
+        } catch (e: any) {
             console.error(e);
+            vscode.window.showErrorMessage(`Failed to generate preview diff: ${e.message}`);
         }
     }
 

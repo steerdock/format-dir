@@ -3,7 +3,7 @@ import { t } from './i18n';
 
 interface FileChange {
     uri: string; // Stored as string for persistence
-    originalContent: string;
+    backupUri: string;
 }
 
 interface HistoryItem {
@@ -26,15 +26,34 @@ export class HistoryManager {
         await this.context.globalState.update(HistoryManager.STORAGE_KEY, history);
     }
 
+    private async createBackupDir(): Promise<vscode.Uri> {
+        const backupDir = vscode.Uri.joinPath(this.context.globalStorageUri, 'backups');
+        try {
+            await vscode.workspace.fs.createDirectory(backupDir);
+        } catch (e) {
+            // Context might throw if it exists, perfectly fine to ignore
+        }
+        return backupDir;
+    }
+
     public async add(files: vscode.Uri[]): Promise<string> {
         const changes: FileChange[] = [];
+        const backupDir = await this.createBackupDir();
+        const batchId = Date.now().toString();
 
         for (const file of files) {
             try {
-                const document = await vscode.workspace.openTextDocument(file);
+                // Fast read to buffer without loading to editor memory
+                const content = await vscode.workspace.fs.readFile(file);
+                
+                const safeName = file.fsPath.replace(/[^a-zA-Z0-9.\-]/g, '_');
+                const backupUri = vscode.Uri.joinPath(backupDir, `${batchId}_${safeName}.bak`);
+                
+                await vscode.workspace.fs.writeFile(backupUri, content);
+
                 changes.push({
                     uri: file.toString(),
-                    originalContent: document.getText()
+                    backupUri: backupUri.toString()
                 });
             } catch (error) {
                 console.error(`Failed to read file for history: ${file.fsPath}`, error);
@@ -47,7 +66,7 @@ export class HistoryManager {
 
         const history = this.getHistory();
         const newItem: HistoryItem = {
-            id: Date.now().toString(),
+            id: batchId,
             timestamp: Date.now(),
             files: changes
         };
@@ -56,7 +75,17 @@ export class HistoryManager {
 
         // Limit history size
         if (history.length > HistoryManager.MAX_HISTORY_ITEMS) {
-            history.shift();
+            const removedItem = history.shift();
+            // Delete backing files for older history to reclaim storage
+            if (removedItem) {
+                for (const change of removedItem.files) {
+                    try {
+                        await vscode.workspace.fs.delete(vscode.Uri.parse(change.backupUri));
+                    } catch (e) {
+                        // ignore if file doesn't exist
+                    }
+                }
+            }
         }
 
         await this.saveHistory(history);
@@ -88,19 +117,30 @@ export class HistoryManager {
                 for (const change of lastItem.files) {
                     try {
                         const uri = vscode.Uri.parse(change.uri);
+                        const backupUri = vscode.Uri.parse(change.backupUri);
+
+                        const backupContentBytes = await vscode.workspace.fs.readFile(backupUri);
+                        const backupStr = Buffer.from(backupContentBytes).toString('utf8');
+
                         const edit = new vscode.WorkspaceEdit();
 
-                        // We need to replace the entire content. 
-                        // The safest way is to read the current doc to get the full range.
                         const document = await vscode.workspace.openTextDocument(uri);
                         const fullRange = new vscode.Range(
                             document.positionAt(0),
                             document.positionAt(document.getText().length)
                         );
 
-                        edit.replace(uri, fullRange, change.originalContent);
+                        edit.replace(uri, fullRange, backupStr);
                         await vscode.workspace.applyEdit(edit);
                         await document.save();
+
+                        // Cleanup restored backup manually
+                        try {
+                            await vscode.workspace.fs.delete(backupUri);
+                        } catch (e) {
+                            // ignore cleanup error
+                        }
+
                         restoredCount++;
                     } catch (err) {
                         console.error(`Failed to restore file: ${change.uri}`, err);
@@ -112,7 +152,6 @@ export class HistoryManager {
             });
         } catch (error: any) {
             vscode.window.showErrorMessage(t('formatDirectory.undoFailed', error.message));
-            // If failed, maybe we shouldn't pop? But it's partial... let's keep it popped to avoid consistency issues.
         }
     }
 }
