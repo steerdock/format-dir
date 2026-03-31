@@ -43,7 +43,8 @@ const messages: { [locale: string]: Messages } = {
         'formatDirectory.installingFormatters': 'Installing formatters...',
         'formatDirectory.installComplete': 'Successfully installed {0} formatter(s).',
         'formatDirectory.installPartial': 'Installed {0} formatter(s), {1} failed.',
-        'formatDirectory.allFormattersInstalled': 'All recommended formatters are already installed.'
+        'formatDirectory.allFormattersInstalled': 'All recommended formatters are already installed.',
+        'formatDirectory.respectGitignore': 'Respect .gitignore'
     },
     'zh-cn': {
         'formatDirectory.default': '格式化目录 (默认配置): {0}',
@@ -83,7 +84,8 @@ const messages: { [locale: string]: Messages } = {
         'formatDirectory.installingFormatters': '正在安装格式化插件...',
         'formatDirectory.installComplete': '成功安装 {0} 个格式化插件。',
         'formatDirectory.installPartial': '已安装 {0} 个格式化插件，{1} 个失败。',
-        'formatDirectory.allFormattersInstalled': '所有推荐的格式化插件已安装。'
+        'formatDirectory.allFormattersInstalled': '所有推荐的格式化插件已安装。',
+        'formatDirectory.respectGitignore': '遵守 .gitignore'
     },
     'ja': {
         'formatDirectory.default': 'ディレクトリをフォーマット (デフォルト設定): {0}',
@@ -107,11 +109,24 @@ const messages: { [locale: string]: Messages } = {
         'formatDirectory.customizeExclude': '除外パターンをカスタマイズしますか？',
         'formatDirectory.inputExcludePatterns': '除外パターンを入力 (カンマ区切り)',
         'formatDirectory.excludePlaceholder': '例: **/node_modules/**, **/dist/**',
+        'formatDirectory.previewTitle': 'ディレクトリフォーマットプレビュー',
+        'formatDirectory.confirmFormat': 'フォーマットを確認',
+        'formatDirectory.cancelFormat': 'キャンセル',
+        'formatDirectory.previewDescription': '変更を適用する前に以下を確認してください。',
+        'formatDirectory.applyChanges': '変更を適用',
+        'formatDirectory.noChanges': '適用する変更がありません。',
+        'formatDirectory.undoTitle': 'ディレクトリフォーマットを元に戻す',
+        'formatDirectory.undoComplete': '元に戻しました。{0} ファイルの変更を復元しました。',
+        'formatDirectory.undoFailed': '元に戻せませんでした: {0}',
+        'formatDirectory.noHistory': '元に戻すフォーマット履歴が見つかりません。',
+        'formatDirectory.formatterPriority': 'フォーマッター優先度設定',
+        'formatDirectory.configurePriority': 'フォーマッター優先度を構成',
         'formatDirectory.selectFormatters': 'インストールするフォーマッタを選択',
         'formatDirectory.installingFormatters': 'フォーマッタをインストール中...',
         'formatDirectory.installComplete': '{0} 個のフォーマッタを正常にインストールしました。',
         'formatDirectory.installPartial': '{0} 個のフォーマッタをインストール、{1} 個失敗。',
-        'formatDirectory.allFormattersInstalled': '推奨フォーマッタはすべてインストール済みです。'
+        'formatDirectory.allFormattersInstalled': '推奨フォーマッタはすべてインストール済みです。',
+        'formatDirectory.respectGitignore': '.gitignore を尊重する'
     },
     'fr': {
         'formatDirectory.default': 'Formater le répertoire (Paramètres par défaut): {0}',
@@ -135,11 +150,24 @@ const messages: { [locale: string]: Messages } = {
         'formatDirectory.customizeExclude': 'Personnaliser les modèles d\'exclusion?',
         'formatDirectory.inputExcludePatterns': 'Entrez les modèles d\'exclusion (séparés par des virgules)',
         'formatDirectory.excludePlaceholder': 'ex: **/node_modules/**, **/dist/**',
+        'formatDirectory.previewTitle': 'Aperçu du formatage du répertoire',
+        'formatDirectory.confirmFormat': 'Confirmer le formatage',
+        'formatDirectory.cancelFormat': 'Annuler',
+        'formatDirectory.previewDescription': 'Vérifiez les modifications ci-dessous avant de les appliquer.',
+        'formatDirectory.applyChanges': 'Appliquer les modifications',
+        'formatDirectory.noChanges': 'Aucune modification à appliquer.',
+        'formatDirectory.undoTitle': 'Annuler le formatage du répertoire',
+        'formatDirectory.undoComplete': 'Annulation terminée. Modifications restaurées pour {0} fichiers.',
+        'formatDirectory.undoFailed': 'Échec de l\'annulation: {0}',
+        'formatDirectory.noHistory': 'Aucun historique de formatage trouvé pour annuler.',
+        'formatDirectory.formatterPriority': 'Paramètres de priorité du formateur',
+        'formatDirectory.configurePriority': 'Configurer la priorité du formateur',
         'formatDirectory.selectFormatters': 'Sélectionner les formateurs à installer',
         'formatDirectory.installingFormatters': 'Installation des formateurs...',
         'formatDirectory.installComplete': '{0} formateur(s) installé(s) avec succès.',
         'formatDirectory.installPartial': '{0} formateur(s) installé(s), {1} échoué(s).',
-        'formatDirectory.allFormattersInstalled': 'Tous les formateurs recommandés sont déjà installés.'
+        'formatDirectory.allFormattersInstalled': 'Tous les formateurs recommandés sont déjà installés.',
+        'formatDirectory.respectGitignore': 'Respecter .gitignore'
     },
     'de': {
         'formatDirectory.default': 'Verzeichnis formatieren (Standardeinstellungen): {0}',
@@ -163,11 +191,24 @@ const messages: { [locale: string]: Messages } = {
         'formatDirectory.customizeExclude': 'Ausschlussmuster anpassen?',
         'formatDirectory.inputExcludePatterns': 'Geben Sie Ausschlussmuster ein (durch Kommas getrennt)',
         'formatDirectory.excludePlaceholder': 'z.B.: **/node_modules/**, **/dist/**',
+        'formatDirectory.previewTitle': 'Verzeichnisformatierungsvorschau',
+        'formatDirectory.confirmFormat': 'Formatierung bestätigen',
+        'formatDirectory.cancelFormat': 'Abbrechen',
+        'formatDirectory.previewDescription': 'Überprüfen Sie die folgenden Änderungen vor dem Anwenden.',
+        'formatDirectory.applyChanges': 'Änderungen anwenden',
+        'formatDirectory.noChanges': 'Keine Änderungen zum Anwenden.',
+        'formatDirectory.undoTitle': 'Verzeichnisformatierung rückgängig machen',
+        'formatDirectory.undoComplete': 'Rückgängig machen abgeschlossen. Änderungen für {0} Dateien wiederhergestellt.',
+        'formatDirectory.undoFailed': 'Rückgängig machen fehlgeschlagen: {0}',
+        'formatDirectory.noHistory': 'Kein Formatierungsverlauf zum Rückgängig machen gefunden.',
+        'formatDirectory.formatterPriority': 'Formatierer-Prioritätseinstellungen',
+        'formatDirectory.configurePriority': 'Formatierer-Priorität konfigurieren',
         'formatDirectory.selectFormatters': 'Formatierer zum Installieren auswählen',
         'formatDirectory.installingFormatters': 'Formatierer werden installiert...',
         'formatDirectory.installComplete': '{0} Formatierer erfolgreich installiert.',
         'formatDirectory.installPartial': '{0} Formatierer installiert, {1} fehlgeschlagen.',
-        'formatDirectory.allFormattersInstalled': 'Alle empfohlenen Formatierer sind bereits installiert.'
+        'formatDirectory.allFormattersInstalled': 'Alle empfohlenen Formatierer sind bereits installiert.',
+        'formatDirectory.respectGitignore': '.gitignore berücksichtigen'
     },
     'es': {
         'formatDirectory.default': 'Formatear directorio (Configuración predeterminada): {0}',
@@ -191,11 +232,24 @@ const messages: { [locale: string]: Messages } = {
         'formatDirectory.customizeExclude': '¿Personalizar patrones de exclusión?',
         'formatDirectory.inputExcludePatterns': 'Ingrese patrones de exclusión (separados por comas)',
         'formatDirectory.excludePlaceholder': 'ej: **/node_modules/**, **/dist/**',
+        'formatDirectory.previewTitle': 'Vista previa del formateo de directorio',
+        'formatDirectory.confirmFormat': 'Confirmar formateo',
+        'formatDirectory.cancelFormat': 'Cancelar',
+        'formatDirectory.previewDescription': 'Revise los cambios a continuación antes de aplicarlos.',
+        'formatDirectory.applyChanges': 'Aplicar cambios',
+        'formatDirectory.noChanges': 'No hay cambios para aplicar.',
+        'formatDirectory.undoTitle': 'Deshacer formateo de directorio',
+        'formatDirectory.undoComplete': 'Deshacer completado. Se restauraron los cambios de {0} archivos.',
+        'formatDirectory.undoFailed': 'Error al deshacer: {0}',
+        'formatDirectory.noHistory': 'No se encontró historial de formateo para deshacer.',
+        'formatDirectory.formatterPriority': 'Configuración de prioridad del formateador',
+        'formatDirectory.configurePriority': 'Configurar prioridad del formateador',
         'formatDirectory.selectFormatters': 'Seleccionar formateadores para instalar',
         'formatDirectory.installingFormatters': 'Instalando formateadores...',
         'formatDirectory.installComplete': '{0} formateador(es) instalado(s) correctamente.',
         'formatDirectory.installPartial': '{0} formateador(es) instalado(s), {1} fallido(s).',
-        'formatDirectory.allFormattersInstalled': 'Todos los formateadores recomendados ya están instalados.'
+        'formatDirectory.allFormattersInstalled': 'Todos los formateadores recomendados ya están instalados.',
+        'formatDirectory.respectGitignore': 'Respetar .gitignore'
     },
     'it': {
         'formatDirectory.default': 'Formatta Directory (Impostazioni predefinite): {0}',
@@ -219,11 +273,24 @@ const messages: { [locale: string]: Messages } = {
         'formatDirectory.customizeExclude': 'Personalizzare i pattern di esclusione?',
         'formatDirectory.inputExcludePatterns': 'Inserisci pattern di esclusione (separati da virgola)',
         'formatDirectory.excludePlaceholder': 'es. **/node_modules/**, **/dist/**',
+        'formatDirectory.previewTitle': 'Anteprima formattazione directory',
+        'formatDirectory.confirmFormat': 'Conferma formattazione',
+        'formatDirectory.cancelFormat': 'Annulla',
+        'formatDirectory.previewDescription': 'Rivedi le modifiche seguenti prima di applicarle.',
+        'formatDirectory.applyChanges': 'Applica modifiche',
+        'formatDirectory.noChanges': 'Nessuna modifica da applicare.',
+        'formatDirectory.undoTitle': 'Annulla formattazione directory',
+        'formatDirectory.undoComplete': 'Annullamento completato. Ripristinate le modifiche per {0} file.',
+        'formatDirectory.undoFailed': 'Annullamento fallito: {0}',
+        'formatDirectory.noHistory': 'Nessuna cronologia di formattazione trovata per l\'annullamento.',
+        'formatDirectory.formatterPriority': 'Impostazioni priorità formattatore',
+        'formatDirectory.configurePriority': 'Configura priorità formattatore',
         'formatDirectory.selectFormatters': 'Seleziona formattatori da installare',
         'formatDirectory.installingFormatters': 'Installazione formattatori...',
         'formatDirectory.installComplete': '{0} formattatore/i installato/i con successo.',
         'formatDirectory.installPartial': '{0} formattatore/i installato/i, {1} fallito/i.',
-        'formatDirectory.allFormattersInstalled': 'Tutti i formattatori consigliati sono già installati.'
+        'formatDirectory.allFormattersInstalled': 'Tutti i formattatori consigliati sono già installati.',
+        'formatDirectory.respectGitignore': 'Rispetta .gitignore'
     },
     'ru': {
         'formatDirectory.default': 'Форматировать каталог (Настройки по умолчанию): {0}',
@@ -247,11 +314,24 @@ const messages: { [locale: string]: Messages } = {
         'formatDirectory.customizeExclude': 'Настроить исключения?',
         'formatDirectory.inputExcludePatterns': 'Введите шаблоны исключений (через запятую)',
         'formatDirectory.excludePlaceholder': 'напр. **/node_modules/**, **/dist/**',
+        'formatDirectory.previewTitle': 'Предпросмотр форматирования каталога',
+        'formatDirectory.confirmFormat': 'Подтвердить форматирование',
+        'formatDirectory.cancelFormat': 'Отмена',
+        'formatDirectory.previewDescription': 'Проверьте изменения ниже перед применением.',
+        'formatDirectory.applyChanges': 'Применить изменения',
+        'formatDirectory.noChanges': 'Нет изменений для применения.',
+        'formatDirectory.undoTitle': 'Отменить форматирование каталога',
+        'formatDirectory.undoComplete': 'Отмена выполнена. Изменения восстановлены для {0} файлов.',
+        'formatDirectory.undoFailed': 'Не удалось отменить: {0}',
+        'formatDirectory.noHistory': 'История форматирования для отмены не найдена.',
+        'formatDirectory.formatterPriority': 'Настройки приоритета форматера',
+        'formatDirectory.configurePriority': 'Настроить приоритет форматера',
         'formatDirectory.selectFormatters': 'Выберите форматеры для установки',
         'formatDirectory.installingFormatters': 'Установка форматеров...',
         'formatDirectory.installComplete': 'Успешно установлено: {0} форматер(ов).',
         'formatDirectory.installPartial': 'Установлено: {0}, ошибка: {1}.',
-        'formatDirectory.allFormattersInstalled': 'Все рекомендованные форматеры уже установлены.'
+        'formatDirectory.allFormattersInstalled': 'Все рекомендованные форматеры уже установлены.',
+        'formatDirectory.respectGitignore': 'Учитывать .gitignore'
     },
     'pt-br': {
         'formatDirectory.default': 'Formatar Diretório (Configurações Padrão): {0}',
@@ -291,7 +371,8 @@ const messages: { [locale: string]: Messages } = {
         'formatDirectory.installingFormatters': 'Instalando formatadores...',
         'formatDirectory.installComplete': '{0} formatador(es) instalado(s) com sucesso.',
         'formatDirectory.installPartial': '{0} formatador(es) instalado(s), {1} falharam.',
-        'formatDirectory.allFormattersInstalled': 'Todos os formatadores recomendados já estão instalados.'
+        'formatDirectory.allFormattersInstalled': 'Todos os formatadores recomendados já estão instalados.',
+        'formatDirectory.respectGitignore': 'Respeitar .gitignore'
     },
     'ko': {
         'formatDirectory.default': '디렉토리 포맷 (기본 설정): {0}',
@@ -331,7 +412,8 @@ const messages: { [locale: string]: Messages } = {
         'formatDirectory.installingFormatters': '포맷터 설치 중...',
         'formatDirectory.installComplete': '{0}개 포맷터 설치 완료.',
         'formatDirectory.installPartial': '{0}개 설치 완료, {1}개 실패.',
-        'formatDirectory.allFormattersInstalled': '모든 추천 포맷터가 이미 설치되어 있습니다.'
+        'formatDirectory.allFormattersInstalled': '모든 추천 포맷터가 이미 설치되어 있습니다.',
+        'formatDirectory.respectGitignore': '.gitignore 준수'
     },
     'zh-tw': {
         'formatDirectory.default': '格式化目錄 (預設配置): {0}',
@@ -371,7 +453,8 @@ const messages: { [locale: string]: Messages } = {
         'formatDirectory.installingFormatters': '正在安裝格式化插件...',
         'formatDirectory.installComplete': '成功安裝 {0} 個格式化插件。',
         'formatDirectory.installPartial': '已安裝 {0} 個格式化插件，{1} 個失敗。',
-        'formatDirectory.allFormattersInstalled': '所有推薦的格式化插件已安裝。'
+        'formatDirectory.allFormattersInstalled': '所有推薦的格式化插件已安裝。',
+        'formatDirectory.respectGitignore': '遵守 .gitignore'
     },
     'tr': {
         'formatDirectory.default': 'Dizini Formatla (Varsayılan Ayarlar): {0}',
@@ -411,7 +494,8 @@ const messages: { [locale: string]: Messages } = {
         'formatDirectory.installingFormatters': 'Formatlayıcılar yükleniyor...',
         'formatDirectory.installComplete': '{0} formatlayıcı başarıyla yüklendi.',
         'formatDirectory.installPartial': '{0} formatlayıcı yüklendi, {1} başarısız.',
-        'formatDirectory.allFormattersInstalled': 'Tüm önerilen formatlayıcılar zaten yüklü.'
+        'formatDirectory.allFormattersInstalled': 'Tüm önerilen formatlayıcılar zaten yüklü.',
+        'formatDirectory.respectGitignore': '.gitignore\'a uy'
     },
     'ar': {
         'formatDirectory.default': 'تنسيق الدليل (الإعدادات الافتراضية): {0}',
@@ -451,7 +535,8 @@ const messages: { [locale: string]: Messages } = {
         'formatDirectory.installingFormatters': 'جارٍ تثبيت المنسقات...',
         'formatDirectory.installComplete': 'تم تثبيت {0} منسق(ات) بنجاح.',
         'formatDirectory.installPartial': 'تم تثبيت {0} منسق(ات)، {1} فشل.',
-        'formatDirectory.allFormattersInstalled': 'جميع المنسقات الموصى بها مثبتة بالفعل.'
+        'formatDirectory.allFormattersInstalled': 'جميع المنسقات الموصى بها مثبتة بالفعل.',
+        'formatDirectory.respectGitignore': 'احترام .gitignore'
     },
     'hi': {
         'formatDirectory.default': 'डायरेक्टरी फ़ॉर्मेट करें (डिफ़ॉल्ट सेटिंग्स): {0}',
@@ -491,7 +576,8 @@ const messages: { [locale: string]: Messages } = {
         'formatDirectory.installingFormatters': 'फ़ॉर्मेटर इंस्टॉल हो रहे हैं...',
         'formatDirectory.installComplete': '{0} फ़ॉर्मेटर सफलतापूर्वक इंस्टॉल किए गए।',
         'formatDirectory.installPartial': '{0} फ़ॉर्मेटर इंस्टॉल किए गए, {1} विफल।',
-        'formatDirectory.allFormattersInstalled': 'सभी अनुशंसित फ़ॉर्मेटर पहले से इंस्टॉल हैं।'
+        'formatDirectory.allFormattersInstalled': 'सभी अनुशंसित फ़ॉर्मेटर पहले से इंस्टॉल हैं।',
+        'formatDirectory.respectGitignore': '.gitignore का सम्मान करें'
     },
     'nl': {
         'formatDirectory.default': 'Map formatteren (standaardinstellingen): {0}',
@@ -531,7 +617,8 @@ const messages: { [locale: string]: Messages } = {
         'formatDirectory.installingFormatters': 'Formatteerders installeren...',
         'formatDirectory.installComplete': 'Succesvol {0} formatteerder(s) geïnstalleerd.',
         'formatDirectory.installPartial': '{0} formatteerder(s) geïnstalleerd, {1} mislukt.',
-        'formatDirectory.allFormattersInstalled': 'Alle aanbevolen formatteerders zijn al geïnstalleerd.'
+        'formatDirectory.allFormattersInstalled': 'Alle aanbevolen formatteerders zijn al geïnstalleerd.',
+        'formatDirectory.respectGitignore': '.gitignore respecteren'
     },
     'vi': {
         'formatDirectory.default': 'Định dạng thư mục (Cài đặt mặc định): {0}',
@@ -571,7 +658,8 @@ const messages: { [locale: string]: Messages } = {
         'formatDirectory.installingFormatters': 'Đang cài đặt các trình định dạng...',
         'formatDirectory.installComplete': 'Đã cài đặt thành công {0} trình định dạng.',
         'formatDirectory.installPartial': 'Đã cài đặt {0} trình định dạng, {1} thất bại.',
-        'formatDirectory.allFormattersInstalled': 'Tất cả các trình định dạng được khuyến nghị đã được cài đặt.'
+        'formatDirectory.allFormattersInstalled': 'Tất cả các trình định dạng được khuyến nghị đã được cài đặt.',
+        'formatDirectory.respectGitignore': 'Tôn trọng .gitignore'
     },
     'pl': {
         'formatDirectory.default': 'Formatuj Katalog (Ustawienia Domyślne): {0}',
@@ -611,7 +699,8 @@ const messages: { [locale: string]: Messages } = {
         'formatDirectory.installingFormatters': 'Instalowanie formaterów...',
         'formatDirectory.installComplete': 'Pomyślnie zainstalowano {0} formater(ów).',
         'formatDirectory.installPartial': 'Zainstalowano {0} formater(ów), instalacja {1} nie powiodła się.',
-        'formatDirectory.allFormattersInstalled': 'Wszystkie zalecane formatery są już zainstalowane.'
+        'formatDirectory.allFormattersInstalled': 'Wszystkie zalecane formatery są już zainstalowane.',
+        'formatDirectory.respectGitignore': 'Przestrzegaj .gitignore'
     },
     'th': {
         'formatDirectory.default': 'จัดรูปแบบไดเรกทอรี (การตั้งค่าเริ่มต้น): {0}',
@@ -651,7 +740,8 @@ const messages: { [locale: string]: Messages } = {
         'formatDirectory.installingFormatters': 'กำลังติดตั้งตัวจัดรูปแบบ...',
         'formatDirectory.installComplete': 'ติดตั้งตัวจัดรูปแบบสำเร็จ {0} ตัว',
         'formatDirectory.installPartial': 'ติดตั้งตัวจัดรูปแบบ {0} ตัว, ล้มเหลว {1} ตัว',
-        'formatDirectory.allFormattersInstalled': 'ติดตั้งตัวจัดรูปแบบที่แนะนำทั้งหมดแล้ว'
+        'formatDirectory.allFormattersInstalled': 'ติดตั้งตัวจัดรูปแบบที่แนะนำทั้งหมดแล้ว',
+        'formatDirectory.respectGitignore': 'เคารพ .gitignore'
     },
     'id': {
         'formatDirectory.default': 'Format Direktori (Pengaturan Default): {0}',
@@ -691,7 +781,8 @@ const messages: { [locale: string]: Messages } = {
         'formatDirectory.installingFormatters': 'Menginstal pemformat...',
         'formatDirectory.installComplete': 'Berhasil menginstal {0} pemformat.',
         'formatDirectory.installPartial': 'Menginstal {0} pemformat, {1} gagal.',
-        'formatDirectory.allFormattersInstalled': 'Semua pemformat yang disarankan sudah terinstal.'
+        'formatDirectory.allFormattersInstalled': 'Semua pemformat yang disarankan sudah terinstal.',
+        'formatDirectory.respectGitignore': 'Hormati .gitignore'
     }
 };
 

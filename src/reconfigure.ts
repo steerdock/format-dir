@@ -17,7 +17,39 @@ export class ReconfigureWebview {
     public async show(currentConfig: WebviewConfig): Promise<WebviewConfig | null> {
         return new Promise((resolve) => {
             if (this.panel) {
-                this.panel.reveal();
+                const existingPanel = this.panel;
+                let settled = false;
+
+                const messageDisposable = existingPanel.webview.onDidReceiveMessage(
+                    async message => {
+                        if (settled) { return; }
+                        settled = true;
+                        messageDisposable.dispose();
+                        switch (message.command) {
+                            case 'save':
+                                resolve(message.config);
+                                existingPanel.dispose();
+                                break;
+                            case 'cancel':
+                                resolve(null);
+                                existingPanel.dispose();
+                                break;
+                        }
+                    },
+                    undefined,
+                    this.context.subscriptions
+                );
+
+                const disposeDisposable = existingPanel.onDidDispose(() => {
+                    disposeDisposable.dispose();
+                    if (!settled) {
+                        settled = true;
+                        messageDisposable.dispose();
+                        resolve(null);
+                    }
+                });
+
+                existingPanel.reveal();
                 return;
             }
 
@@ -88,25 +120,42 @@ export class ReconfigureWebview {
         return formatters;
     }
 
-    private getHtmlContent(config: WebviewConfig, formatters: any[]): string {
-        const extensionItems = config.fileExtensions.join(', ');
-        const excludeItems = config.excludePatterns.join(', ');
+    private escapeHtml(str: string): string {
+        return str
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
 
-        const formatterCheckboxes = formatters.map(f => `
+    private getHtmlContent(config: WebviewConfig, formatters: any[]): string {
+        const extensionItems = this.escapeHtml(config.fileExtensions.join(', '));
+        const excludeItems = this.escapeHtml(config.excludePatterns.join(', '));
+
+        const formatterCheckboxes = formatters.map(f => {
+            const safeName = this.escapeHtml(f.name);
+            const safeId = this.escapeHtml(f.id);
+            const safeLangs = this.escapeHtml(f.languages.slice(0, 5).join(', '));
+            const safeFirstLang = this.escapeHtml(f.languages[0] || '');
+            const escapedConfigure = this.escapeHtml(t('formatDirectory.configure') || 'Configure');
+            return `
             <div class="formatter-item">
                 <div class="formatter-info">
-                    <div class="formatter-name">${f.name}</div>
-                    <div class="formatter-id">${f.id}</div>
+                    <div class="formatter-name">${safeName}</div>
+                    <div class="formatter-id">${safeId}</div>
                 </div>
-                <div class="formatter-langs">${f.languages.slice(0, 5).join(', ')}${f.languages.length > 5 ? '...' : ''}</div>
-                <button class="btn-link" onclick="openSettings('${f.languages[0] || ''}', '${f.id}')">${t('formatDirectory.configure') || 'Configure'}</button>
+                <div class="formatter-langs">${safeLangs}${f.languages.length > 5 ? '...' : ''}</div>
+                <button class="btn-link" onclick="openSettings('${safeFirstLang}', '${safeId}')">${escapedConfigure}</button>
             </div>
-        `).join('');
+        `;
+        }).join('');
 
         return `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline';">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reconfigure</title>
     <style>

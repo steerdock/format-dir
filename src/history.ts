@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { t } from './i18n';
+import * as crypto from 'crypto';
 
 interface FileChange {
     uri: string; // Stored as string for persistence
@@ -15,6 +16,7 @@ interface HistoryItem {
 export class HistoryManager {
     private static readonly STORAGE_KEY = 'formatDirectory.history';
     private static readonly MAX_HISTORY_ITEMS = 20;
+    private static readonly BACKUP_CONCURRENCY = 50;
 
     constructor(private context: vscode.ExtensionContext) { }
 
@@ -36,27 +38,48 @@ export class HistoryManager {
         return backupDir;
     }
 
+    /**
+     * Generate a collision-resistant backup filename using path hash + short index
+     */
+    private getBackupFileName(batchId: string, fsPath: string, index: number): string {
+        const hash = crypto.createHash('md5').update(fsPath).digest('hex').slice(0, 8);
+        const baseName = fsPath.replace(/[^a-zA-Z0-9.\-]/g, '_');
+        return `${batchId}_${index}_${baseName}_${hash}.bak`;
+    }
+
     public async add(files: vscode.Uri[]): Promise<string> {
         const changes: FileChange[] = [];
         const backupDir = await this.createBackupDir();
         const batchId = Date.now().toString();
 
-        for (const file of files) {
-            try {
-                // Fast read to buffer without loading to editor memory
-                const content = await vscode.workspace.fs.readFile(file);
-                
-                const safeName = file.fsPath.replace(/[^a-zA-Z0-9.\-]/g, '_');
-                const backupUri = vscode.Uri.joinPath(backupDir, `${batchId}_${safeName}.bak`);
-                
-                await vscode.workspace.fs.writeFile(backupUri, content);
+        // Parallelize backup operations in batches
+        const CONCURRENCY = HistoryManager.BACKUP_CONCURRENCY;
 
-                changes.push({
-                    uri: file.toString(),
-                    backupUri: backupUri.toString()
-                });
-            } catch (error) {
-                console.error(`Failed to read file for history: ${file.fsPath}`, error);
+        for (let i = 0; i < files.length; i += CONCURRENCY) {
+            const batch = files.slice(i, i + CONCURRENCY);
+            const batchResults = await Promise.all(batch.map(async (file, batchIdx) => {
+                const globalIdx = i + batchIdx;
+                try {
+                    const content = await vscode.workspace.fs.readFile(file);
+                    const backupFileName = this.getBackupFileName(batchId, file.fsPath, globalIdx);
+                    const backupUri = vscode.Uri.joinPath(backupDir, backupFileName);
+
+                    await vscode.workspace.fs.writeFile(backupUri, content);
+
+                    return {
+                        uri: file.toString(),
+                        backupUri: backupUri.toString()
+                    };
+                } catch (error) {
+                    console.error(`Failed to read file for history: ${file.fsPath}`, error);
+                    return null;
+                }
+            }));
+
+            for (const result of batchResults) {
+                if (result) {
+                    changes.push(result);
+                }
             }
         }
 
@@ -76,15 +99,11 @@ export class HistoryManager {
         // Limit history size
         if (history.length > HistoryManager.MAX_HISTORY_ITEMS) {
             const removedItem = history.shift();
-            // Delete backing files for older history to reclaim storage
+            // Delete backing files for older history to reclaim storage (parallel)
             if (removedItem) {
-                for (const change of removedItem.files) {
-                    try {
-                        await vscode.workspace.fs.delete(vscode.Uri.parse(change.backupUri));
-                    } catch (e) {
-                        // ignore if file doesn't exist
-                    }
-                }
+                await Promise.all(removedItem.files.map(change =>
+                    vscode.workspace.fs.delete(vscode.Uri.parse(change.backupUri)).then(() => { }, () => { })
+                ));
             }
         }
 
@@ -113,37 +132,44 @@ export class HistoryManager {
         try {
             await vscode.window.withProgress(progressOptions, async (progress) => {
                 let restoredCount = 0;
+                const CONCURRENCY = HistoryManager.BACKUP_CONCURRENCY;
 
-                for (const change of lastItem.files) {
-                    try {
-                        const uri = vscode.Uri.parse(change.uri);
-                        const backupUri = vscode.Uri.parse(change.backupUri);
-
-                        const backupContentBytes = await vscode.workspace.fs.readFile(backupUri);
-                        const backupStr = Buffer.from(backupContentBytes).toString('utf8');
-
-                        const edit = new vscode.WorkspaceEdit();
-
-                        const document = await vscode.workspace.openTextDocument(uri);
-                        const fullRange = new vscode.Range(
-                            document.positionAt(0),
-                            document.positionAt(document.getText().length)
-                        );
-
-                        edit.replace(uri, fullRange, backupStr);
-                        await vscode.workspace.applyEdit(edit);
-                        await document.save();
-
-                        // Cleanup restored backup manually
+                for (let i = 0; i < lastItem.files.length; i += CONCURRENCY) {
+                    const batch = lastItem.files.slice(i, i + CONCURRENCY);
+                    const batchResults = await Promise.all(batch.map(async (change) => {
                         try {
-                            await vscode.workspace.fs.delete(backupUri);
-                        } catch (e) {
-                            // ignore cleanup error
-                        }
+                            const uri = vscode.Uri.parse(change.uri);
+                            const backupUri = vscode.Uri.parse(change.backupUri);
 
-                        restoredCount++;
-                    } catch (err) {
-                        console.error(`Failed to restore file: ${change.uri}`, err);
+                            const backupContentBytes = await vscode.workspace.fs.readFile(backupUri);
+                            const backupStr = Buffer.from(backupContentBytes).toString('utf8');
+
+                            const edit = new vscode.WorkspaceEdit();
+
+                            const document = await vscode.workspace.openTextDocument(uri);
+                            const fullRange = new vscode.Range(
+                                document.positionAt(0),
+                                document.positionAt(document.getText().length)
+                            );
+
+                            edit.replace(uri, fullRange, backupStr);
+                            await vscode.workspace.applyEdit(edit);
+                            await document.save();
+
+                            // Cleanup restored backup
+                            await vscode.workspace.fs.delete(backupUri).then(() => { }, () => { });
+
+                            return true;
+                        } catch (err) {
+                            console.error(`Failed to restore file: ${change.uri}`, err);
+                            return false;
+                        }
+                    }));
+
+                    for (const result of batchResults) {
+                        if (result) {
+                            restoredCount++;
+                        }
                     }
                 }
 

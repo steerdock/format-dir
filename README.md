@@ -4,12 +4,16 @@ that formats entire directories or individual files using your configured VS Cod
 
 ## Changelog
 
-### v1.1.2
-- **Performance**: Optimized directory scanning with concurrent file size filtering, making it significantly faster on large projects.
-- **Memory Optimization**: Fixed a severe storage leak in the Undo history. Backups now correctly use the extension's local storage instead of VS Code's internal state database.
-- **Improved Preview**: The preview feature now generates a true Diff view, allowing users to accurately inspect formatting changes before applying.
-- **Accurate Reporting**: Formatting results now precisely report whether files were successfully formatted, already formatted (skipped), or skipped due to missing formatters.
-- **New Language Support**: Added Polish (Polski), Thai (ไทย), and Indonesian (Bahasa Indonesia) translations. Now supports 19 languages.
+### v1.1.4
+- **Bug Fix**: Fixed `log()` function silently dropping all `warning`-level messages due to missing entry in the levels array.
+- **Bug Fix**: Fixed double invocation of `onCancel` callback in Preview panel — closing the panel after confirming or cancelling no longer triggers the cancel callback a second time.
+- **Bug Fix**: Fixed Promise leak in Reconfigure panel when a second `show()` call reuses an existing panel; closing the panel without interacting no longer leaves the caller permanently suspended.
+- **Bug Fix**: Added missing `formatDirectory.respectGitignore` translation key to all 19 supported languages; the Reconfigure panel was previously displaying the raw key string instead of localized text.
+- **Performance**: Removed redundant `fs.stat` call in `collectFiles` — the URI is already known to be a directory at the call site.
+- **Code Quality**: Simplified file extension map expression that had two identical branches.
+- **Code Quality**: Extracted `processInBatches` helper to module level, avoiding unnecessary function allocation on each `formatFiles` call.
+- **Security**: Added `Content-Security-Policy` meta tag to both Preview and Reconfigure webviews.
+- **Resource**: Temporary diff preview files are now deleted immediately after the diff view is opened, preventing accumulation in extension storage.
 
 See [CHANGELOG.md](./CHANGELOG.md) for detailed release notes.
 

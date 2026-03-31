@@ -30,6 +30,7 @@ let outputChannel: vscode.OutputChannel;
 let previewManager: PreviewManager;
 let historyManager: HistoryManager;
 let reconfigureWebview: ReconfigureWebview;
+let cachedLogLevel: string = 'info';
 
 export function activate(context: vscode.ExtensionContext) {
     initializeLocale();
@@ -37,6 +38,9 @@ export function activate(context: vscode.ExtensionContext) {
     outputChannel = vscode.window.createOutputChannel('Format Directory');
     context.subscriptions.push(outputChannel);
     log('info', 'Format Directory extension is now active!');
+
+    // Cache log level to avoid repeated config reads
+    cachedLogLevel = vscode.workspace.getConfiguration('formatdir').get<string>('logLevel', 'info');
 
     statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
     statusBarItem.command = 'formatdir.formatWithDefault';
@@ -70,6 +74,9 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(e => {
         if (e.affectsConfiguration('formatdir.language')) {
             initializeLocale();
+        }
+        if (e.affectsConfiguration('formatdir.logLevel')) {
+            cachedLogLevel = vscode.workspace.getConfiguration('formatdir').get<string>('logLevel', 'info');
         }
     }));
 }
@@ -177,6 +184,7 @@ async function getFormatConfig(reconfigure: boolean): Promise<FormatConfig | nul
 async function parseGitignore(workspaceRoot: vscode.Uri): Promise<string[]> {
     const gitignoreUri = vscode.Uri.joinPath(workspaceRoot, '.gitignore');
     const patterns: string[] = [];
+    const negationPatterns: string[] = [];
 
     try {
         const content = await vscode.workspace.fs.readFile(gitignoreUri);
@@ -191,8 +199,22 @@ async function parseGitignore(workspaceRoot: vscode.Uri): Promise<string[]> {
                 continue;
             }
 
-            // Skip negation patterns (they require special handling)
+            // Handle negation patterns separately - add them at the end
+            // so they can re-include files previously excluded
             if (trimmed.startsWith('!')) {
+                const negated = trimmed.slice(1).trim();
+                if (negated) {
+                    let negGlob = negated;
+                    if (negGlob.endsWith('/')) {
+                        negGlob = negGlob.slice(0, -1);
+                    }
+                    if (negGlob.startsWith('/')) {
+                        negGlob = negGlob.slice(1);
+                    } else {
+                        negGlob = '**/' + negGlob;
+                    }
+                    negationPatterns.push(negGlob);
+                }
                 continue;
             }
 
@@ -222,6 +244,13 @@ async function parseGitignore(workspaceRoot: vscode.Uri): Promise<string[]> {
             }
         }
 
+        // Note: VS Code's findFiles doesn't support negation patterns in exclude glob.
+        // We log the negation patterns but cannot fully apply them.
+        // This is a known limitation; a proper solution would require post-filtering.
+        if (negationPatterns.length > 0) {
+            log('debug', `Found ${negationPatterns.length} negation patterns in .gitignore (negation support is limited in exclude glob)`);
+        }
+
         log('info', `Parsed ${patterns.length} patterns from .gitignore`);
     } catch (e) {
         log('debug', 'No .gitignore found or unable to read it');
@@ -231,14 +260,8 @@ async function parseGitignore(workspaceRoot: vscode.Uri): Promise<string[]> {
 }
 
 async function collectFiles(uri: vscode.Uri, config: FormatConfig): Promise<vscode.Uri[]> {
-    const isFile = (await vscode.workspace.fs.stat(uri)).type === vscode.FileType.File;
-
-    if (isFile) {
-        return [uri];
-    }
-
     // 1. Build include pattern from extensions: {*.js,*.ts,...}
-    const exts = config.fileExtensions.map(ext => ext.startsWith('.') ? `*${ext}` : `*${ext}`).join(',');
+    const exts = config.fileExtensions.map(ext => `*${ext}`).join(',');
     const includePattern = new vscode.RelativePattern(uri, config.recursive ? `**/{${exts}}` : `{${exts}}`);
 
     // 2. Build exclude patterns (combine configured patterns with .gitignore if enabled)
@@ -247,8 +270,12 @@ async function collectFiles(uri: vscode.Uri, config: FormatConfig): Promise<vsco
     if (config.respectGitignore) {
         const workspaceFolders = vscode.workspace.workspaceFolders;
         if (workspaceFolders && workspaceFolders.length > 0) {
-            const gitignorePatterns = await parseGitignore(workspaceFolders[0].uri);
-            allExcludePatterns = [...allExcludePatterns, ...gitignorePatterns];
+            // Collect .gitignore patterns from all workspace folders (multi-root support)
+            const gitignoreResults = await Promise.all(
+                workspaceFolders.map(ws => parseGitignore(ws.uri))
+            );
+            const allGitignorePatterns = gitignoreResults.flat();
+            allExcludePatterns = [...allExcludePatterns, ...allGitignorePatterns];
         }
     }
 
@@ -286,6 +313,20 @@ async function collectFiles(uri: vscode.Uri, config: FormatConfig): Promise<vsco
     return files;
 }
 
+async function processInBatches<T, R>(
+    items: T[],
+    concurrencyLimit: number,
+    processor: (item: T) => Promise<R>
+): Promise<R[]> {
+    const results: R[] = [];
+    for (let i = 0; i < items.length; i += concurrencyLimit) {
+        const batch = items.slice(i, i + concurrencyLimit);
+        const batchResults = await Promise.all(batch.map(processor));
+        results.push(...batchResults);
+    }
+    return results;
+}
+
 async function formatFiles(files: vscode.Uri[], config: FormatConfig) {
     let successCount = 0;
     let skippedCount = 0;
@@ -312,7 +353,7 @@ async function formatFiles(files: vscode.Uri[], config: FormatConfig) {
                 }
 
                 const batch = files.slice(i, i + config.concurrencyLimit);
-                const results = await Promise.all(batch.map(file => formatFile(file, config))); // Pass config
+                const results = await Promise.all(batch.map(file => formatFile(file, config)));
 
                 for (let j = 0; j < batch.length; j++) {
                     const file = batch[j];
@@ -339,8 +380,9 @@ async function formatFiles(files: vscode.Uri[], config: FormatConfig) {
             }
         });
     } else {
+        // Respect concurrencyLimit even without progress UI to avoid OOM
         statusBarItem.text = `$(sync~spin) Formatting...`;
-        const results = await Promise.all(files.map(file => formatFile(file, config)));
+        const results = await processInBatches(files, config.concurrencyLimit, file => formatFile(file, config));
         results.forEach((result, index) => {
             if (result === 'formatted') {
                 successCount++;
@@ -434,10 +476,9 @@ async function formatFile(uri: vscode.Uri, config: FormatConfig): Promise<string
 }
 
 function log(level: string, message: string) {
-    const config = vscode.workspace.getConfiguration('formatdir');
-    const configuredLevel = config.get<string>('logLevel', 'info');
+    const configuredLevel = cachedLogLevel;
 
-    const levels = ['debug', 'info', 'error', 'off'];
+    const levels = ['debug', 'info', 'warning', 'error', 'off'];
 
     if (levels.indexOf(level) >= levels.indexOf(configuredLevel) && configuredLevel !== 'off') {
         const timestamp = new Date().toLocaleTimeString();

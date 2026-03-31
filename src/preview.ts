@@ -25,14 +25,18 @@ export class PreviewManager {
 
         this.panel.webview.html = this.getWebviewContent(files);
 
+        let actionTaken = false;
+
         this.panel.webview.onDidReceiveMessage(
             async message => {
                 switch (message.command) {
                     case 'confirm':
+                        actionTaken = true;
                         await onConfirm();
                         this.dispose();
                         break;
                     case 'cancel':
+                        actionTaken = true;
                         onCancel();
                         this.dispose();
                         break;
@@ -48,7 +52,9 @@ export class PreviewManager {
         this.panel.onDidDispose(
             () => {
                 this.panel = undefined;
-                onCancel(); // Treat closing as cancel if not confirmed
+                if (!actionTaken) {
+                    onCancel(); // Treat closing as cancel if not confirmed
+                }
             },
             null,
             this.context.subscriptions
@@ -62,11 +68,20 @@ export class PreviewManager {
         }
     }
 
+    private escapeHtml(str: string): string {
+        return str
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
     private async createPreviewDir(): Promise<vscode.Uri> {
         const previewDir = vscode.Uri.joinPath(this.context.globalStorageUri, 'preview');
         try {
             await vscode.workspace.fs.createDirectory(previewDir);
-        } catch (e) {}
+        } catch (e) { }
         return previewDir;
     }
 
@@ -110,11 +125,13 @@ export class PreviewManager {
 
             await vscode.workspace.fs.writeFile(previewUri, Buffer.from(content, 'utf8'));
 
-            await vscode.commands.executeCommand('vscode.diff', 
-                uri, 
-                previewUri, 
+            await vscode.commands.executeCommand('vscode.diff',
+                uri,
+                previewUri,
                 `Preview: ${path.basename(uri.fsPath)}`
             );
+
+            vscode.workspace.fs.delete(previewUri).then(() => {}, () => {});
 
         } catch (e: any) {
             console.error(e);
@@ -127,13 +144,15 @@ export class PreviewManager {
     private getWebviewContent(files: vscode.Uri[]): string {
         const fileListItems = files.map(uri => {
             const fsPath = uri.fsPath;
-            // JSON stringify for the onclick handler
-            const uriString = uri.toString();
+            // Escape URI and path to prevent HTML injection
+            const uriString = encodeURIComponent(uri.toString());
+            const escapedBaseName = this.escapeHtml(path.basename(fsPath));
+            const escapedFullPath = this.escapeHtml(fsPath);
             return `
-                <li class="file-item" onclick="openDiff('${uriString}')">
+                <li class="file-item" onclick="openDiff(decodeURIComponent('${uriString}'))">
                     <span class="file-icon">📄</span>
-                    <span class="file-path">${path.basename(fsPath)}</span>
-                    <span class="file-full-path">${fsPath}</span>
+                    <span class="file-path">${escapedBaseName}</span>
+                    <span class="file-full-path">${escapedFullPath}</span>
                 </li>
             `;
         }).join('');
@@ -142,6 +161,7 @@ export class PreviewManager {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline';">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${t('formatDirectory.previewTitle')}</title>
     <style>
