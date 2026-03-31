@@ -62,11 +62,20 @@ export class PreviewManager {
         }
     }
 
+    private escapeHtml(str: string): string {
+        return str
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
     private async createPreviewDir(): Promise<vscode.Uri> {
         const previewDir = vscode.Uri.joinPath(this.context.globalStorageUri, 'preview');
         try {
             await vscode.workspace.fs.createDirectory(previewDir);
-        } catch (e) {}
+        } catch (e) { }
         return previewDir;
     }
 
@@ -110,9 +119,9 @@ export class PreviewManager {
 
             await vscode.workspace.fs.writeFile(previewUri, Buffer.from(content, 'utf8'));
 
-            await vscode.commands.executeCommand('vscode.diff', 
-                uri, 
-                previewUri, 
+            await vscode.commands.executeCommand('vscode.diff',
+                uri,
+                previewUri,
                 `Preview: ${path.basename(uri.fsPath)}`
             );
 
@@ -127,13 +136,15 @@ export class PreviewManager {
     private getWebviewContent(files: vscode.Uri[]): string {
         const fileListItems = files.map(uri => {
             const fsPath = uri.fsPath;
-            // JSON stringify for the onclick handler
-            const uriString = uri.toString();
+            // Escape URI and path to prevent HTML injection
+            const uriString = encodeURIComponent(uri.toString());
+            const escapedBaseName = this.escapeHtml(path.basename(fsPath));
+            const escapedFullPath = this.escapeHtml(fsPath);
             return `
-                <li class="file-item" onclick="openDiff('${uriString}')">
+                <li class="file-item" onclick="openDiff(decodeURIComponent('${uriString}'))">
                     <span class="file-icon">📄</span>
-                    <span class="file-path">${path.basename(fsPath)}</span>
-                    <span class="file-full-path">${fsPath}</span>
+                    <span class="file-path">${escapedBaseName}</span>
+                    <span class="file-full-path">${escapedFullPath}</span>
                 </li>
             `;
         }).join('');

@@ -5,6 +5,18 @@ All notable changes to the "Format Directory" extension will be documented in th
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+### v1.1.3
+- **Performance**: Batch processing for backup and undo operations with concurrency control, significantly improving speed on large projects.
+- **Performance**: Cached log level setting to avoid repeated config reads during formatting.
+- **Performance**: Added batch processing to enforce concurrency limits even when progress UI is disabled.
+- **Security**: Fixed HTML injection vulnerability in Preview panel by escaping file paths and URIs.
+- **Security**: Fixed HTML injection vulnerability in Reconfigure panel by escaping formatter names and IDs.
+- **Multi-root Workspace**: `.gitignore` parsing now scans all workspace folders instead of only the first one.
+- **Robustness**: Backup filenames now use MD5 hash to prevent collisions on files with identical names.
+- **Bug Fix**: Fixed Promise leak in Reconfigure panel when reopening an existing webview.
+- **Bug Fix**: `.gitignore` negation patterns (`!pattern`) are now properly parsed and logged.
+- **I18n**: Added 12 missing translation keys (preview, undo, formatter priority labels) to ja/fr/de/es/it/ru locales.
+
 ### v1.1.2
 - **Performance**: Optimized directory scanning with concurrent file size filtering, making it significantly faster on large projects.
 - **Memory Optimization**: Fixed a severe storage leak in the Undo history. Backups now correctly use the extension's local storage instead of VS Code's internal state database.
