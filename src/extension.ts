@@ -98,6 +98,27 @@ async function formatDirectory(uri: vscode.Uri, reconfigure: boolean) {
             log('info', `Formatting single file: ${uri.fsPath}`);
         } else {
             log('info', `Formatting directory: ${uri.fsPath}`);
+            if (config.showProgress && !config.preview) {
+                await vscode.window.withProgress({
+                    location: vscode.ProgressLocation.Notification,
+                    title: t('formatDirectory.formatting'),
+                    cancellable: true
+                }, async (progress, token) => {
+                    progress.report({ increment: 0, message: 'Scanning...' });
+                    files = await collectFiles(uri, config, token);
+
+                    if (token.isCancellationRequested) {
+                        vscode.window.showInformationMessage(t('formatDirectory.cancelled'));
+                        return;
+                    }
+                    if (files.length === 0) {
+                        vscode.window.showInformationMessage(t('formatDirectory.noFiles'));
+                        return;
+                    }
+                    await executeFormat(files, config, progress, token);
+                });
+                return;
+            }
             files = await collectFiles(uri, config);
         }
 
@@ -126,11 +147,11 @@ async function formatDirectory(uri: vscode.Uri, reconfigure: boolean) {
     }
 }
 
-async function executeFormat(files: vscode.Uri[], config: FormatConfig) {
+async function executeFormat(files: vscode.Uri[], config: FormatConfig, progress?: vscode.Progress<{ message?: string; increment?: number }>, token?: vscode.CancellationToken) {
     // Save history before formatting
     await historyManager.add(files);
 
-    await formatFiles(files, config);
+    await formatFiles(files, config, progress, token);
 }
 
 async function getFormatConfig(reconfigure: boolean): Promise<FormatConfig | null> {
@@ -259,7 +280,7 @@ async function parseGitignore(workspaceRoot: vscode.Uri): Promise<string[]> {
     return patterns;
 }
 
-async function collectFiles(uri: vscode.Uri, config: FormatConfig): Promise<vscode.Uri[]> {
+async function collectFiles(uri: vscode.Uri, config: FormatConfig, token?: vscode.CancellationToken): Promise<vscode.Uri[]> {
     // 1. Build include pattern from extensions: {*.js,*.ts,...}
     const exts = config.fileExtensions.map(ext => `*${ext}`).join(',');
     const includePattern = new vscode.RelativePattern(uri, config.recursive ? `**/{${exts}}` : `{${exts}}`);
@@ -285,7 +306,7 @@ async function collectFiles(uri: vscode.Uri, config: FormatConfig): Promise<vsco
         : undefined;
 
     // 4. Use findFiles for high performance
-    const files = await vscode.workspace.findFiles(includePattern, excludeGlob);
+    const files = await vscode.workspace.findFiles(includePattern, excludeGlob, undefined, token);
 
     // 5. File size filtering (still needed since findFiles doesn't check size)
     if (config.maxFileSize > 0) {
@@ -293,6 +314,7 @@ async function collectFiles(uri: vscode.Uri, config: FormatConfig): Promise<vsco
         const CONCURRENCY = 50;
 
         for (let i = 0; i < files.length; i += CONCURRENCY) {
+            if (token?.isCancellationRequested) { return filteredFiles; }
             const batch = files.slice(i, i + CONCURRENCY);
             await Promise.all(batch.map(async file => {
                 try {
@@ -316,10 +338,12 @@ async function collectFiles(uri: vscode.Uri, config: FormatConfig): Promise<vsco
 async function processInBatches<T, R>(
     items: T[],
     concurrencyLimit: number,
-    processor: (item: T) => Promise<R>
+    processor: (item: T) => Promise<R>,
+    token?: vscode.CancellationToken
 ): Promise<R[]> {
     const results: R[] = [];
     for (let i = 0; i < items.length; i += concurrencyLimit) {
+        if (token?.isCancellationRequested) { break; }
         const batch = items.slice(i, i + concurrencyLimit);
         const batchResults = await Promise.all(batch.map(processor));
         results.push(...batchResults);
@@ -327,7 +351,7 @@ async function processInBatches<T, R>(
     return results;
 }
 
-async function formatFiles(files: vscode.Uri[], config: FormatConfig) {
+async function formatFiles(files: vscode.Uri[], config: FormatConfig, externalProgress?: vscode.Progress<{ message?: string; increment?: number }>, externalToken?: vscode.CancellationToken) {
     let successCount = 0;
     let skippedCount = 0;
     let noFormatterCount = 0;
@@ -337,51 +361,60 @@ async function formatFiles(files: vscode.Uri[], config: FormatConfig) {
     statusBarItem.show();
     statusBarItem.text = `$(sync~spin) Formatting...`;
 
-    if (config.showProgress) {
+    let cancelled = false;
+    const runBatches = async (progress: vscode.Progress<{ message?: string; increment?: number }> | undefined, token: vscode.CancellationToken | undefined) => {
+        if (progress) {
+            progress.report({ increment: 0, message: `0/${files.length}` });
+        }
+        for (let i = 0; i < files.length; i += config.concurrencyLimit) {
+            if (token?.isCancellationRequested) {
+                cancelled = true;
+                log('info', 'Formatting cancelled by user.');
+                vscode.window.showInformationMessage(t('formatDirectory.cancelled'));
+                return;
+            }
+
+            const batch = files.slice(i, i + config.concurrencyLimit);
+            const results = await Promise.all(batch.map(file => formatFile(file, config)));
+
+            for (let j = 0; j < batch.length; j++) {
+                const file = batch[j];
+                const fileName = path.basename(file.fsPath);
+
+                if (progress) {
+                    progress.report({
+                        message: `${i + j + 1}/${files.length}: ${fileName}`,
+                        increment: (100 / files.length)
+                    });
+                }
+                statusBarItem.text = `$(sync~spin) Formatting: ${i + j + 1}/${files.length}`;
+
+                if (results[j] === 'formatted') {
+                    successCount++;
+                } else if (results[j] === 'skipped') {
+                    skippedCount++;
+                } else if (results[j] === 'no_formatter') {
+                    noFormatterCount++;
+                } else {
+                    failCount++;
+                    failedFiles.push(fileName);
+                }
+            }
+        }
+    };
+
+    if (externalProgress !== undefined) {
+        await runBatches(externalProgress, externalToken);
+    } else if (config.showProgress) {
         await vscode.window.withProgress({
             location: vscode.ProgressLocation.Notification,
             title: t('formatDirectory.formatting'),
             cancellable: true
         }, async (progress, token) => {
-            progress.report({ increment: 0, message: `0/${files.length}` });
-
-            for (let i = 0; i < files.length; i += config.concurrencyLimit) {
-                if (token.isCancellationRequested) {
-                    log('info', 'Formatting cancelled by user.');
-                    vscode.window.showInformationMessage(t('formatDirectory.cancelled'));
-                    return;
-                }
-
-                const batch = files.slice(i, i + config.concurrencyLimit);
-                const results = await Promise.all(batch.map(file => formatFile(file, config)));
-
-                for (let j = 0; j < batch.length; j++) {
-                    const file = batch[j];
-                    const fileName = path.basename(file.fsPath);
-
-                    progress.report({
-                        message: `${i + j + 1}/${files.length}: ${fileName}`,
-                        increment: (100 / files.length)
-                    });
-
-                    statusBarItem.text = `$(sync~spin) Formatting: ${i + j + 1}/${files.length}`;
-
-                    if (results[j] === 'formatted') {
-                        successCount++;
-                    } else if (results[j] === 'skipped') {
-                        skippedCount++;
-                    } else if (results[j] === 'no_formatter') {
-                        noFormatterCount++;
-                    } else {
-                        failCount++;
-                        failedFiles.push(fileName);
-                    }
-                }
-            }
+            await runBatches(progress, token);
         });
     } else {
         // Respect concurrencyLimit even without progress UI to avoid OOM
-        statusBarItem.text = `$(sync~spin) Formatting...`;
         const results = await processInBatches(files, config.concurrencyLimit, file => formatFile(file, config));
         results.forEach((result, index) => {
             if (result === 'formatted') {
@@ -397,23 +430,26 @@ async function formatFiles(files: vscode.Uri[], config: FormatConfig) {
         });
     }
 
+    if (cancelled) {
+        statusBarItem.text = `$(x) Formatting Cancelled`;
+        setTimeout(() => statusBarItem.hide(), 3000);
+        return;
+    }
     statusBarItem.text = `$(check) Format Directory Done`;
     setTimeout(() => statusBarItem.hide(), 3000);
 
     let message = t('formatDirectory.complete', successCount + skippedCount);
     if (noFormatterCount > 0) {
-        message += ` (${noFormatterCount} skipped/no formatter)`;
+        message += ' ' + t('formatDirectory.noFormatterSuffix', noFormatterCount);
     }
     log('info', message);
 
     if (failCount > 0) {
         message = t('formatDirectory.completeFailed', successCount + skippedCount, failCount);
         if (noFormatterCount > 0) {
-            message += ` (${noFormatterCount} no formatter)`;
+            message += ' ' + t('formatDirectory.noFormatterSuffix', noFormatterCount);
         }
         log('warning', message);
-        vscode.window.showWarningMessage(message);
-
         const showDetails = await vscode.window.showWarningMessage(
             t('formatDirectory.failedCount', failCount),
             t('formatDirectory.viewDetails')

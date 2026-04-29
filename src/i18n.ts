@@ -44,7 +44,10 @@ const messages: { [locale: string]: Messages } = {
         'formatDirectory.installComplete': 'Successfully installed {0} formatter(s).',
         'formatDirectory.installPartial': 'Installed {0} formatter(s), {1} failed.',
         'formatDirectory.allFormattersInstalled': 'All recommended formatters are already installed.',
-        'formatDirectory.respectGitignore': 'Respect .gitignore'
+        'formatDirectory.respectGitignore': 'Respect .gitignore',
+        'formatDirectory.noFormatterSuffix': '({0} no formatter)',
+        'formatDirectory.previewDiffNoChanges': 'No formatting changes or no formatter available for this file.',
+        'formatDirectory.previewDiffFailed': 'Failed to generate preview diff: {0}'
     },
     'zh-cn': {
         'formatDirectory.default': '格式化目录 (默认配置): {0}',
@@ -85,7 +88,10 @@ const messages: { [locale: string]: Messages } = {
         'formatDirectory.installComplete': '成功安装 {0} 个格式化插件。',
         'formatDirectory.installPartial': '已安装 {0} 个格式化插件，{1} 个失败。',
         'formatDirectory.allFormattersInstalled': '所有推荐的格式化插件已安装。',
-        'formatDirectory.respectGitignore': '遵守 .gitignore'
+        'formatDirectory.respectGitignore': '遵守 .gitignore',
+        'formatDirectory.noFormatterSuffix': '（{0} 个无格式化程序）',
+        'formatDirectory.previewDiffNoChanges': '无格式化更改，或该文件没有可用的格式化程序。',
+        'formatDirectory.previewDiffFailed': '生成预览差异失败：{0}'
     },
     'ja': {
         'formatDirectory.default': 'ディレクトリをフォーマット (デフォルト設定): {0}',
@@ -126,7 +132,10 @@ const messages: { [locale: string]: Messages } = {
         'formatDirectory.installComplete': '{0} 個のフォーマッタを正常にインストールしました。',
         'formatDirectory.installPartial': '{0} 個のフォーマッタをインストール、{1} 個失敗。',
         'formatDirectory.allFormattersInstalled': '推奨フォーマッタはすべてインストール済みです。',
-        'formatDirectory.respectGitignore': '.gitignore を尊重する'
+        'formatDirectory.respectGitignore': '.gitignore を尊重する',
+        'formatDirectory.noFormatterSuffix': '（{0} 個フォーマッターなし）',
+        'formatDirectory.previewDiffNoChanges': 'フォーマットの変更がないか、このファイルに使用できるフォーマッターがありません。',
+        'formatDirectory.previewDiffFailed': 'プレビュー差分の生成に失敗しました: {0}'
     },
     'fr': {
         'formatDirectory.default': 'Formater le répertoire (Paramètres par défaut): {0}',
@@ -167,7 +176,10 @@ const messages: { [locale: string]: Messages } = {
         'formatDirectory.installComplete': '{0} formateur(s) installé(s) avec succès.',
         'formatDirectory.installPartial': '{0} formateur(s) installé(s), {1} échoué(s).',
         'formatDirectory.allFormattersInstalled': 'Tous les formateurs recommandés sont déjà installés.',
-        'formatDirectory.respectGitignore': 'Respecter .gitignore'
+        'formatDirectory.respectGitignore': 'Respecter .gitignore',
+        'formatDirectory.noFormatterSuffix': '({0} sans formateur)',
+        'formatDirectory.previewDiffNoChanges': 'Aucune modification de formatage ou aucun formateur disponible pour ce fichier.',
+        'formatDirectory.previewDiffFailed': 'Échec de la génération du diff de prévisualisation: {0}'
     },
     'de': {
         'formatDirectory.default': 'Verzeichnis formatieren (Standardeinstellungen): {0}',
@@ -208,7 +220,10 @@ const messages: { [locale: string]: Messages } = {
         'formatDirectory.installComplete': '{0} Formatierer erfolgreich installiert.',
         'formatDirectory.installPartial': '{0} Formatierer installiert, {1} fehlgeschlagen.',
         'formatDirectory.allFormattersInstalled': 'Alle empfohlenen Formatierer sind bereits installiert.',
-        'formatDirectory.respectGitignore': '.gitignore berücksichtigen'
+        'formatDirectory.respectGitignore': '.gitignore berücksichtigen',
+        'formatDirectory.noFormatterSuffix': '({0} ohne Formatierer)',
+        'formatDirectory.previewDiffNoChanges': 'Keine Formatierungsänderungen oder kein Formatierer für diese Datei verfügbar.',
+        'formatDirectory.previewDiffFailed': 'Fehler beim Generieren der Vorschau-Diff: {0}'
     },
     'es': {
         'formatDirectory.default': 'Formatear directorio (Configuración predeterminada): {0}',
@@ -249,7 +264,10 @@ const messages: { [locale: string]: Messages } = {
         'formatDirectory.installComplete': '{0} formateador(es) instalado(s) correctamente.',
         'formatDirectory.installPartial': '{0} formateador(es) instalado(s), {1} fallido(s).',
         'formatDirectory.allFormattersInstalled': 'Todos los formateadores recomendados ya están instalados.',
-        'formatDirectory.respectGitignore': 'Respetar .gitignore'
+        'formatDirectory.respectGitignore': 'Respetar .gitignore',
+        'formatDirectory.noFormatterSuffix': '({0} sin formateador)',
+        'formatDirectory.previewDiffNoChanges': 'Sin cambios de formato o sin formateador disponible para este archivo.',
+        'formatDirectory.previewDiffFailed': 'Error al generar el diff de vista previa: {0}'
     },
     'it': {
         'formatDirectory.default': 'Formatta Directory (Impostazioni predefinite): {0}',
@@ -290,7 +308,10 @@ const messages: { [locale: string]: Messages } = {
         'formatDirectory.installComplete': '{0} formattatore/i installato/i con successo.',
         'formatDirectory.installPartial': '{0} formattatore/i installato/i, {1} fallito/i.',
         'formatDirectory.allFormattersInstalled': 'Tutti i formattatori consigliati sono già installati.',
-        'formatDirectory.respectGitignore': 'Rispetta .gitignore'
+        'formatDirectory.respectGitignore': 'Rispetta .gitignore',
+        'formatDirectory.noFormatterSuffix': '({0} senza formattatore)',
+        'formatDirectory.previewDiffNoChanges': 'Nessuna modifica di formattazione o nessun formattatore disponibile per questo file.',
+        'formatDirectory.previewDiffFailed': 'Errore nella generazione del diff di anteprima: {0}'
     },
     'ru': {
         'formatDirectory.default': 'Форматировать каталог (Настройки по умолчанию): {0}',
@@ -331,7 +352,10 @@ const messages: { [locale: string]: Messages } = {
         'formatDirectory.installComplete': 'Успешно установлено: {0} форматер(ов).',
         'formatDirectory.installPartial': 'Установлено: {0}, ошибка: {1}.',
         'formatDirectory.allFormattersInstalled': 'Все рекомендованные форматеры уже установлены.',
-        'formatDirectory.respectGitignore': 'Учитывать .gitignore'
+        'formatDirectory.respectGitignore': 'Учитывать .gitignore',
+        'formatDirectory.noFormatterSuffix': '({0} без форматировщика)',
+        'formatDirectory.previewDiffNoChanges': 'Нет изменений форматирования или форматер недоступен для этого файла.',
+        'formatDirectory.previewDiffFailed': 'Ошибка при создании превью diff: {0}'
     },
     'pt-br': {
         'formatDirectory.default': 'Formatar Diretório (Configurações Padrão): {0}',
@@ -372,7 +396,10 @@ const messages: { [locale: string]: Messages } = {
         'formatDirectory.installComplete': '{0} formatador(es) instalado(s) com sucesso.',
         'formatDirectory.installPartial': '{0} formatador(es) instalado(s), {1} falharam.',
         'formatDirectory.allFormattersInstalled': 'Todos os formatadores recomendados já estão instalados.',
-        'formatDirectory.respectGitignore': 'Respeitar .gitignore'
+        'formatDirectory.respectGitignore': 'Respeitar .gitignore',
+        'formatDirectory.noFormatterSuffix': '({0} sem formatador)',
+        'formatDirectory.previewDiffNoChanges': 'Sem alterações de formatação ou nenhum formatador disponível para este arquivo.',
+        'formatDirectory.previewDiffFailed': 'Falha ao gerar diff de prévia: {0}'
     },
     'ko': {
         'formatDirectory.default': '디렉토리 포맷 (기본 설정): {0}',
@@ -413,7 +440,10 @@ const messages: { [locale: string]: Messages } = {
         'formatDirectory.installComplete': '{0}개 포맷터 설치 완료.',
         'formatDirectory.installPartial': '{0}개 설치 완료, {1}개 실패.',
         'formatDirectory.allFormattersInstalled': '모든 추천 포맷터가 이미 설치되어 있습니다.',
-        'formatDirectory.respectGitignore': '.gitignore 준수'
+        'formatDirectory.respectGitignore': '.gitignore 준수',
+        'formatDirectory.noFormatterSuffix': '({0}개 포맷터 없음)',
+        'formatDirectory.previewDiffNoChanges': '서식 변경이 없거나 이 파일에 사용 가능한 포맷터가 없습니다.',
+        'formatDirectory.previewDiffFailed': '미리보기 diff 생성 실패: {0}'
     },
     'zh-tw': {
         'formatDirectory.default': '格式化目錄 (預設配置): {0}',
@@ -454,7 +484,10 @@ const messages: { [locale: string]: Messages } = {
         'formatDirectory.installComplete': '成功安裝 {0} 個格式化插件。',
         'formatDirectory.installPartial': '已安裝 {0} 個格式化插件，{1} 個失敗。',
         'formatDirectory.allFormattersInstalled': '所有推薦的格式化插件已安裝。',
-        'formatDirectory.respectGitignore': '遵守 .gitignore'
+        'formatDirectory.respectGitignore': '遵守 .gitignore',
+        'formatDirectory.noFormatterSuffix': '（{0} 個無格式化程式）',
+        'formatDirectory.previewDiffNoChanges': '無格式化更改，或該檔案沒有可用的格式化程式。',
+        'formatDirectory.previewDiffFailed': '生成預覽差異失敗：{0}'
     },
     'tr': {
         'formatDirectory.default': 'Dizini Formatla (Varsayılan Ayarlar): {0}',
@@ -495,7 +528,10 @@ const messages: { [locale: string]: Messages } = {
         'formatDirectory.installComplete': '{0} formatlayıcı başarıyla yüklendi.',
         'formatDirectory.installPartial': '{0} formatlayıcı yüklendi, {1} başarısız.',
         'formatDirectory.allFormattersInstalled': 'Tüm önerilen formatlayıcılar zaten yüklü.',
-        'formatDirectory.respectGitignore': '.gitignore\'a uy'
+        'formatDirectory.respectGitignore': '.gitignore\'a uy',
+        'formatDirectory.noFormatterSuffix': '({0} biçimlendirici yok)',
+        'formatDirectory.previewDiffNoChanges': 'Bu dosya için formatlama değişikliği yok veya formatter mevcut değil.',
+        'formatDirectory.previewDiffFailed': 'Önizleme farkı oluşturulamadı: {0}'
     },
     'ar': {
         'formatDirectory.default': 'تنسيق الدليل (الإعدادات الافتراضية): {0}',
@@ -536,7 +572,10 @@ const messages: { [locale: string]: Messages } = {
         'formatDirectory.installComplete': 'تم تثبيت {0} منسق(ات) بنجاح.',
         'formatDirectory.installPartial': 'تم تثبيت {0} منسق(ات)، {1} فشل.',
         'formatDirectory.allFormattersInstalled': 'جميع المنسقات الموصى بها مثبتة بالفعل.',
-        'formatDirectory.respectGitignore': 'احترام .gitignore'
+        'formatDirectory.respectGitignore': 'احترام .gitignore',
+        'formatDirectory.noFormatterSuffix': '({0} بدون منسق)',
+        'formatDirectory.previewDiffNoChanges': 'لا توجد تغييرات تنسيق أو لا يوجد منسق متاح لهذا الملف.',
+        'formatDirectory.previewDiffFailed': 'فشل إنشاء فرق المعاينة: {0}'
     },
     'hi': {
         'formatDirectory.default': 'डायरेक्टरी फ़ॉर्मेट करें (डिफ़ॉल्ट सेटिंग्स): {0}',
@@ -577,7 +616,10 @@ const messages: { [locale: string]: Messages } = {
         'formatDirectory.installComplete': '{0} फ़ॉर्मेटर सफलतापूर्वक इंस्टॉल किए गए।',
         'formatDirectory.installPartial': '{0} फ़ॉर्मेटर इंस्टॉल किए गए, {1} विफल।',
         'formatDirectory.allFormattersInstalled': 'सभी अनुशंसित फ़ॉर्मेटर पहले से इंस्टॉल हैं।',
-        'formatDirectory.respectGitignore': '.gitignore का सम्मान करें'
+        'formatDirectory.respectGitignore': '.gitignore का सम्मान करें',
+        'formatDirectory.noFormatterSuffix': '({0} कोई फ़ॉर्मेटर नहीं)',
+        'formatDirectory.previewDiffNoChanges': 'कोई फ़ॉर्मेटिंग परिवर्तन नहीं या इस फ़ाइल के लिए कोई फ़ॉर्मेटर उपलब्ध नहीं।',
+        'formatDirectory.previewDiffFailed': 'प्रीव्यू डिफ़ जनरेट करने में विफल: {0}'
     },
     'nl': {
         'formatDirectory.default': 'Map formatteren (standaardinstellingen): {0}',
@@ -618,7 +660,10 @@ const messages: { [locale: string]: Messages } = {
         'formatDirectory.installComplete': 'Succesvol {0} formatteerder(s) geïnstalleerd.',
         'formatDirectory.installPartial': '{0} formatteerder(s) geïnstalleerd, {1} mislukt.',
         'formatDirectory.allFormattersInstalled': 'Alle aanbevolen formatteerders zijn al geïnstalleerd.',
-        'formatDirectory.respectGitignore': '.gitignore respecteren'
+        'formatDirectory.respectGitignore': '.gitignore respecteren',
+        'formatDirectory.noFormatterSuffix': '({0} geen formatter)',
+        'formatDirectory.previewDiffNoChanges': 'Geen formatteringswijzigingen of geen formatter beschikbaar voor dit bestand.',
+        'formatDirectory.previewDiffFailed': 'Kan preview-diff niet genereren: {0}'
     },
     'vi': {
         'formatDirectory.default': 'Định dạng thư mục (Cài đặt mặc định): {0}',
@@ -659,7 +704,10 @@ const messages: { [locale: string]: Messages } = {
         'formatDirectory.installComplete': 'Đã cài đặt thành công {0} trình định dạng.',
         'formatDirectory.installPartial': 'Đã cài đặt {0} trình định dạng, {1} thất bại.',
         'formatDirectory.allFormattersInstalled': 'Tất cả các trình định dạng được khuyến nghị đã được cài đặt.',
-        'formatDirectory.respectGitignore': 'Tôn trọng .gitignore'
+        'formatDirectory.respectGitignore': 'Tôn trọng .gitignore',
+        'formatDirectory.noFormatterSuffix': '({0} không có trình định dạng)',
+        'formatDirectory.previewDiffNoChanges': 'Không có thay đổi định dạng hoặc không có trình định dạng cho tệp này.',
+        'formatDirectory.previewDiffFailed': 'Không tạo được diff xem trước: {0}'
     },
     'pl': {
         'formatDirectory.default': 'Formatuj Katalog (Ustawienia Domyślne): {0}',
@@ -700,7 +748,10 @@ const messages: { [locale: string]: Messages } = {
         'formatDirectory.installComplete': 'Pomyślnie zainstalowano {0} formater(ów).',
         'formatDirectory.installPartial': 'Zainstalowano {0} formater(ów), instalacja {1} nie powiodła się.',
         'formatDirectory.allFormattersInstalled': 'Wszystkie zalecane formatery są już zainstalowane.',
-        'formatDirectory.respectGitignore': 'Przestrzegaj .gitignore'
+        'formatDirectory.respectGitignore': 'Przestrzegaj .gitignore',
+        'formatDirectory.noFormatterSuffix': '({0} brak formatera)',
+        'formatDirectory.previewDiffNoChanges': 'Brak zmian formatowania lub brak formatera dostępnego dla tego pliku.',
+        'formatDirectory.previewDiffFailed': 'Nie udało się wygenerować podglądu diff: {0}'
     },
     'th': {
         'formatDirectory.default': 'จัดรูปแบบไดเรกทอรี (การตั้งค่าเริ่มต้น): {0}',
@@ -741,7 +792,10 @@ const messages: { [locale: string]: Messages } = {
         'formatDirectory.installComplete': 'ติดตั้งตัวจัดรูปแบบสำเร็จ {0} ตัว',
         'formatDirectory.installPartial': 'ติดตั้งตัวจัดรูปแบบ {0} ตัว, ล้มเหลว {1} ตัว',
         'formatDirectory.allFormattersInstalled': 'ติดตั้งตัวจัดรูปแบบที่แนะนำทั้งหมดแล้ว',
-        'formatDirectory.respectGitignore': 'เคารพ .gitignore'
+        'formatDirectory.respectGitignore': 'เคารพ .gitignore',
+        'formatDirectory.noFormatterSuffix': '({0} ไม่มีตัวจัดรูปแบบ)',
+        'formatDirectory.previewDiffNoChanges': 'ไม่มีการเปลี่ยนแปลงการจัดรูปแบบหรือไม่มีตัวจัดรูปแบบสำหรับไฟล์นี้',
+        'formatDirectory.previewDiffFailed': 'สร้าง diff ตัวอย่างล้มเหลว: {0}'
     },
     'id': {
         'formatDirectory.default': 'Format Direktori (Pengaturan Default): {0}',
@@ -782,7 +836,10 @@ const messages: { [locale: string]: Messages } = {
         'formatDirectory.installComplete': 'Berhasil menginstal {0} pemformat.',
         'formatDirectory.installPartial': 'Menginstal {0} pemformat, {1} gagal.',
         'formatDirectory.allFormattersInstalled': 'Semua pemformat yang disarankan sudah terinstal.',
-        'formatDirectory.respectGitignore': 'Hormati .gitignore'
+        'formatDirectory.respectGitignore': 'Hormati .gitignore',
+        'formatDirectory.noFormatterSuffix': '({0} tidak ada pemformat)',
+        'formatDirectory.previewDiffNoChanges': 'Tidak ada perubahan format atau tidak ada pemformat yang tersedia untuk file ini.',
+        'formatDirectory.previewDiffFailed': 'Gagal membuat diff pratinjau: {0}'
     }
 };
 

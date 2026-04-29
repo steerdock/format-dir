@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { t } from './i18n';
 import * as path from 'path';
+import * as crypto from 'crypto';
 
 export class PreviewManager {
     private panel: vscode.WebviewPanel | undefined;
@@ -101,7 +102,7 @@ export class PreviewManager {
             );
 
             if (!edits || edits.length === 0) {
-                vscode.window.showInformationMessage('No formatting changes or no formatter available for this file.');
+                vscode.window.showInformationMessage(t('formatDirectory.previewDiffNoChanges'));
                 return;
             }
 
@@ -120,8 +121,8 @@ export class PreviewManager {
             }
 
             const previewDir = await this.createPreviewDir();
-            const safeName = uri.fsPath.replace(/[^a-zA-Z0-9.\-]/g, '_');
-            const previewUri = vscode.Uri.joinPath(previewDir, `${safeName}.preview`);
+            const hash = crypto.createHash('md5').update(uri.fsPath).digest('hex').slice(0, 12);
+            const previewUri = vscode.Uri.joinPath(previewDir, `${hash}_${path.basename(uri.fsPath)}.preview`);
 
             await vscode.workspace.fs.writeFile(previewUri, Buffer.from(content, 'utf8'));
 
@@ -135,7 +136,7 @@ export class PreviewManager {
 
         } catch (e: any) {
             console.error(e);
-            vscode.window.showErrorMessage(`Failed to generate preview diff: ${e.message}`);
+            vscode.window.showErrorMessage(t('formatDirectory.previewDiffFailed', e.message));
         }
     }
 
