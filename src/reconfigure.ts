@@ -40,6 +40,7 @@ export class ReconfigureWebview {
                     this.context.subscriptions
                 );
 
+
                 const disposeDisposable = existingPanel.onDidDispose(() => {
                     disposeDisposable.dispose();
                     if (!settled) {
@@ -48,6 +49,7 @@ export class ReconfigureWebview {
                         resolve(null);
                     }
                 });
+
 
                 existingPanel.reveal();
                 return;
