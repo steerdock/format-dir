@@ -2,7 +2,7 @@
     "name": "format-directory",
     "displayName": "%displayName%",
     "description": "%description%",
-    "version": "1.1.4",
+    "version": "1.1.5",
     "publisher": "FormatDirectory",
     "engines": {
         "vscode": "^1.85.0"
@@ -194,8 +194,9 @@
                     "formatdir.logLevel": {
                       "type": "string",
                       "enum": [
-                        "info",
                         "debug",
+                        "info",
+                        "warning",
                         "error",
                         "off"
                     ],

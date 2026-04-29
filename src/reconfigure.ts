@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
+import * as crypto from 'crypto';
 import { t } from './i18n';
 
 export interface WebviewConfig {
@@ -103,11 +104,10 @@ export class ReconfigureWebview {
         const formatters: { id: string, name: string, languages: string[] }[] = [];
 
         vscode.extensions.all.forEach(ext => {
-            // Heuristic: check if extension has 'formatter' in its description or is a known formatter
             const pkg = ext.packageJSON;
-            const isFormatter = pkg?.categories?.includes('Formatters') ||
-                pkg?.description?.toLowerCase().includes('format') ||
-                pkg?.contributes?.languages; // Many formatters contribute languages
+            // More precise: check for documentFormattingEditProvider or Formatters category
+            const isFormatter = pkg?.contributes?.documentFormattingEditProvider ||
+                pkg?.categories?.includes('Formatters');
 
             if (isFormatter && !ext.id.startsWith('vscode.')) {
                 const langs = pkg?.contributes?.languages?.map((l: any) => l.id) || [];
@@ -132,6 +132,7 @@ export class ReconfigureWebview {
     }
 
     private getHtmlContent(config: WebviewConfig, formatters: any[]): string {
+        const nonce = crypto.randomBytes(16).toString('hex');
         const extensionItems = this.escapeHtml(config.fileExtensions.join(', '));
         const excludeItems = this.escapeHtml(config.excludePatterns.join(', '));
 
@@ -157,10 +158,10 @@ export class ReconfigureWebview {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'nonce-${nonce}'; script-src 'nonce-${nonce}';">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reconfigure</title>
-    <style>
+    <style nonce="${nonce}">
         :root {
             --padding: 20px;
             --border-radius: 4px;
@@ -347,7 +348,7 @@ export class ReconfigureWebview {
         </div>
     </div>
 
-    <script>
+    <script nonce="${nonce}">
         const vscode = acquireVsCodeApi();
 
         function save() {

@@ -5,6 +5,21 @@ All notable changes to the "Format Directory" extension will be documented in th
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+### v1.1.5
+- **Bug Fix**: Fixed `.gitignore` negation patterns (e.g., `!important/`) not actually re-including matched files — post-filter logic was a no-op; now uses a second `findFiles` scan to correctly restore negated paths.
+- **Bug Fix**: Fixed undo operation discarding history on restore failure — history is now preserved for retry until all files are successfully restored.
+- **Bug Fix**: Fixed binary file corruption during undo — file restore now uses `Uint8Array` / `vscode.workspace.fs.writeFile` instead of UTF-8 string conversion.
+- **Bug Fix**: Fixed dirty (unsaved) files being formatted and overwritten without warning — dirty files are now skipped during batch formatting.
+- **Bug Fix**: Fixed `formatterPriority` not taking effect during batch formatting — now temporarily overrides `editor.defaultFormatter` per language for the duration of the format operation.
+- **Bug Fix**: Fixed formatter detection in Reconfigure panel — removed unreliable heuristics (`contributes.languages`, `description.includes('format')`); now correctly checks `documentFormattingEditProvider` contribution and `Formatters` category.
+- **Bug Fix**: Fixed `logLevel` enum missing `warning` level — changed from `["info","debug","error","off"]` to `["debug","info","warning","error","off"]`.
+- **Security**: Replaced `unsafe-inline` CSP with nonce-based policy in both Preview and Reconfigure webviews.
+- **Improvement**: Preview diff files are now deleted on document close (`onDidCloseTextDocument`) instead of immediately, preventing premature cleanup.
+- **Improvement**: `configurePriority` command now queries all installed extensions for formatting providers and presents them as QuickPick items.
+- **Improvement**: Status bar messages now use i18n keys for cancelled/completed states.
+- **Build**: Upgraded TypeScript target from ES6 to ES2020.
+- **Build**: Added ESLint 9.x flat config (`eslint.config.mjs`).
+
 ### v1.1.4
 - **Bug Fix**: Fixed `log()` function silently dropping all `warning`-level messages due to missing entry in the levels array.
 - **Bug Fix**: Fixed double invocation of `onCancel` callback in Preview panel — closing the panel after confirming or cancelling no longer triggers the cancel callback a second time.

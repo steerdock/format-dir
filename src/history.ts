@@ -118,7 +118,7 @@ export class HistoryManager {
             return;
         }
 
-        const lastItem = history.pop();
+        const lastItem = history[history.length - 1];
         if (!lastItem) {
             return;
         }
@@ -141,20 +141,9 @@ export class HistoryManager {
                             const uri = vscode.Uri.parse(change.uri);
                             const backupUri = vscode.Uri.parse(change.backupUri);
 
+                            // Read backup as raw bytes and write directly (binary-safe)
                             const backupContentBytes = await vscode.workspace.fs.readFile(backupUri);
-                            const backupStr = Buffer.from(backupContentBytes).toString('utf8');
-
-                            const edit = new vscode.WorkspaceEdit();
-
-                            const document = await vscode.workspace.openTextDocument(uri);
-                            const fullRange = new vscode.Range(
-                                document.positionAt(0),
-                                document.positionAt(document.getText().length)
-                            );
-
-                            edit.replace(uri, fullRange, backupStr);
-                            await vscode.workspace.applyEdit(edit);
-                            await document.save();
+                            await vscode.workspace.fs.writeFile(uri, backupContentBytes);
 
                             // Cleanup restored backup
                             await vscode.workspace.fs.delete(backupUri).then(() => { }, () => { });
@@ -173,10 +162,13 @@ export class HistoryManager {
                     }
                 }
 
+                // Only pop and save history after successful restore
+                history.pop();
                 await this.saveHistory(history);
                 vscode.window.showInformationMessage(t('formatDirectory.undoComplete', restoredCount));
             });
         } catch (error: any) {
+            // Do NOT pop history on failure — user can retry
             vscode.window.showErrorMessage(t('formatDirectory.undoFailed', error.message));
         }
     }

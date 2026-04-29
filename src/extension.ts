@@ -98,6 +98,27 @@ async function formatDirectory(uri: vscode.Uri, reconfigure: boolean) {
             log('info', `Formatting single file: ${uri.fsPath}`);
         } else {
             log('info', `Formatting directory: ${uri.fsPath}`);
+            if (config.showProgress && !config.preview) {
+                await vscode.window.withProgress({
+                    location: vscode.ProgressLocation.Notification,
+                    title: t('formatDirectory.formatting'),
+                    cancellable: true
+                }, async (progress, token) => {
+                    progress.report({ increment: 0, message: 'Scanning...' });
+                    files = await collectFiles(uri, config, token);
+
+                    if (token.isCancellationRequested) {
+                        vscode.window.showInformationMessage(t('formatDirectory.cancelled'));
+                        return;
+                    }
+                    if (files.length === 0) {
+                        vscode.window.showInformationMessage(t('formatDirectory.noFiles'));
+                        return;
+                    }
+                    await executeFormat(files, config, progress, token);
+                });
+                return;
+            }
             files = await collectFiles(uri, config);
         }
 
@@ -126,11 +147,11 @@ async function formatDirectory(uri: vscode.Uri, reconfigure: boolean) {
     }
 }
 
-async function executeFormat(files: vscode.Uri[], config: FormatConfig) {
+async function executeFormat(files: vscode.Uri[], config: FormatConfig, progress?: vscode.Progress<{ message?: string; increment?: number }>, token?: vscode.CancellationToken) {
     // Save history before formatting
     await historyManager.add(files);
 
-    await formatFiles(files, config);
+    await formatFiles(files, config, progress, token);
 }
 
 async function getFormatConfig(reconfigure: boolean): Promise<FormatConfig | null> {
@@ -181,7 +202,7 @@ async function getFormatConfig(reconfigure: boolean): Promise<FormatConfig | nul
 /**
  * Parse .gitignore file and convert patterns to glob exclude patterns
  */
-async function parseGitignore(workspaceRoot: vscode.Uri): Promise<string[]> {
+async function parseGitignore(workspaceRoot: vscode.Uri): Promise<{ patterns: string[]; negationPatterns: string[] }> {
     const gitignoreUri = vscode.Uri.joinPath(workspaceRoot, '.gitignore');
     const patterns: string[] = [];
     const negationPatterns: string[] = [];
@@ -244,11 +265,9 @@ async function parseGitignore(workspaceRoot: vscode.Uri): Promise<string[]> {
             }
         }
 
-        // Note: VS Code's findFiles doesn't support negation patterns in exclude glob.
-        // We log the negation patterns but cannot fully apply them.
-        // This is a known limitation; a proper solution would require post-filtering.
+        // Negation patterns are now returned so collectFiles can post-filter
         if (negationPatterns.length > 0) {
-            log('debug', `Found ${negationPatterns.length} negation patterns in .gitignore (negation support is limited in exclude glob)`);
+            log('debug', `Found ${negationPatterns.length} negation patterns in .gitignore`);
         }
 
         log('info', `Parsed ${patterns.length} patterns from .gitignore`);
@@ -256,10 +275,10 @@ async function parseGitignore(workspaceRoot: vscode.Uri): Promise<string[]> {
         log('debug', 'No .gitignore found or unable to read it');
     }
 
-    return patterns;
+    return { patterns, negationPatterns };
 }
 
-async function collectFiles(uri: vscode.Uri, config: FormatConfig): Promise<vscode.Uri[]> {
+async function collectFiles(uri: vscode.Uri, config: FormatConfig, token?: vscode.CancellationToken): Promise<vscode.Uri[]> {
     // 1. Build include pattern from extensions: {*.js,*.ts,...}
     const exts = config.fileExtensions.map(ext => `*${ext}`).join(',');
     const includePattern = new vscode.RelativePattern(uri, config.recursive ? `**/{${exts}}` : `{${exts}}`);
@@ -274,38 +293,109 @@ async function collectFiles(uri: vscode.Uri, config: FormatConfig): Promise<vsco
             const gitignoreResults = await Promise.all(
                 workspaceFolders.map(ws => parseGitignore(ws.uri))
             );
-            const allGitignorePatterns = gitignoreResults.flat();
+            const allGitignorePatterns = gitignoreResults.flatMap(r => r.patterns);
+            const allNegationPatterns = gitignoreResults.flatMap(r => r.negationPatterns);
             allExcludePatterns = [...allExcludePatterns, ...allGitignorePatterns];
+
+            // 4. Use findFiles for high performance
+            const excludeGlob = allExcludePatterns.length > 0
+                ? `{${allExcludePatterns.join(',')}}`
+                : undefined;
+            let files = await vscode.workspace.findFiles(includePattern, excludeGlob, undefined, token);
+
+            // 5. Post-filter: re-include files matching negation patterns
+            // Since findFiles excludes them, we need to re-scan with negation patterns as include
+            if (allNegationPatterns.length > 0) {
+                const negationExts = allNegationPatterns.filter(p => !p.includes('*') || p.endsWith(config.fileExtensions.map(e => e.slice(1)).join('|')));
+                // Build include patterns from negation patterns that match our extensions
+                const negIncludePattern = new vscode.RelativePattern(uri, `**/{${exts}}`);
+                // Use only the non-gitignore exclude patterns (not the gitignore ones that block negated files)
+                const negExcludeGlob = config.excludePatterns.length > 0
+                    ? `{${config.excludePatterns.join(',')}}`
+                    : undefined;
+                const negFiles = await vscode.workspace.findFiles(negIncludePattern, negExcludeGlob, undefined, token);
+                // Filter negFiles to only those matching negation patterns
+                const reIncluded = negFiles.filter(file => {
+                    const relative = vscode.workspace.asRelativePath(file, false);
+                    for (const negPattern of allNegationPatterns) {
+                        const cleanPattern = negPattern.replace(/^\*\*\//, '');
+                        if (relative.includes(cleanPattern) || relative.match(new RegExp(cleanPattern.replace(/\*/g, '.*')))) {
+                            return true;
+                        }
+                    }
+                    return false;
+                });
+                // Merge: add re-included files that aren't already in the list
+                const existingSet = new Set(files.map(f => f.toString()));
+                for (const f of reIncluded) {
+                    if (!existingSet.has(f.toString())) {
+                        files.push(f);
+                    }
+                }
+                if (reIncluded.length > 0) {
+                    log('info', `Re-included ${reIncluded.length} files via .gitignore negation patterns`);
+                }
+            }
+
+            // 6. File size filtering (preserves original order)
+            if (config.maxFileSize > 0) {
+                const filteredFiles: vscode.Uri[] = [];
+                const CONCURRENCY = 50;
+
+                for (let i = 0; i < files.length; i += CONCURRENCY) {
+                    if (token?.isCancellationRequested) { return filteredFiles; }
+                    const batch = files.slice(i, i + CONCURRENCY);
+                    const batchResults = await Promise.all(batch.map(async file => {
+                        try {
+                            const stat = await vscode.workspace.fs.stat(file);
+                            return stat.size <= config.maxFileSize ? file : null;
+                        } catch (e) {
+                            log('debug', `Failed to stat ${file.fsPath}`);
+                            return null;
+                        }
+                    }));
+                    for (const result of batchResults) {
+                        if (result) {
+                            filteredFiles.push(result);
+                        } else {
+                            log('info', `Skipping ${path.basename(files[filteredFiles.length]?.fsPath || '')}: exceeds size limit`);
+                        }
+                    }
+                }
+                return filteredFiles;
+            }
+
+            return files;
         }
     }
 
-    // 3. Build exclude glob for findFiles
+    // Non-gitignore path
     const excludeGlob = allExcludePatterns.length > 0
         ? `{${allExcludePatterns.join(',')}}`
         : undefined;
+    const files = await vscode.workspace.findFiles(includePattern, excludeGlob, undefined, token);
 
-    // 4. Use findFiles for high performance
-    const files = await vscode.workspace.findFiles(includePattern, excludeGlob);
-
-    // 5. File size filtering (still needed since findFiles doesn't check size)
     if (config.maxFileSize > 0) {
         const filteredFiles: vscode.Uri[] = [];
         const CONCURRENCY = 50;
 
         for (let i = 0; i < files.length; i += CONCURRENCY) {
+            if (token?.isCancellationRequested) { return filteredFiles; }
             const batch = files.slice(i, i + CONCURRENCY);
-            await Promise.all(batch.map(async file => {
+            const batchResults = await Promise.all(batch.map(async file => {
                 try {
                     const stat = await vscode.workspace.fs.stat(file);
-                    if (stat.size <= config.maxFileSize) {
-                        filteredFiles.push(file);
-                    } else {
-                        log('info', `Skipping ${path.basename(file.fsPath)}: exceeds size limit`);
-                    }
+                    return stat.size <= config.maxFileSize ? file : null;
                 } catch (e) {
                     log('debug', `Failed to stat ${file.fsPath}`);
+                    return null;
                 }
             }));
+            for (const result of batchResults) {
+                if (result) {
+                    filteredFiles.push(result);
+                }
+            }
         }
         return filteredFiles;
     }
@@ -316,10 +406,12 @@ async function collectFiles(uri: vscode.Uri, config: FormatConfig): Promise<vsco
 async function processInBatches<T, R>(
     items: T[],
     concurrencyLimit: number,
-    processor: (item: T) => Promise<R>
+    processor: (item: T) => Promise<R>,
+    token?: vscode.CancellationToken
 ): Promise<R[]> {
     const results: R[] = [];
     for (let i = 0; i < items.length; i += concurrencyLimit) {
+        if (token?.isCancellationRequested) { break; }
         const batch = items.slice(i, i + concurrencyLimit);
         const batchResults = await Promise.all(batch.map(processor));
         results.push(...batchResults);
@@ -327,7 +419,7 @@ async function processInBatches<T, R>(
     return results;
 }
 
-async function formatFiles(files: vscode.Uri[], config: FormatConfig) {
+async function formatFiles(files: vscode.Uri[], config: FormatConfig, externalProgress?: vscode.Progress<{ message?: string; increment?: number }>, externalToken?: vscode.CancellationToken) {
     let successCount = 0;
     let skippedCount = 0;
     let noFormatterCount = 0;
@@ -337,51 +429,60 @@ async function formatFiles(files: vscode.Uri[], config: FormatConfig) {
     statusBarItem.show();
     statusBarItem.text = `$(sync~spin) Formatting...`;
 
-    if (config.showProgress) {
+    let cancelled = false;
+    const runBatches = async (progress: vscode.Progress<{ message?: string; increment?: number }> | undefined, token: vscode.CancellationToken | undefined) => {
+        if (progress) {
+            progress.report({ increment: 0, message: `0/${files.length}` });
+        }
+        for (let i = 0; i < files.length; i += config.concurrencyLimit) {
+            if (token?.isCancellationRequested) {
+                cancelled = true;
+                log('info', 'Formatting cancelled by user.');
+                vscode.window.showInformationMessage(t('formatDirectory.cancelled'));
+                return;
+            }
+
+            const batch = files.slice(i, i + config.concurrencyLimit);
+            const results = await Promise.all(batch.map(file => formatFile(file, config)));
+
+            for (let j = 0; j < batch.length; j++) {
+                const file = batch[j];
+                const fileName = path.basename(file.fsPath);
+
+                if (progress) {
+                    progress.report({
+                        message: `${i + j + 1}/${files.length}: ${fileName}`,
+                        increment: (100 / files.length)
+                    });
+                }
+                statusBarItem.text = `$(sync~spin) Formatting: ${i + j + 1}/${files.length}`;
+
+                if (results[j] === 'formatted') {
+                    successCount++;
+                } else if (results[j] === 'skipped') {
+                    skippedCount++;
+                } else if (results[j] === 'no_formatter') {
+                    noFormatterCount++;
+                } else {
+                    failCount++;
+                    failedFiles.push(fileName);
+                }
+            }
+        }
+    };
+
+    if (externalProgress !== undefined) {
+        await runBatches(externalProgress, externalToken);
+    } else if (config.showProgress) {
         await vscode.window.withProgress({
             location: vscode.ProgressLocation.Notification,
             title: t('formatDirectory.formatting'),
             cancellable: true
         }, async (progress, token) => {
-            progress.report({ increment: 0, message: `0/${files.length}` });
-
-            for (let i = 0; i < files.length; i += config.concurrencyLimit) {
-                if (token.isCancellationRequested) {
-                    log('info', 'Formatting cancelled by user.');
-                    vscode.window.showInformationMessage(t('formatDirectory.cancelled'));
-                    return;
-                }
-
-                const batch = files.slice(i, i + config.concurrencyLimit);
-                const results = await Promise.all(batch.map(file => formatFile(file, config)));
-
-                for (let j = 0; j < batch.length; j++) {
-                    const file = batch[j];
-                    const fileName = path.basename(file.fsPath);
-
-                    progress.report({
-                        message: `${i + j + 1}/${files.length}: ${fileName}`,
-                        increment: (100 / files.length)
-                    });
-
-                    statusBarItem.text = `$(sync~spin) Formatting: ${i + j + 1}/${files.length}`;
-
-                    if (results[j] === 'formatted') {
-                        successCount++;
-                    } else if (results[j] === 'skipped') {
-                        skippedCount++;
-                    } else if (results[j] === 'no_formatter') {
-                        noFormatterCount++;
-                    } else {
-                        failCount++;
-                        failedFiles.push(fileName);
-                    }
-                }
-            }
+            await runBatches(progress, token);
         });
     } else {
         // Respect concurrencyLimit even without progress UI to avoid OOM
-        statusBarItem.text = `$(sync~spin) Formatting...`;
         const results = await processInBatches(files, config.concurrencyLimit, file => formatFile(file, config));
         results.forEach((result, index) => {
             if (result === 'formatted') {
@@ -397,23 +498,26 @@ async function formatFiles(files: vscode.Uri[], config: FormatConfig) {
         });
     }
 
-    statusBarItem.text = `$(check) Format Directory Done`;
+    if (cancelled) {
+        statusBarItem.text = `$(x) ${t('formatDirectory.cancelled')}`;
+        setTimeout(() => statusBarItem.hide(), 3000);
+        return;
+    }
+    statusBarItem.text = `$(check) ${t('formatDirectory.complete', '')}`;
     setTimeout(() => statusBarItem.hide(), 3000);
 
     let message = t('formatDirectory.complete', successCount + skippedCount);
     if (noFormatterCount > 0) {
-        message += ` (${noFormatterCount} skipped/no formatter)`;
+        message += ' ' + t('formatDirectory.noFormatterSuffix', noFormatterCount);
     }
     log('info', message);
 
     if (failCount > 0) {
         message = t('formatDirectory.completeFailed', successCount + skippedCount, failCount);
         if (noFormatterCount > 0) {
-            message += ` (${noFormatterCount} no formatter)`;
+            message += ' ' + t('formatDirectory.noFormatterSuffix', noFormatterCount);
         }
         log('warning', message);
-        vscode.window.showWarningMessage(message);
-
         const showDetails = await vscode.window.showWarningMessage(
             t('formatDirectory.failedCount', failCount),
             t('formatDirectory.viewDetails')
@@ -439,36 +543,74 @@ async function formatFile(uri: vscode.Uri, config: FormatConfig): Promise<string
         log('debug', `Formatting file: ${uri.fsPath}`);
         const document = await vscode.workspace.openTextDocument(uri);
 
-        // Apply priority override if documented
-        // Note: This is simplified. Real "priority" requiring switching default formatter
-        // per file dynamically during a batch is risky for VS Code configuration.
-        // We rely on the user having configured it correctly or using configurePriority helper.
+        // Skip dirty (unsaved) files to avoid overwriting user's uncommitted changes
+        if (document.isDirty) {
+            log('info', `Skipping ${path.basename(uri.fsPath)}: file has unsaved changes`);
+            return 'skipped';
+        }
 
-        const editorConfig = vscode.workspace.getConfiguration('editor', document.uri);
-        const options = {
-            insertSpaces: editorConfig.get<boolean>('insertSpaces', true),
-            tabSize: editorConfig.get<number>('tabSize', 4)
-        };
+        // Apply formatterPriority: temporarily override editor.defaultFormatter for this language
+        const langId = document.languageId;
+        const priorityFormatter = config.formatterPriority[langId];
+        let originalFormatter: string | undefined;
+        let formatterOverridden = false;
 
-        const edits = await vscode.commands.executeCommand<vscode.TextEdit[]>(
-            'vscode.executeFormatDocumentProvider',
-            document.uri,
-            options
-        );
-
-        if (edits) {
-            if (edits.length > 0) {
-                const workspaceEdit = new vscode.WorkspaceEdit();
-                workspaceEdit.set(document.uri, edits);
-                await vscode.workspace.applyEdit(workspaceEdit);
-                await document.save();
-                return 'formatted';
-            } else {
-                return 'skipped';
+        if (priorityFormatter) {
+            const langConfig = vscode.workspace.getConfiguration('', document.uri);
+            originalFormatter = langConfig.get<string>(`[${langId}].editor.defaultFormatter`)
+                || langConfig.get<string>('editor.defaultFormatter');
+            if (originalFormatter !== priorityFormatter) {
+                try {
+                    await langConfig.update(`[${langId}].editor.defaultFormatter`, priorityFormatter, vscode.ConfigurationTarget.Workspace);
+                    formatterOverridden = true;
+                    log('debug', `Overrode formatter for ${langId} to ${priorityFormatter}`);
+                } catch (e) {
+                    log('warning', `Failed to override formatter for ${langId}: ${e}`);
+                }
             }
         }
 
-        return 'no_formatter';
+        try {
+            const editorConfig = vscode.workspace.getConfiguration('editor', document.uri);
+            const options = {
+                insertSpaces: editorConfig.get<boolean>('insertSpaces', true),
+                tabSize: editorConfig.get<number>('tabSize', 4)
+            };
+
+            const edits = await vscode.commands.executeCommand<vscode.TextEdit[]>(
+                'vscode.executeFormatDocumentProvider',
+                document.uri,
+                options
+            );
+
+            if (edits) {
+                if (edits.length > 0) {
+                    const workspaceEdit = new vscode.WorkspaceEdit();
+                    workspaceEdit.set(document.uri, edits);
+                    await vscode.workspace.applyEdit(workspaceEdit);
+                    await document.save();
+                    return 'formatted';
+                } else {
+                    return 'skipped';
+                }
+            }
+
+            return 'no_formatter';
+        } finally {
+            // Restore original formatter setting if we overrode it
+            if (formatterOverridden) {
+                try {
+                    const langConfig = vscode.workspace.getConfiguration('', document.uri);
+                    if (originalFormatter === undefined) {
+                        await langConfig.update(`[${langId}].editor.defaultFormatter`, undefined, vscode.ConfigurationTarget.Workspace);
+                    } else {
+                        await langConfig.update(`[${langId}].editor.defaultFormatter`, originalFormatter, vscode.ConfigurationTarget.Workspace);
+                    }
+                } catch (e) {
+                    log('warning', `Failed to restore formatter for ${langId}: ${e}`);
+                }
+            }
+        }
     } catch (error: any) {
         log('error', `Failed to format ${uri.fsPath}: ${error}`);
         return 'failed';
@@ -492,26 +634,52 @@ async function configurePriority() {
     // 1. Select Language
     const languages = await vscode.languages.getLanguages();
     const lang = await vscode.window.showQuickPick(languages, {
-        placeHolder: 'Select language to configure formatter priority'
+        placeHolder: t('formatDirectory.configurePriority')
     });
 
     if (!lang) {
         return;
     }
 
-    // 2. Select Formatter (Extension)
-    // We can't easily query "all formatters for a language".
-    // But we can ask the user for the extension ID or try to find installed extensions.
-    // For now, let's just let them type the Extension ID or offer known ones if we could.
-    // Simplifying: Just explain OR let them input.
+    // 2. Find installed formatters for this language
+    const formatters: { id: string; name: string }[] = [];
+    vscode.extensions.all.forEach(ext => {
+        const pkg = ext.packageJSON;
+        const hasFormatter = pkg?.contributes?.documentFormattingEditProvider ||
+            pkg?.categories?.includes('Formatters');
+        if (hasFormatter && !ext.id.startsWith('vscode.')) {
+            const langs = pkg?.contributes?.languages?.map((l: any) => l.id) || [];
+            if (langs.length === 0 || langs.includes(lang)) {
+                formatters.push({ id: ext.id, name: pkg.displayName || ext.id });
+            }
+        }
+    });
 
-    // Better: Open settings UI filtered to that language's default formatter
-    // vscode.commands.executeCommand('workbench.action.openSettings', `@lang:${lang} editor.defaultFormatter`);
+    if (formatters.length === 0) {
+        // No formatter found, open settings
+        vscode.commands.executeCommand('workbench.action.openSettings', `@lang:${lang} editor.defaultFormatter`);
+        return;
+    }
 
-    // This is the most robust "support".
-    vscode.commands.executeCommand('workbench.action.openSettings', `@lang:${lang} editor.defaultFormatter`);
+    // 3. Let user select a formatter
+    const selected = await vscode.window.showQuickPick(
+        formatters.map(f => ({ label: f.name, description: f.id, id: f.id })),
+        { placeHolder: t('formatDirectory.configurePriority') + ': ' + lang }
+    );
 
-    vscode.window.showInformationMessage(t('formatDirectory.configurePriority') + ': ' + lang);
+    if (!selected) {
+        return;
+    }
+
+    // 4. Write to settings.json
+    const config = vscode.workspace.getConfiguration('formatdir');
+    const currentPriority = config.get<Record<string, string>>('formatterPriority', {});
+    currentPriority[lang] = selected.id;
+    await config.update('formatterPriority', currentPriority, vscode.ConfigurationTarget.Workspace);
+
+    vscode.window.showInformationMessage(
+        t('formatDirectory.configurePriority') + `: ${lang} -> ${selected.label}`
+    );
 }
 
 /**

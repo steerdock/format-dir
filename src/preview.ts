@@ -1,6 +1,9 @@
 import * as vscode from 'vscode';
 import { t } from './i18n';
 import * as path from 'path';
+import * as crypto from 'crypto';
+
+const pendingPreviewDeletions = new Map<string, vscode.Disposable>();
 
 export class PreviewManager {
     private panel: vscode.WebviewPanel | undefined;
@@ -101,7 +104,7 @@ export class PreviewManager {
             );
 
             if (!edits || edits.length === 0) {
-                vscode.window.showInformationMessage('No formatting changes or no formatter available for this file.');
+                vscode.window.showInformationMessage(t('formatDirectory.previewDiffNoChanges'));
                 return;
             }
 
@@ -120,8 +123,8 @@ export class PreviewManager {
             }
 
             const previewDir = await this.createPreviewDir();
-            const safeName = uri.fsPath.replace(/[^a-zA-Z0-9.\-]/g, '_');
-            const previewUri = vscode.Uri.joinPath(previewDir, `${safeName}.preview`);
+            const hash = crypto.createHash('md5').update(uri.fsPath).digest('hex').slice(0, 12);
+            const previewUri = vscode.Uri.joinPath(previewDir, `${hash}_${path.basename(uri.fsPath)}.preview`);
 
             await vscode.workspace.fs.writeFile(previewUri, Buffer.from(content, 'utf8'));
 
@@ -131,17 +134,27 @@ export class PreviewManager {
                 `Preview: ${path.basename(uri.fsPath)}`
             );
 
-            vscode.workspace.fs.delete(previewUri).then(() => {}, () => {});
+            // Delete preview file only after the diff tab is closed
+            const previewKey = previewUri.toString();
+            const closeDisposable = vscode.workspace.onDidCloseTextDocument(doc => {
+                if (doc.uri.toString() === previewKey) {
+                    vscode.workspace.fs.delete(previewUri).then(() => { }, () => { });
+                    const d = pendingPreviewDeletions.get(previewKey);
+                    if (d) { d.dispose(); pendingPreviewDeletions.delete(previewKey); }
+                }
+            });
+            pendingPreviewDeletions.set(previewKey, closeDisposable);
 
         } catch (e: any) {
             console.error(e);
-            vscode.window.showErrorMessage(`Failed to generate preview diff: ${e.message}`);
+            vscode.window.showErrorMessage(t('formatDirectory.previewDiffFailed', e.message));
         }
     }
 
     // We will update this to actually calculate edits if we want true preview, 
     // but for now let's just list the files that WILL be formatted.
     private getWebviewContent(files: vscode.Uri[]): string {
+        const nonce = crypto.randomBytes(16).toString('hex');
         const fileListItems = files.map(uri => {
             const fsPath = uri.fsPath;
             // Escape URI and path to prevent HTML injection
@@ -161,10 +174,10 @@ export class PreviewManager {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'nonce-${nonce}'; script-src 'nonce-${nonce}';">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${t('formatDirectory.previewTitle')}</title>
-    <style>
+    <style nonce="${nonce}">
         body { font-family: var(--vscode-font-family); color: var(--vscode-editor-foreground); background-color: var(--vscode-editor-background); padding: 20px; }
         h2 { color: var(--vscode-editor-foreground); }
         .description { margin-bottom: 20px; }
@@ -193,7 +206,7 @@ export class PreviewManager {
         <button class="btn-secondary" onclick="cancel()">${t('formatDirectory.cancelFormat')}</button>
     </div>
 
-    <script>
+    <script nonce="${nonce}">
         const vscode = acquireVsCodeApi();
         function openDiff(uri) {
             vscode.postMessage({ command: 'openDiff', uri: uri });
