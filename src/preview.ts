@@ -2,8 +2,11 @@ import * as vscode from 'vscode';
 import { t } from './i18n';
 import * as path from 'path';
 import * as crypto from 'crypto';
+<<<<<<< HEAD
 
 const pendingPreviewDeletions = new Map<string, vscode.Disposable>();
+=======
+>>>>>>> de10a712d84efa92b083ffcb42d0710dc5b946fc
 
 export class PreviewManager {
     private panel: vscode.WebviewPanel | undefined;

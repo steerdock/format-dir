@@ -375,6 +375,13 @@ async function collectFiles(uri: vscode.Uri, config: FormatConfig, token?: vscod
         : undefined;
     const files = await vscode.workspace.findFiles(includePattern, excludeGlob, undefined, token);
 
+<<<<<<< HEAD
+=======
+    // 4. Use findFiles for high performance
+    const files = await vscode.workspace.findFiles(includePattern, excludeGlob, undefined, token);
+
+    // 5. File size filtering (still needed since findFiles doesn't check size)
+>>>>>>> de10a712d84efa92b083ffcb42d0710dc5b946fc
     if (config.maxFileSize > 0) {
         const filteredFiles: vscode.Uri[] = [];
         const CONCURRENCY = 50;
@@ -499,11 +506,19 @@ async function formatFiles(files: vscode.Uri[], config: FormatConfig, externalPr
     }
 
     if (cancelled) {
+<<<<<<< HEAD
         statusBarItem.text = `$(x) ${t('formatDirectory.cancelled')}`;
         setTimeout(() => statusBarItem.hide(), 3000);
         return;
     }
     statusBarItem.text = `$(check) ${t('formatDirectory.complete', '')}`;
+=======
+        statusBarItem.text = `$(x) Formatting Cancelled`;
+        setTimeout(() => statusBarItem.hide(), 3000);
+        return;
+    }
+    statusBarItem.text = `$(check) Format Directory Done`;
+>>>>>>> de10a712d84efa92b083ffcb42d0710dc5b946fc
     setTimeout(() => statusBarItem.hide(), 3000);
 
     let message = t('formatDirectory.complete', successCount + skippedCount);

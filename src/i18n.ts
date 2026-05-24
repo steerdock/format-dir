@@ -47,9 +47,13 @@ const messages: { [locale: string]: Messages } = {
         'formatDirectory.respectGitignore': 'Respect .gitignore',
         'formatDirectory.noFormatterSuffix': '({0} no formatter)',
         'formatDirectory.previewDiffNoChanges': 'No formatting changes or no formatter available for this file.',
+<<<<<<< HEAD
         'formatDirectory.previewDiffFailed': 'Failed to generate preview diff: {0}',
         'formatDirectory.formattingStatus': 'Formatting...',
         'formatDirectory.formattingFile': 'Formatting: {0}/{1}'
+=======
+        'formatDirectory.previewDiffFailed': 'Failed to generate preview diff: {0}'
+>>>>>>> de10a712d84efa92b083ffcb42d0710dc5b946fc
     },
     'zh-cn': {
         'formatDirectory.default': '格式化目录 (默认配置): {0}',
