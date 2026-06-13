@@ -5,6 +5,20 @@ All notable changes to the "Format Directory" extension will be documented in th
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+### v1.1.6
+- **Bug Fix**: Fixed file size filter logging incorrect file name — was using `filteredFiles.length` as index instead of the actual batch index.
+- **Bug Fix**: Removed unused `negationExts` variable in `collectFiles` that had incorrect logic.
+- **Bug Fix**: Fixed negation pattern regex not escaping metacharacters (`.`, `?`, etc.) — now uses proper `globToRegExp()` helper.
+- **Improvement**: Extracted `filterFilesBySize()` shared function — eliminates duplicated file-size filtering code between gitignore and non-gitignore paths.
+- **Improvement**: `formatterPriority` now applies batch override before formatting starts and restores after completion, instead of per-file read/write — significantly reduces configuration churn and `onDidChangeConfiguration` event spam.
+- **Improvement**: Added nested `.gitignore` support — scans subdirectories for `.gitignore` files and applies their patterns with correct path prefixes.
+- **Improvement**: Added formatting elapsed time display in completion messages.
+- **Improvement**: Status bar now uses i18n keys `formattingStatus` and `formattingFile` instead of hardcoded English strings.
+- **Improvement**: `installRecommendedFormatters` now reads from `formatdir.recommendedFormatters` configuration, allowing users to customize the recommended list.
+- **i18n**: Added `formattingStatus` and `formattingFile` translations for all 18 languages.
+- **Build**: Updated ESLint config to use `@typescript-eslint/eslint-plugin` direct import for ESLint 9.x flat config compatibility.
+- **Build**: Updated `lint` npm script to reference `eslint.config.mjs`.
+
 ### v1.1.5
 - **Bug Fix**: Fixed `.gitignore` negation patterns (e.g., `!important/`) not actually re-including matched files — post-filter logic was a no-op; now uses a second `findFiles` scan to correctly restore negated paths.
 - **Bug Fix**: Fixed undo operation discarding history on restore failure — history is now preserved for retry until all files are successfully restored.

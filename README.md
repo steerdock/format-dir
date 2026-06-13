@@ -4,16 +4,19 @@ that formats entire directories or individual files using your configured VS Cod
 
 ## Changelog
 
-### v1.1.4
-- **Bug Fix**: Fixed `log()` function silently dropping all `warning`-level messages due to missing entry in the levels array.
-- **Bug Fix**: Fixed double invocation of `onCancel` callback in Preview panel — closing the panel after confirming or cancelling no longer triggers the cancel callback a second time.
-- **Bug Fix**: Fixed Promise leak in Reconfigure panel when a second `show()` call reuses an existing panel; closing the panel without interacting no longer leaves the caller permanently suspended.
-- **Bug Fix**: Added missing `formatDirectory.respectGitignore` translation key to all 19 supported languages; the Reconfigure panel was previously displaying the raw key string instead of localized text.
-- **Performance**: Removed redundant `fs.stat` call in `collectFiles` — the URI is already known to be a directory at the call site.
-- **Code Quality**: Simplified file extension map expression that had two identical branches.
-- **Code Quality**: Extracted `processInBatches` helper to module level, avoiding unnecessary function allocation on each `formatFiles` call.
-- **Security**: Added `Content-Security-Policy` meta tag to both Preview and Reconfigure webviews.
-- **Resource**: Temporary diff preview files are now deleted immediately after the diff view is opened, preventing accumulation in extension storage.
+### v1.1.6
+- **Bug Fix**: Fixed file size filter logging incorrect file name — was using `filteredFiles.length` as index instead of the actual batch index.
+- **Bug Fix**: Removed unused `negationExts` variable in `collectFiles` that had incorrect logic.
+- **Bug Fix**: Fixed negation pattern regex not escaping metacharacters (`.`, `?`, etc.) — now uses proper `globToRegExp()` helper.
+- **Improvement**: Extracted `filterFilesBySize()` shared function — eliminates duplicated file-size filtering code between gitignore and non-gitignore paths.
+- **Improvement**: `formatterPriority` now applies batch override before formatting starts and restores after completion, instead of per-file read/write — significantly reduces configuration churn and `onDidChangeConfiguration` event spam.
+- **Improvement**: Added nested `.gitignore` support — scans subdirectories for `.gitignore` files and applies their patterns with correct path prefixes.
+- **Improvement**: Added formatting elapsed time display in completion messages.
+- **Improvement**: Status bar now uses i18n keys `formattingStatus` and `formattingFile` instead of hardcoded English strings.
+- **Improvement**: `installRecommendedFormatters` now reads from `formatdir.recommendedFormatters` configuration, allowing users to customize the recommended list.
+- **i18n**: Added `formattingStatus` and `formattingFile` translations for all 18 languages.
+- **Build**: Updated ESLint config to use `@typescript-eslint/eslint-plugin` direct import for ESLint 9.x flat config compatibility.
+- **Build**: Updated `lint` npm script to reference `eslint.config.mjs`.
 
 See [CHANGELOG.md](./CHANGELOG.md) for detailed release notes.
 
