@@ -71,7 +71,7 @@ export class HistoryManager {
                         backupUri: backupUri.toString()
                     };
                 } catch (error) {
-                    console.error(`Failed to read file for history: ${file.fsPath}`, error);
+                    // Silently skip files that can't be read for backup
                     return null;
                 }
             }));
@@ -130,7 +130,7 @@ export class HistoryManager {
         };
 
         try {
-            await vscode.window.withProgress(progressOptions, async (progress) => {
+            await vscode.window.withProgress(progressOptions, async (_progress) => {
                 let restoredCount = 0;
                 const CONCURRENCY = HistoryManager.BACKUP_CONCURRENCY;
 
@@ -150,7 +150,8 @@ export class HistoryManager {
 
                             return true;
                         } catch (err) {
-                            console.error(`Failed to restore file: ${change.uri}`, err);
+                            // Silently skip files that can't be restored; caller reports overall failure
+                            void err;
                             return false;
                         }
                     }));
@@ -167,9 +168,10 @@ export class HistoryManager {
                 await this.saveHistory(history);
                 vscode.window.showInformationMessage(t('formatDirectory.undoComplete', restoredCount));
             });
-        } catch (error: any) {
+        } catch (error: unknown) {
             // Do NOT pop history on failure — user can retry
-            vscode.window.showErrorMessage(t('formatDirectory.undoFailed', error.message));
+            const message = error instanceof Error ? error.message : String(error);
+            vscode.window.showErrorMessage(t('formatDirectory.undoFailed', message));
         }
     }
 }

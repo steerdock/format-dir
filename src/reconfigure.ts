@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as crypto from 'crypto';
 import { t } from './i18n';
+import { escapeHtml } from './utils';
 
 export interface WebviewConfig {
     fileExtensions: string[];
@@ -17,73 +18,48 @@ export class ReconfigureWebview {
 
     public async show(currentConfig: WebviewConfig): Promise<WebviewConfig | null> {
         return new Promise((resolve) => {
-            if (this.panel) {
-                const existingPanel = this.panel;
-                let settled = false;
+            let settled = false;
 
-                const messageDisposable = existingPanel.webview.onDidReceiveMessage(
-                    async message => {
-                        if (settled) { return; }
-                        settled = true;
-                        messageDisposable.dispose();
-                        switch (message.command) {
-                            case 'save':
-                                resolve(message.config);
-                                existingPanel.dispose();
-                                break;
-                            case 'cancel':
-                                resolve(null);
-                                existingPanel.dispose();
-                                break;
-                        }
-                    },
-                    undefined,
-                    this.context.subscriptions
+            const doResolve = (value: WebviewConfig | null) => {
+                if (settled) { return; }
+                settled = true;
+                resolve(value);
+            };
+
+            const existingPanel = this.panel;
+            if (existingPanel) {
+                existingPanel.reveal();
+            } else {
+                this.panel = vscode.window.createWebviewPanel(
+                    'reconfigureFormatDir',
+                    t('formatDirectory.reconfigureTitle') || 'Reconfigure Format Directory',
+                    vscode.ViewColumn.One,
+                    {
+                        enableScripts: true,
+                        retainContextWhenHidden: true,
+                        localResourceRoots: [vscode.Uri.file(path.join(this.context.extensionPath, 'src'))]
+                    }
                 );
 
-
-                const disposeDisposable = existingPanel.onDidDispose(() => {
-                    disposeDisposable.dispose();
-                    if (!settled) {
-                        settled = true;
-                        messageDisposable.dispose();
-                        resolve(null);
-                    }
-                });
-
-
-                existingPanel.reveal();
-                return;
+                const formatters = this.getInstalledFormatters();
+                this.panel.webview.html = this.getHtmlContent(currentConfig, formatters);
             }
 
-            this.panel = vscode.window.createWebviewPanel(
-                'reconfigureFormatDir',
-                t('formatDirectory.reconfigureTitle') || 'Reconfigure Format Directory',
-                vscode.ViewColumn.One,
-                {
-                    enableScripts: true,
-                    retainContextWhenHidden: true,
-                    localResourceRoots: [vscode.Uri.file(path.join(this.context.extensionPath, 'src'))]
-                }
-            );
+            const activePanel = this.panel!;
 
-            const formatters = this.getInstalledFormatters();
-
-            this.panel.webview.html = this.getHtmlContent(currentConfig, formatters);
-
-            this.panel.webview.onDidReceiveMessage(
+            const messageDisposable = activePanel.webview.onDidReceiveMessage(
                 async message => {
                     switch (message.command) {
                         case 'save':
-                            resolve(message.config);
-                            this.panel?.dispose();
+                            doResolve(message.config);
+                            activePanel.dispose();
                             break;
                         case 'cancel':
-                            resolve(null);
-                            this.panel?.dispose();
+                            doResolve(null);
+                            activePanel.dispose();
                             break;
                         case 'openSettings':
-                            const { lang, formatter } = message;
+                            const { lang } = message;
                             await vscode.commands.executeCommand('workbench.action.openSettings', `@lang:${lang} editor.defaultFormatter`);
                             break;
                     }
@@ -92,9 +68,11 @@ export class ReconfigureWebview {
                 this.context.subscriptions
             );
 
-            this.panel.onDidDispose(() => {
+            const disposeDisposable = activePanel.onDidDispose(() => {
                 this.panel = undefined;
-                resolve(null);
+                messageDisposable.dispose();
+                disposeDisposable.dispose();
+                doResolve(null);
             });
         });
     }
@@ -110,7 +88,7 @@ export class ReconfigureWebview {
                 pkg?.categories?.includes('Formatters');
 
             if (isFormatter && !ext.id.startsWith('vscode.')) {
-                const langs = pkg?.contributes?.languages?.map((l: any) => l.id) || [];
+                const langs = pkg?.contributes?.languages?.map((l: { id: string }) => l.id) || [];
                 formatters.push({
                     id: ext.id,
                     name: pkg.displayName || ext.id,
@@ -122,26 +100,17 @@ export class ReconfigureWebview {
         return formatters;
     }
 
-    private escapeHtml(str: string): string {
-        return str
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#39;');
-    }
-
-    private getHtmlContent(config: WebviewConfig, formatters: any[]): string {
+    private getHtmlContent(config: WebviewConfig, formatters: { id: string; name: string; languages: string[] }[]): string {
         const nonce = crypto.randomBytes(16).toString('hex');
-        const extensionItems = this.escapeHtml(config.fileExtensions.join(', '));
-        const excludeItems = this.escapeHtml(config.excludePatterns.join(', '));
+        const extensionItems = escapeHtml(config.fileExtensions.join(', '));
+        const excludeItems = escapeHtml(config.excludePatterns.join(', '));
 
         const formatterCheckboxes = formatters.map(f => {
-            const safeName = this.escapeHtml(f.name);
-            const safeId = this.escapeHtml(f.id);
-            const safeLangs = this.escapeHtml(f.languages.slice(0, 5).join(', '));
-            const safeFirstLang = this.escapeHtml(f.languages[0] || '');
-            const escapedConfigure = this.escapeHtml(t('formatDirectory.configure') || 'Configure');
+            const safeName = escapeHtml(f.name);
+            const safeId = escapeHtml(f.id);
+            const safeLangs = escapeHtml(f.languages.slice(0, 5).join(', '));
+            const safeFirstLang = escapeHtml(f.languages[0] || '');
+            const escapedConfigure = escapeHtml(t('formatDirectory.configure') || 'Configure');
             return `
             <div class="formatter-item">
                 <div class="formatter-info">

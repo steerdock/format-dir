@@ -20,5 +20,9 @@
     "config.respectGitignore.description": "Автоматически исключать файлы, соответствующие шаблонам в .gitignore.",
     "command.installFormatters": "Установить рекомендуемые форматеры",
     "config.installRecommendedFormattersHelp.markdownDescription": "[Установить рекомендованные форматеры](command:formatdir.installFormatters)",
-    "config.installRecommendedFormattersHelp.default": "Нажмите на ссылку выше, чтобы установить рекомендуемые форматеры."
+    "config.installRecommendedFormattersHelp.default": "Нажмите на ссылку выше, чтобы установить рекомендуемые форматеры.",
+    "command.clearResults": "Clear Results",
+    "command.refreshResults": "Refresh Results",
+    "config.recommendedFormatters.description": "Custom list of recommended formatters for the Install Formatters command. Leave empty to use the built-in defaults.",
+    "view.formatDirectoryResults": "Format Results"
 }

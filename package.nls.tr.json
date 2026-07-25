@@ -20,5 +20,9 @@
     "config.respectGitignore.description": ".gitignore içindeki desenlerle eşleşen dosyaları otomatik olarak hariç tut.",
     "command.installFormatters": "Önerilen Formatlayıcıları Yükle",
     "config.installRecommendedFormattersHelp.markdownDescription": "[Önerilen Formatlayıcıları Yükle](command:formatdir.installFormatters)",
-    "config.installRecommendedFormattersHelp.default": "Önerilen formatlayıcıları kurmak için yukarıdaki bağlantıya tıklayın."
+    "config.installRecommendedFormattersHelp.default": "Önerilen formatlayıcıları kurmak için yukarıdaki bağlantıya tıklayın.",
+    "command.clearResults": "Clear Results",
+    "command.refreshResults": "Refresh Results",
+    "config.recommendedFormatters.description": "Custom list of recommended formatters for the Install Formatters command. Leave empty to use the built-in defaults.",
+    "view.formatDirectoryResults": "Format Results"
 }

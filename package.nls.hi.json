@@ -20,5 +20,9 @@
     "config.respectGitignore.description": ".gitignore में पैटर्न से मेल खाती फ़ाइलों को स्वचालित रूप से बहिष्कृत करें।",
     "command.installFormatters": "अनुशंसित फ़ॉर्मेटर इंस्टॉल करें",
     "config.installRecommendedFormattersHelp.markdownDescription": "[अनुशंसित स्वरूपित करने वालों को स्थापित करें](command:formatdir.installFormatters)",
-    "config.installRecommendedFormattersHelp.default": "अनुशंसित फ़ॉर्मेटर इंस्टॉल करने के लिए ऊपर दिए गए लिंक पर क्लिक करें।"
+    "config.installRecommendedFormattersHelp.default": "अनुशंसित फ़ॉर्मेटर इंस्टॉल करने के लिए ऊपर दिए गए लिंक पर क्लिक करें।",
+    "command.clearResults": "Clear Results",
+    "command.refreshResults": "Refresh Results",
+    "config.recommendedFormatters.description": "Custom list of recommended formatters for the Install Formatters command. Leave empty to use the built-in defaults.",
+    "view.formatDirectoryResults": "Format Results"
 }

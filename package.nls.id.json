@@ -20,5 +20,9 @@
     "config.respectGitignore.description": "Kecualikan file secara otomatis yang cocok dengan pola di .gitignore.",
     "command.installFormatters": "Instal Pemformat yang Disarankan",
     "config.installRecommendedFormattersHelp.markdownDescription": "[Instal Pemformat yang Disarankan](command:formatdir.installFormatters)",
-    "config.installRecommendedFormattersHelp.default": "Klik tautan di atas untuk menginstal pemformat yang belum diinstal."
+    "config.installRecommendedFormattersHelp.default": "Klik tautan di atas untuk menginstal pemformat yang belum diinstal.",
+    "command.clearResults": "Clear Results",
+    "command.refreshResults": "Refresh Results",
+    "config.recommendedFormatters.description": "Custom list of recommended formatters for the Install Formatters command. Leave empty to use the built-in defaults.",
+    "view.formatDirectoryResults": "Format Results"
 }

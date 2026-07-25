@@ -20,5 +20,9 @@
     "config.respectGitignore.description": "Escludere automaticamente i file che corrispondono ai pattern in .gitignore.",
     "command.installFormatters": "Installa formattatori consigliati",
     "config.installRecommendedFormattersHelp.markdownDescription": "[Installa formattatori consigliati](command:formatdir.installFormatters)",
-    "config.installRecommendedFormattersHelp.default": "Fai clic sul link sopra per installare i formattatori consigliati."
+    "config.installRecommendedFormattersHelp.default": "Fai clic sul link sopra per installare i formattatori consigliati.",
+    "command.clearResults": "Clear Results",
+    "command.refreshResults": "Refresh Results",
+    "config.recommendedFormatters.description": "Custom list of recommended formatters for the Install Formatters command. Leave empty to use the built-in defaults.",
+    "view.formatDirectoryResults": "Format Results"
 }

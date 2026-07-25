@@ -2,7 +2,7 @@
     "name": "format-directory",
     "displayName": "%displayName%",
     "description": "%description%",
-    "version": "1.1.6",
+    "version": "1.1.8",
     "publisher": "FormatDirectory",
     "engines": {
         "vscode": "^1.85.0"
@@ -55,6 +55,16 @@
             {
                 "command": "formatdir.installFormatters",
                 "title": "%command.installFormatters%"
+            },
+            {
+                "command": "formatDirectory.clearResults",
+                "title": "%command.clearResults%",
+                "icon": "$(clear-all)"
+            },
+            {
+                "command": "formatDirectory.refreshResults",
+                "title": "%command.refreshResults%",
+                "icon": "$(refresh)"
             }
         ],
         "menus": {
@@ -69,6 +79,18 @@
                   "group": "navigation",
                   "when": "!explorerResourceIsFolder && resourceScheme == file"
                 }
+            ],
+            "view/title": [
+                {
+                    "command": "formatDirectory.refreshResults",
+                    "when": "view == formatDirectoryResults",
+                    "group": "navigation"
+                },
+                {
+                    "command": "formatDirectory.clearResults",
+                    "when": "view == formatDirectoryResults",
+                    "group": "navigation"
+                }
             ]
         },
         "keybindings": [
@@ -79,6 +101,16 @@
                 "when": "editorTextFocus"
             }
         ],
+        "views": {
+            "explorer": [
+                {
+                    "id": "formatDirectoryResults",
+                    "name": "%view.formatDirectoryResults%",
+                    "icon": "$(list-tree)",
+                    "contextualTitle": "%view.formatDirectoryResults%"
+                }
+            ]
+        },
         "configuration": {
             "title": "%config.title%",
             "properties": {
@@ -263,8 +295,8 @@
         "compile": "tsc -p ./",
         "watch": "tsc -watch -p ./",
         "pretest": "npm run compile && npm run lint",
-        "lint": "eslint src --ext ts --config eslint.config.mjs",
-        "test": "vscode-test"
+        "lint": "eslint src --config eslint.config.mjs",
+        "test": "tsc -p ./test/tsconfig.json && mocha \"out/test/**/*.test.js\""
       },
       "devDependencies": {
         "@types/vscode": "^1.85.0",
@@ -273,6 +305,7 @@
         "@typescript-eslint/eslint-plugin": "^8.19.1",
         "@typescript-eslint/parser": "^8.19.1",
         "eslint": "^9.17.0",
+        "mocha": "^10.8.2",
         "typescript": "^5.7.2",
         "@vscode/test-cli": "^0.0.10",
         "@vscode/test-electron": "^2.4.1"

@@ -20,5 +20,9 @@
     "config.respectGitignore.description": "ยกเว้นไฟล์ที่ตรงกับรูปแบบใน .gitignore โดยอัตโนมัติ",
     "command.installFormatters": "ติดตั้งตัวจัดรูปแบบที่แนะนำ",
     "config.installRecommendedFormattersHelp.markdownDescription": "[ติดตั้งตัวจัดรูปแบบที่แนะนำ](command:formatdir.installFormatters)",
-    "config.installRecommendedFormattersHelp.default": "คลิกลิงก์ด้านบนเพื่อติดตั้งตัวจัดรูปแบบที่ยังไม่ได้ติดตั้ง"
+    "config.installRecommendedFormattersHelp.default": "คลิกลิงก์ด้านบนเพื่อติดตั้งตัวจัดรูปแบบที่ยังไม่ได้ติดตั้ง",
+    "command.clearResults": "Clear Results",
+    "command.refreshResults": "Refresh Results",
+    "config.recommendedFormatters.description": "Custom list of recommended formatters for the Install Formatters command. Leave empty to use the built-in defaults.",
+    "view.formatDirectoryResults": "Format Results"
 }

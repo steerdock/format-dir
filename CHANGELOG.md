@@ -5,6 +5,29 @@ All notable changes to the "Format Directory" extension will be documented in th
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+### v1.1.8
+- **Bug Fix (Build)**: `src/resultTreeView.ts` was imported by `extension.ts` but untracked in git, causing `tsc` to fail on a fresh clone — now staged for version control.
+- **Bug Fix (Build)**: Removed IDE-specific `.dish/workspace-id` from version control (was tracked but deleted in working tree).
+- **Bug Fix**: `parseGitignoreContent` misclassified bare directory patterns (e.g. `node_modules` in `.gitignore`) as wildcards after the `**/` prefix was applied, so the contents entry (`node_modules/**`) was never emitted — affected files inside ignored directories could escape exclusion. Now detects wildcard on the original pattern before prefixing.
+- **i18n**: Completed tree-view translation keys (`resultTreeSuccess`, `resultTreeSkipped`, `resultTreeFailed`, `resultsClearedMessage`, `resultsWithErrors`, `resultsSuccess`) for the 10 previously incomplete languages: Korean, Traditional Chinese, Turkish, Arabic, Hindi, Dutch, Vietnamese, Polish, Thai, Indonesian — they were previously falling back to English strings.
+- **Refactor**: Extracted duplicated `escapeHtml` into `src/utils.ts`, shared by `preview.ts` and `reconfigure.ts`.
+- **Refactor**: Extracted `globToRegExp` and `parseGitignoreContent` into `src/globUtils.ts`; `parseGitignore` and `parseGitignoreAtPath` in `extension.ts` now delegate to it, removing ~90 lines of duplicated parsing logic.
+- **Refactor**: Moved the hardcoded 14-item recommended formatter list out of `installRecommendedFormatters` into `src/constants.ts` (`DEFAULT_RECOMMENDED_FORMATTERS`), and removed the duplicate `RecommendedFormatter` interface.
+- **Refactor**: Removed duplicate `negIncludePattern` in `collectFiles` (identical to the existing `includePattern`), reusing the same value for the negation re-include scan.
+- **Test**: Added `test/globUtils.test.ts` (10 cases) covering `globToRegExp` and `parseGitignoreContent` — wired up `test/tsconfig.json` and changed the `test` script to `tsc -p ./test/tsconfig.json && mocha`. Declared `mocha` as an explicit devDependency.
+
+### v1.1.7
+- **Bug Fix**: Fixed Promise leak in Reconfigure panel — first-time panel creation path now uses `settled` guard to prevent double resolution when both `onDidReceiveMessage` (save/cancel → resolve → dispose) and `onDidDispose` (resolve(null)) fire; panel reference is now properly cleaned up on disposal.
+- **Performance**: Implemented virtual scrolling in Preview panel for large file lists — only visible items are rendered (36px height + 10 item buffer), eliminating DOM bloat and lag when previewing 500+ files; added search/filter box for quick file lookup.
+- **Feature**: Added "Format Results" tree view in Explorer sidebar — displays formatting results grouped by status (✅ Successful / ⊘ Skipped / ❌ Failed) with file counts, failure reasons, and clickable file items; includes toolbar buttons for refresh and clear operations.
+- **Feature**: Added `formatDirectory.clearResults` command to clear formatting results from tree view.
+- **Feature**: Added `formatDirectory.refreshResults` command to manually refresh tree view.
+- **Improvement**: Preview panel now passes file data as JSON for client-side rendering instead of server-side HTML concatenation, improving webview initialization time.
+- **Improvement**: Format results are now automatically displayed in tree view after each formatting operation with summary statistics.
+- **i18n**: Added `resultTreeSuccess`, `resultTreeSkipped`, `resultTreeFailed`, `resultsClearedMessage`, `resultsWithErrors`, and `resultsSuccess` translation keys for all 19 supported languages (en, zh-cn, ja, fr, de, es, it, ru, pt-br, ko, zh-tw, tr, ar, hi, nl, vi, pl, th, id).
+- **UI**: Tree view displays real-time statistics in message area (e.g., "50/100 files formatted, 5 errors").
+- **UI**: Tree view uses VS Code theme icons for status indicators (check, circle-slash, error) with semantic colors.
+
 ### v1.1.6
 - **Bug Fix**: Fixed file size filter logging incorrect file name — was using `filteredFiles.length` as index instead of the actual batch index.
 - **Bug Fix**: Removed unused `negationExts` variable in `collectFiles` that had incorrect logic.

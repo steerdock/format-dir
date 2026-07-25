@@ -20,5 +20,9 @@
     "config.respectGitignore.description": ".gitignore 패턴과 일치하는 파일을 자동으로 제외합니다.",
     "command.installFormatters": "추천 포맷터 설치",
     "config.installRecommendedFormattersHelp.markdownDescription": "[권장 포맷터 설치](command:formatdir.installFormatters)",
-    "config.installRecommendedFormattersHelp.default": "위의 링크를 클릭하여 추천 포맷터를 설치하세요."
+    "config.installRecommendedFormattersHelp.default": "위의 링크를 클릭하여 추천 포맷터를 설치하세요.",
+    "command.clearResults": "Clear Results",
+    "command.refreshResults": "Refresh Results",
+    "config.recommendedFormatters.description": "Custom list of recommended formatters for the Install Formatters command. Leave empty to use the built-in defaults.",
+    "view.formatDirectoryResults": "Format Results"
 }

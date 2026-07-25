@@ -20,5 +20,9 @@
     "config.respectGitignore.description": "استبعاد الملفات التي تطابق الأنماط في .gitignore تلقائيًا.",
     "command.installFormatters": "تثبيت المنسقات الموصى بها",
     "config.installRecommendedFormattersHelp.markdownDescription": "[تثبيت المنسقين الموصى بهم](command:formatdir.installFormatters)",
-    "config.installRecommendedFormattersHelp.default": "انقر على الرابط أعلاه لتثبيت المنسقين الموصى بهم."
+    "config.installRecommendedFormattersHelp.default": "انقر على الرابط أعلاه لتثبيت المنسقين الموصى بهم.",
+    "command.clearResults": "Clear Results",
+    "command.refreshResults": "Refresh Results",
+    "config.recommendedFormatters.description": "Custom list of recommended formatters for the Install Formatters command. Leave empty to use the built-in defaults.",
+    "view.formatDirectoryResults": "Format Results"
 }

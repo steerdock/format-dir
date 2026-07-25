@@ -20,5 +20,9 @@
     "config.respectGitignore.description": "Tự động loại trừ các tệp khớp trong .gitignore.",
     "command.installFormatters": "Cài đặt các trình định dạng được khuyến nghị",
     "config.installRecommendedFormattersHelp.markdownDescription": "[Cài đặt các trình định dạng được khuyến nghị](command:formatdir.installFormatters)",
-    "config.installRecommendedFormattersHelp.default": "Nhấp vào liên kết ở trên để cài đặt các trình định dạng được khuyến nghị cho bạn."
+    "config.installRecommendedFormattersHelp.default": "Nhấp vào liên kết ở trên để cài đặt các trình định dạng được khuyến nghị cho bạn.",
+    "command.clearResults": "Clear Results",
+    "command.refreshResults": "Refresh Results",
+    "config.recommendedFormatters.description": "Custom list of recommended formatters for the Install Formatters command. Leave empty to use the built-in defaults.",
+    "view.formatDirectoryResults": "Format Results"
 }

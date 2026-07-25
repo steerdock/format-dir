@@ -20,5 +20,9 @@
     "config.respectGitignore.description": ".gitignore のパターンに一致するファイルを自動的に除外します。",
     "command.installFormatters": "推奨フォーマッタのインストール",
     "config.installRecommendedFormattersHelp.markdownDescription": "[推奨フォーマッタのインストール](command:formatdir.installFormatters)",
-    "config.installRecommendedFormattersHelp.default": "上のリンクをクリックして、推奨フォーマッタをインストールします。"
+    "config.installRecommendedFormattersHelp.default": "上のリンクをクリックして、推奨フォーマッタをインストールします。",
+    "command.clearResults": "Clear Results",
+    "command.refreshResults": "Refresh Results",
+    "config.recommendedFormatters.description": "Custom list of recommended formatters for the Install Formatters command. Leave empty to use the built-in defaults.",
+    "view.formatDirectoryResults": "Format Results"
 }

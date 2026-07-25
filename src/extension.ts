@@ -10,6 +10,9 @@ import { initializeLocale, t } from './i18n';
 import { PreviewManager } from './preview';
 import { HistoryManager } from './history';
 import { ReconfigureWebview } from './reconfigure';
+import { ResultTreeViewManager, FormatResult } from './resultTreeView';
+import { globToRegExp, parseGitignoreContent } from './globUtils';
+import { DEFAULT_RECOMMENDED_FORMATTERS, RecommendedFormatter } from './constants';
 
 interface FormatConfig {
     fileExtensions: string[];
@@ -30,6 +33,7 @@ let outputChannel: vscode.OutputChannel;
 let previewManager: PreviewManager;
 let historyManager: HistoryManager;
 let reconfigureWebview: ReconfigureWebview;
+let resultTreeViewManager: ResultTreeViewManager;
 let cachedLogLevel: string = 'info';
 
 export function activate(context: vscode.ExtensionContext) {
@@ -49,6 +53,7 @@ export function activate(context: vscode.ExtensionContext) {
     previewManager = new PreviewManager(context);
     historyManager = new HistoryManager(context);
     reconfigureWebview = new ReconfigureWebview(context);
+    resultTreeViewManager = new ResultTreeViewManager(context);
 
     const handleFormatCommand = async (uri: vscode.Uri | undefined, reconfigure: boolean) => {
         if (!uri) {
@@ -141,9 +146,10 @@ async function formatDirectory(uri: vscode.Uri, reconfigure: boolean) {
             await executeFormat(files, config);
         }
 
-    } catch (error: any) {
-        log('error', `Error in formatDirectory: ${error.message}`);
-        vscode.window.showErrorMessage(t('formatDirectory.failed', error.message));
+    } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
+        log('error', `Error in formatDirectory: ${message}`);
+        vscode.window.showErrorMessage(t('formatDirectory.failed', message));
     }
 }
 
@@ -204,78 +210,22 @@ async function getFormatConfig(reconfigure: boolean): Promise<FormatConfig | nul
  */
 async function parseGitignore(workspaceRoot: vscode.Uri): Promise<{ patterns: string[]; negationPatterns: string[] }> {
     const gitignoreUri = vscode.Uri.joinPath(workspaceRoot, '.gitignore');
-    const patterns: string[] = [];
-    const negationPatterns: string[] = [];
+    const empty = { patterns: [] as string[], negationPatterns: [] as string[] };
 
     try {
         const content = await vscode.workspace.fs.readFile(gitignoreUri);
         const text = Buffer.from(content).toString('utf-8');
-        const lines = text.split(/\r?\n/);
+        const result = parseGitignoreContent(text, '');
 
-        for (const line of lines) {
-            const trimmed = line.trim();
-
-            // Skip empty lines and comments
-            if (!trimmed || trimmed.startsWith('#')) {
-                continue;
-            }
-
-            // Handle negation patterns separately - add them at the end
-            // so they can re-include files previously excluded
-            if (trimmed.startsWith('!')) {
-                const negated = trimmed.slice(1).trim();
-                if (negated) {
-                    let negGlob = negated;
-                    if (negGlob.endsWith('/')) {
-                        negGlob = negGlob.slice(0, -1);
-                    }
-                    if (negGlob.startsWith('/')) {
-                        negGlob = negGlob.slice(1);
-                    } else {
-                        negGlob = '**/' + negGlob;
-                    }
-                    negationPatterns.push(negGlob);
-                }
-                continue;
-            }
-
-            // Convert .gitignore pattern to glob pattern
-            let globPattern = trimmed;
-
-            // Remove trailing slashes
-            if (globPattern.endsWith('/')) {
-                globPattern = globPattern.slice(0, -1);
-            }
-
-            // Handle patterns starting with /
-            if (globPattern.startsWith('/')) {
-                globPattern = globPattern.slice(1);
-            } else {
-                // If pattern doesn't start with /, it can match anywhere
-                globPattern = '**/' + globPattern;
-            }
-
-            // Handle directory patterns (without wildcard)
-            if (!globPattern.includes('*')) {
-                // Add both the path itself and everything inside
-                patterns.push(globPattern);
-                patterns.push(globPattern + '/**');
-            } else {
-                patterns.push(globPattern);
-            }
+        if (result.negationPatterns.length > 0) {
+            log('debug', `Found ${result.negationPatterns.length} negation patterns in .gitignore`);
         }
-
-        // Negation patterns are now returned so collectFiles can post-filter
-        if (negationPatterns.length > 0) {
-            log('debug', `Found ${negationPatterns.length} negation patterns in .gitignore`);
-        }
-
-        log('info', `Parsed ${patterns.length} patterns from .gitignore`);
+        log('info', `Parsed ${result.patterns.length} patterns from .gitignore`);
+        return result;
     } catch (e) {
         log('debug', 'No .gitignore found or unable to read it');
+        return empty;
     }
-
-    return { patterns, negationPatterns };
 }
 
 /**
@@ -314,18 +264,6 @@ async function filterFilesBySize(files: vscode.Uri[], maxFileSize: number, token
     return filteredFiles;
 }
 
-/**
- * Escape a glob-like pattern for use in RegExp.
- * Handles `.`, `?`, `*`, and other regex metacharacters.
- */
-function globToRegExp(pattern: string): RegExp {
-    const escaped = pattern
-        .replace(/[.+^${}()|[\]\\]/g, '\\$&')  // Escape regex metacharacters (except * and ?)
-        .replace(/\*/g, '.*')                    // * -> .*
-        .replace(/\?/g, '.');                    // ? -> .
-    return new RegExp(escaped);
-}
-
 async function collectFiles(uri: vscode.Uri, config: FormatConfig, token?: vscode.CancellationToken): Promise<vscode.Uri[]> {
     // 1. Build include pattern from extensions: {*.js,*.ts,...}
     const exts = config.fileExtensions.map(ext => `*${ext}`).join(',');
@@ -356,13 +294,12 @@ async function collectFiles(uri: vscode.Uri, config: FormatConfig, token?: vscod
             // 5. Post-filter: re-include files matching negation patterns
             // Since findFiles excludes them, we need to re-scan with negation patterns as include
             if (allNegationPatterns.length > 0) {
-                // Build include patterns from negation patterns that match our extensions
-                const negIncludePattern = new vscode.RelativePattern(uri, `**/{${exts}}`);
-                // Use only the non-gitignore exclude patterns (not the gitignore ones that block negated files)
+                // Re-scan using the same include pattern (already scoped to extensions) but only
+                // with the non-gitignore exclude patterns, so negated files can re-enter the set.
                 const negExcludeGlob = config.excludePatterns.length > 0
                     ? `{${config.excludePatterns.join(',')}}`
                     : undefined;
-                const negFiles = await vscode.workspace.findFiles(negIncludePattern, negExcludeGlob, undefined, token);
+                const negFiles = await vscode.workspace.findFiles(includePattern, negExcludeGlob, undefined, token);
                 // Filter negFiles to only those matching negation patterns (with proper regex escaping)
                 const reIncluded = negFiles.filter(file => {
                     const relative = vscode.workspace.asRelativePath(file, false);
@@ -451,60 +388,22 @@ async function parseGitignoreAtPath(
     gitignoreUri: vscode.Uri,
     relativeDir: string
 ): Promise<{ patterns: string[]; negationPatterns: string[] }> {
-    const patterns: string[] = [];
-    const negationPatterns: string[] = [];
+    const empty = { patterns: [] as string[], negationPatterns: [] as string[] };
 
     try {
         const content = await vscode.workspace.fs.readFile(gitignoreUri);
         const text = Buffer.from(content).toString('utf-8');
-        const lines = text.split(/\r?\n/);
         const dirPrefix = relativeDir.replace(/\\/g, '/') + '/';
+        const result = parseGitignoreContent(text, dirPrefix);
 
-        for (const line of lines) {
-            const trimmed = line.trim();
-            if (!trimmed || trimmed.startsWith('#')) {
-                continue;
-            }
-
-            if (trimmed.startsWith('!')) {
-                const negated = trimmed.slice(1).trim();
-                if (negated) {
-                    let negGlob = negated;
-                    if (negGlob.endsWith('/')) { negGlob = negGlob.slice(0, -1); }
-                    if (negGlob.startsWith('/')) {
-                        negGlob = dirPrefix + negGlob.slice(1);
-                    } else {
-                        negGlob = dirPrefix + '**/' + negGlob;
-                    }
-                    negationPatterns.push(negGlob);
-                }
-                continue;
-            }
-
-            let globPattern = trimmed;
-            if (globPattern.endsWith('/')) { globPattern = globPattern.slice(0, -1); }
-            if (globPattern.startsWith('/')) {
-                globPattern = dirPrefix + globPattern.slice(1);
-            } else {
-                globPattern = dirPrefix + '**/' + globPattern;
-            }
-
-            if (!globPattern.includes('*')) {
-                patterns.push(globPattern);
-                patterns.push(globPattern + '/**');
-            } else {
-                patterns.push(globPattern);
-            }
+        if (result.patterns.length > 0 || result.negationPatterns.length > 0) {
+            log('debug', `Parsed ${result.patterns.length} patterns from nested .gitignore at ${relativeDir}`);
         }
-
-        if (patterns.length > 0 || negationPatterns.length > 0) {
-            log('debug', `Parsed ${patterns.length} patterns from nested .gitignore at ${relativeDir}`);
-        }
+        return result;
     } catch (e) {
         log('debug', `Failed to read nested .gitignore at ${gitignoreUri.fsPath}`);
+        return empty;
     }
-
-    return { patterns, negationPatterns };
 }
 
 async function processInBatches<T, R>(
@@ -529,6 +428,7 @@ async function formatFiles(files: vscode.Uri[], config: FormatConfig, externalPr
     let noFormatterCount = 0;
     let failCount = 0;
     const failedFiles: string[] = [];
+    const formatResults: FormatResult[] = [];
     const startTime = Date.now();
 
     statusBarItem.show();
@@ -583,13 +483,17 @@ async function formatFiles(files: vscode.Uri[], config: FormatConfig, externalPr
 
                 if (results[j] === 'formatted') {
                     successCount++;
+                    formatResults.push({ uri: file, status: 'success' });
                 } else if (results[j] === 'skipped') {
                     skippedCount++;
+                    formatResults.push({ uri: file, status: 'skipped', reason: 'File size exceeded' });
                 } else if (results[j] === 'no_formatter') {
                     noFormatterCount++;
+                    formatResults.push({ uri: file, status: 'skipped', reason: 'No formatter available' });
                 } else {
                     failCount++;
                     failedFiles.push(fileName);
+                    formatResults.push({ uri: file, status: 'failed', reason: results[j] });
                 }
             }
         }
@@ -610,15 +514,20 @@ async function formatFiles(files: vscode.Uri[], config: FormatConfig, externalPr
             // Respect concurrencyLimit even without progress UI to avoid OOM
             const results = await processInBatches(files, config.concurrencyLimit, file => formatFile(file, config));
             results.forEach((result, index) => {
+                const file = files[index];
                 if (result === 'formatted') {
                     successCount++;
+                    formatResults.push({ uri: file, status: 'success' });
                 } else if (result === 'skipped') {
                     skippedCount++;
+                    formatResults.push({ uri: file, status: 'skipped', reason: 'File size exceeded' });
                 } else if (result === 'no_formatter') {
                     noFormatterCount++;
+                    formatResults.push({ uri: file, status: 'skipped', reason: 'No formatter available' });
                 } else {
                     failCount++;
-                    failedFiles.push(path.basename(files[index].fsPath));
+                    failedFiles.push(path.basename(file.fsPath));
+                    formatResults.push({ uri: file, status: 'failed', reason: result });
                 }
             });
         }
@@ -647,6 +556,12 @@ async function formatFiles(files: vscode.Uri[], config: FormatConfig, externalPr
         setTimeout(() => statusBarItem.hide(), 3000);
         return;
     }
+
+    // Show results in TreeView
+    if (formatResults.length > 0) {
+        resultTreeViewManager.showResults(formatResults);
+    }
+
     statusBarItem.text = `$(check) ${t('formatDirectory.complete', '')}`;
     setTimeout(() => statusBarItem.hide(), 3000);
 
@@ -684,7 +599,7 @@ async function formatFiles(files: vscode.Uri[], config: FormatConfig, externalPr
 }
 
 // Return states: 'formatted', 'skipped' (already fine), 'no_formatter', 'failed'
-async function formatFile(uri: vscode.Uri, config: FormatConfig): Promise<string> {
+async function formatFile(uri: vscode.Uri, _config: FormatConfig): Promise<string> {
     try {
         log('debug', `Formatting file: ${uri.fsPath}`);
         const document = await vscode.workspace.openTextDocument(uri);
@@ -720,8 +635,9 @@ async function formatFile(uri: vscode.Uri, config: FormatConfig): Promise<string
         }
 
         return 'no_formatter';
-    } catch (error: any) {
-        log('error', `Failed to format ${uri.fsPath}: ${error}`);
+    } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
+        log('error', `Failed to format ${uri.fsPath}: ${message}`);
         return 'failed';
     }
 }
@@ -757,7 +673,7 @@ async function configurePriority() {
         const hasFormatter = pkg?.contributes?.documentFormattingEditProvider ||
             pkg?.categories?.includes('Formatters');
         if (hasFormatter && !ext.id.startsWith('vscode.')) {
-            const langs = pkg?.contributes?.languages?.map((l: any) => l.id) || [];
+            const langs = pkg?.contributes?.languages?.map((l: { id: string }) => l.id) || [];
             if (langs.length === 0 || langs.includes(lang)) {
                 formatters.push({ id: ext.id, name: pkg.displayName || ext.id });
             }
@@ -794,90 +710,13 @@ async function configurePriority() {
 /**
  * Recommended formatters loaded from configuration
  */
-interface RecommendedFormatter {
-    id: string;
-    name: string;
-    description: string;
-}
-
 async function installRecommendedFormatters() {
     // Get installed extensions
     const installed = vscode.extensions.all.map(ext => ext.id);
 
-    // Load recommended formatters from configuration, fallback to defaults
+    // Load recommended formatters from configuration, fallback to built-in defaults
     const config = vscode.workspace.getConfiguration('formatdir');
-    const recommendedFormatters: RecommendedFormatter[] = config.get<RecommendedFormatter[]>('recommendedFormatters', [
-        {
-            "id": "esbenp.prettier-vscode",
-            "name": "Prettier",
-            "description": "JavaScript, TypeScript, CSS, JSON, HTML, YAML, PHP, Markdown"
-        },
-        {
-            "id": "ms-python.black-formatter",
-            "name": "Black Formatter",
-            "description": "Python"
-        },
-        {
-            "id": "golang.go",
-            "name": "Go",
-            "description": "Go"
-        },
-        {
-            "id": "rust-lang.rust-analyzer",
-            "name": "rust-analyzer",
-            "description": "Rust"
-        },
-        {
-            "id": "redhat.java",
-            "name": "Red Hat Java",
-            "description": "Java"
-        },
-        {
-            "id": "ms-vscode.cpptools",
-            "name": "C/C++",
-            "description": "C, C++"
-        },
-        {
-            "id": "kokororin.vscode-phpfmt",
-            "name": "phpfmt",
-            "description": "PHP"
-        },
-        {
-            "id": "Vue.volar",
-            "name": "Vue - Official",
-            "description": "Vue"
-        },
-        {
-            "id": "redhat.vscode-yaml",
-            "name": "YAML",
-            "description": "YAML"
-        },
-        {
-            "id": "rebornix.ruby",
-            "name": "Ruby",
-            "description": "Ruby"
-        },
-        {
-            "id": "DotJoshJohnson.xml",
-            "name": "XML Tools",
-            "description": "XML"
-        },
-        {
-            "id": "yzhang.markdown-all-in-one",
-            "name": "Markdown All in One",
-            "description": "Markdown"
-        },
-        {
-            "id": "bowlerhatllc.vscode-as3mxml",
-            "name": "ActionScript & MXML",
-            "description": "ActionScript, MXML"
-        },
-        {
-            "id": "GuTheSoftware.sqlinform",
-            "name": "SQLinForm",
-            "description": "SQL"
-        }
-    ]);
+    const recommendedFormatters: RecommendedFormatter[] = config.get<RecommendedFormatter[]>('recommendedFormatters', DEFAULT_RECOMMENDED_FORMATTERS);
 
     // Filter out already installed
     const notInstalled = recommendedFormatters.filter(f => !installed.includes(f.id));

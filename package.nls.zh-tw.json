@@ -20,5 +20,9 @@
     "config.respectGitignore.description": "自動排除 .gitignore 中匹配的檔案。",
     "command.installFormatters": "安裝推薦的格式化插件",
     "config.installRecommendedFormattersHelp.markdownDescription": "[安裝推薦的格式化外掛程式](command:formatdir.installFormatters)",
-    "config.installRecommendedFormattersHelp.default": "點擊上方的連結為您安裝推薦的格式化外掛程式。"
+    "config.installRecommendedFormattersHelp.default": "點擊上方的連結為您安裝推薦的格式化外掛程式。",
+    "command.clearResults": "清除結果",
+    "command.refreshResults": "重新整理結果",
+    "config.recommendedFormatters.description": "用於\"安裝推薦的格式化外掛程式\"命令的推薦格式化程式自訂清單。留空則使用內置預設值。",
+    "view.formatDirectoryResults": "格式化結果"
 }
