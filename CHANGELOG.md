@@ -5,6 +5,18 @@ All notable changes to the "Format Directory" extension will be documented in th
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+### v1.1.9
+- **Bug Fix**: Formatting is now cancelled when any target file cannot be backed up, preventing formatting operations that cannot be undone.
+- **Bug Fix**: Formatting now checks whether edits were applied and files were saved before reporting success.
+- **Bug Fix**: Undo keeps the history entry and backup files when any file restore fails, allowing the operation to be retried.
+- **Bug Fix**: Single-file formatting now respects configured file extensions and maximum file size limits.
+- **Bug Fix**: Nested `.gitignore` scanning no longer stops after the first 100 files.
+- **Bug Fix**: Formatter priority restoration no longer overwrites settings changed by the user during formatting.
+- **Security**: Reconfigure webview formatter actions no longer interpolate formatter metadata into inline JavaScript handlers.
+- **Improvement**: Backup filenames are shorter and use SHA-256 path hashes to reduce Windows path-length issues.
+- **Test**: Added regression coverage for nested `.gitignore` patterns and negation rules.
+- **Security**: Updated test tooling and pinned patched transitive versions; `npm audit` now reports zero vulnerabilities.
+
 ### v1.1.8
 - **Bug Fix (Build)**: `src/resultTreeView.ts` was imported by `extension.ts` but untracked in git, causing `tsc` to fail on a fresh clone — now staged for version control.
 - **Bug Fix (Build)**: Removed IDE-specific `.dish/workspace-id` from version control (was tracked but deleted in working tree).

@@ -13,6 +13,12 @@ interface HistoryItem {
     files: FileChange[];
 }
 
+export interface BackupResult {
+    id: string;
+    backedUp: vscode.Uri[];
+    failed: vscode.Uri[];
+}
+
 export class HistoryManager {
     private static readonly STORAGE_KEY = 'formatDirectory.history';
     private static readonly MAX_HISTORY_ITEMS = 20;
@@ -39,16 +45,17 @@ export class HistoryManager {
     }
 
     /**
-     * Generate a collision-resistant backup filename using path hash + short index
+     * Keep backup names short enough for Windows while retaining uniqueness.
      */
     private getBackupFileName(batchId: string, fsPath: string, index: number): string {
-        const hash = crypto.createHash('md5').update(fsPath).digest('hex').slice(0, 8);
-        const baseName = fsPath.replace(/[^a-zA-Z0-9.\-]/g, '_');
+        const hash = crypto.createHash('sha256').update(fsPath).digest('hex').slice(0, 12);
+        const baseName = fsPath.split(/[\\/]/).pop()?.replace(/[^a-zA-Z0-9.\-]/g, '_') || 'file';
         return `${batchId}_${index}_${baseName}_${hash}.bak`;
     }
 
-    public async add(files: vscode.Uri[]): Promise<string> {
+    public async add(files: vscode.Uri[]): Promise<BackupResult> {
         const changes: FileChange[] = [];
+        const failed: vscode.Uri[] = [];
         const backupDir = await this.createBackupDir();
         const batchId = Date.now().toString();
 
@@ -71,7 +78,7 @@ export class HistoryManager {
                         backupUri: backupUri.toString()
                     };
                 } catch (error) {
-                    // Silently skip files that can't be read for backup
+                    failed.push(file);
                     return null;
                 }
             }));
@@ -83,8 +90,15 @@ export class HistoryManager {
             }
         }
 
+        if (failed.length > 0) {
+            await Promise.all(changes.map(change =>
+                vscode.workspace.fs.delete(vscode.Uri.parse(change.backupUri)).then(() => { }, () => { })
+            ));
+            return { id: batchId, backedUp: [], failed };
+        }
+
         if (changes.length === 0) {
-            return '';
+            return { id: batchId, backedUp: [], failed };
         }
 
         const history = this.getHistory();
@@ -108,7 +122,11 @@ export class HistoryManager {
         }
 
         await this.saveHistory(history);
-        return newItem.id;
+        return {
+            id: newItem.id,
+            backedUp: changes.map(change => vscode.Uri.parse(change.uri)),
+            failed
+        };
     }
 
     public async undo(): Promise<void> {
@@ -132,6 +150,7 @@ export class HistoryManager {
         try {
             await vscode.window.withProgress(progressOptions, async (_progress) => {
                 let restoredCount = 0;
+                let failedCount = 0;
                 const CONCURRENCY = HistoryManager.BACKUP_CONCURRENCY;
 
                 for (let i = 0; i < lastItem.files.length; i += CONCURRENCY) {
@@ -145,9 +164,6 @@ export class HistoryManager {
                             const backupContentBytes = await vscode.workspace.fs.readFile(backupUri);
                             await vscode.workspace.fs.writeFile(uri, backupContentBytes);
 
-                            // Cleanup restored backup
-                            await vscode.workspace.fs.delete(backupUri).then(() => { }, () => { });
-
                             return true;
                         } catch (err) {
                             // Silently skip files that can't be restored; caller reports overall failure
@@ -159,11 +175,19 @@ export class HistoryManager {
                     for (const result of batchResults) {
                         if (result) {
                             restoredCount++;
+                        } else {
+                            failedCount++;
                         }
                     }
                 }
 
-                // Only pop and save history after successful restore
+                if (failedCount > 0) {
+                    throw new Error(`Could not restore ${failedCount} file(s)`);
+                }
+
+                await Promise.all(lastItem.files.map(change =>
+                    vscode.workspace.fs.delete(vscode.Uri.parse(change.backupUri)).then(() => { }, () => { })
+                ));
                 history.pop();
                 await this.saveHistory(history);
                 vscode.window.showInformationMessage(t('formatDirectory.undoComplete', restoredCount));

@@ -4,16 +4,17 @@ that formats entire directories or individual files using your configured VS Cod
 
 ## Changelog
 
-### v1.1.8
-- **Bug Fix (Build)**: `src/resultTreeView.ts` was imported by `extension.ts` but untracked in git, causing `tsc` to fail on a fresh clone — now staged for version control.
-- **Bug Fix (Build)**: Removed IDE-specific `.dish/workspace-id` from version control (was tracked but deleted in working tree).
-- **Bug Fix**: `parseGitignoreContent` misclassified bare directory patterns (e.g. `node_modules` in `.gitignore`) as wildcards after the `**/` prefix was applied, so the contents entry (`node_modules/**`) was never emitted — affected files inside ignored directories could escape exclusion. Now detects wildcard on the original pattern before prefixing.
-- **i18n**: Completed tree-view translation keys (`resultTreeSuccess`, `resultTreeSkipped`, `resultTreeFailed`, `resultsClearedMessage`, `resultsWithErrors`, `resultsSuccess`) for the 10 previously incomplete languages: Korean, Traditional Chinese, Turkish, Arabic, Hindi, Dutch, Vietnamese, Polish, Thai, Indonesian — they were previously falling back to English strings.
-- **Refactor**: Extracted duplicated `escapeHtml` into `src/utils.ts`, shared by `preview.ts` and `reconfigure.ts`.
-- **Refactor**: Extracted `globToRegExp` and `parseGitignoreContent` into `src/globUtils.ts`; `parseGitignore` and `parseGitignoreAtPath` in `extension.ts` now delegate to it, removing ~90 lines of duplicated parsing logic.
-- **Refactor**: Moved the hardcoded 14-item recommended formatter list out of `installRecommendedFormatters` into `src/constants.ts` (`DEFAULT_RECOMMENDED_FORMATTERS`), and removed the duplicate `RecommendedFormatter` interface.
-- **Refactor**: Removed duplicate `negIncludePattern` in `collectFiles` (identical to the existing `includePattern`), reusing the same value for the negation re-include scan.
-- **Test**: Added `test/globUtils.test.ts` (10 cases) covering `globToRegExp` and `parseGitignoreContent` — wired up `test/tsconfig.json` and changed the `test` script to `tsc -p ./test/tsconfig.json && mocha`. Declared `mocha` as an explicit devDependency.
+### v1.1.9
+- **Bug Fix**: Formatting is now cancelled when any target file cannot be backed up, preventing formatting operations that cannot be undone.
+- **Bug Fix**: Formatting now checks whether edits were applied and files were saved before reporting success.
+- **Bug Fix**: Undo keeps the history entry and backup files when any file restore fails, allowing the operation to be retried.
+- **Bug Fix**: Single-file formatting now respects configured file extensions and maximum file size limits.
+- **Bug Fix**: Nested `.gitignore` scanning no longer stops after the first 100 files.
+- **Bug Fix**: Formatter priority restoration no longer overwrites settings changed by the user during formatting.
+- **Security**: Reconfigure webview formatter actions no longer interpolate formatter metadata into inline JavaScript handlers.
+- **Improvement**: Backup filenames are shorter and use SHA-256 path hashes to reduce Windows path-length issues.
+- **Test**: Added regression coverage for nested `.gitignore` patterns and negation rules.
+- **Security**: Updated test tooling and pinned patched transitive versions; `npm audit` now reports zero vulnerabilities.
 
 See [CHANGELOG.md](./CHANGELOG.md) for detailed release notes.
 

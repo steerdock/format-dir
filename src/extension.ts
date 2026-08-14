@@ -99,6 +99,18 @@ async function formatDirectory(uri: vscode.Uri, reconfigure: boolean) {
         const stat = await vscode.workspace.fs.stat(uri);
 
         if (stat.type === vscode.FileType.File) {
+            const extension = path.extname(uri.fsPath).toLowerCase();
+            const allowedExtensions = config.fileExtensions.map(ext =>
+                ext.startsWith('.') ? ext.toLowerCase() : `.${ext.toLowerCase()}`
+            );
+            if (!allowedExtensions.includes(extension)) {
+                vscode.window.showInformationMessage(t('formatDirectory.noFiles'));
+                return;
+            }
+            if (config.maxFileSize > 0 && stat.size > config.maxFileSize) {
+                vscode.window.showInformationMessage(t('formatDirectory.noFiles'));
+                return;
+            }
             files = [uri];
             log('info', `Formatting single file: ${uri.fsPath}`);
         } else {
@@ -155,7 +167,13 @@ async function formatDirectory(uri: vscode.Uri, reconfigure: boolean) {
 
 async function executeFormat(files: vscode.Uri[], config: FormatConfig, progress?: vscode.Progress<{ message?: string; increment?: number }>, token?: vscode.CancellationToken) {
     // Save history before formatting
-    await historyManager.add(files);
+    const backupResult = await historyManager.add(files);
+    if (backupResult.failed.length > 0) {
+        vscode.window.showErrorMessage(
+            t('formatDirectory.backupFailed', backupResult.failed.length)
+        );
+        return;
+    }
 
     await formatFiles(files, config, progress, token);
 }
@@ -201,6 +219,9 @@ async function getFormatConfig(reconfigure: boolean): Promise<FormatConfig | nul
         excludePatterns = result.excludePatterns;
         respectGitignore = result.respectGitignore;
     }
+
+    concurrencyLimit = Math.max(1, Math.min(50, Math.floor(concurrencyLimit) || 10));
+    maxFileSize = Math.max(0, Math.floor(maxFileSize) || 0);
 
     return { fileExtensions, recursive, excludePatterns, showProgress, concurrencyLimit, maxFileSize, logLevel, openOutputAfterFormat, preview, formatterPriority, respectGitignore };
 }
@@ -354,7 +375,7 @@ async function findNestedGitignores(
             const gitignoreFiles = await vscode.workspace.findFiles(
                 new vscode.RelativePattern(ws.uri, '**/.gitignore'),
                 undefined,
-                100,
+                undefined,
                 token
             );
 
@@ -435,16 +456,17 @@ async function formatFiles(files: vscode.Uri[], config: FormatConfig, externalPr
     statusBarItem.text = `$(sync~spin) ${t('formatDirectory.formattingStatus')}`;
 
     // Pre-apply formatterPriority: batch-override defaultFormatter per language once
-    const overriddenLangs = new Map<string, string | undefined>();
+    const overriddenLangs = new Map<string, { formatterId: string; original?: string }>();
     if (Object.keys(config.formatterPriority).length > 0) {
         for (const [langId, formatterId] of Object.entries(config.formatterPriority)) {
             const langConfig = vscode.workspace.getConfiguration('');
-            const original = langConfig.get<string>(`[${langId}].editor.defaultFormatter`)
-                || langConfig.get<string>('editor.defaultFormatter');
-            if (original !== formatterId) {
+            const inspection = langConfig.inspect<string>(`[${langId}].editor.defaultFormatter`);
+            const original = inspection?.workspaceFolderLanguageValue ?? inspection?.workspaceLanguageValue;
+            const current = langConfig.get<string>(`[${langId}].editor.defaultFormatter`);
+            if (current !== formatterId) {
                 try {
                     await langConfig.update(`[${langId}].editor.defaultFormatter`, formatterId, vscode.ConfigurationTarget.Workspace);
-                    overriddenLangs.set(langId, original);
+                    overriddenLangs.set(langId, { formatterId, original });
                     log('debug', `Batch overrode formatter for ${langId} to ${formatterId}`);
                 } catch (e) {
                     log('warning', `Failed to override formatter for ${langId}: ${e}`);
@@ -467,7 +489,12 @@ async function formatFiles(files: vscode.Uri[], config: FormatConfig, externalPr
             }
 
             const batch = files.slice(i, i + config.concurrencyLimit);
-            const results = await Promise.all(batch.map(file => formatFile(file, config)));
+            const results = await Promise.all(batch.map(file => formatFile(file, config, token)));
+
+            if (results.some(result => result === 'cancelled')) {
+                cancelled = true;
+                return;
+            }
 
             for (let j = 0; j < batch.length; j++) {
                 const file = batch[j];
@@ -484,12 +511,15 @@ async function formatFiles(files: vscode.Uri[], config: FormatConfig, externalPr
                 if (results[j] === 'formatted') {
                     successCount++;
                     formatResults.push({ uri: file, status: 'success' });
-                } else if (results[j] === 'skipped') {
+                } else if (results[j].startsWith('skipped')) {
                     skippedCount++;
-                    formatResults.push({ uri: file, status: 'skipped', reason: 'File size exceeded' });
+                    formatResults.push({ uri: file, status: 'skipped', reason: results[j].slice('skipped'.length).replace(/^:\s*/, '') || 'Skipped' });
                 } else if (results[j] === 'no_formatter') {
                     noFormatterCount++;
                     formatResults.push({ uri: file, status: 'skipped', reason: 'No formatter available' });
+                } else if (results[j] === 'cancelled') {
+                    cancelled = true;
+                    return;
                 } else {
                     failCount++;
                     failedFiles.push(fileName);
@@ -512,18 +542,20 @@ async function formatFiles(files: vscode.Uri[], config: FormatConfig, externalPr
             });
         } else {
             // Respect concurrencyLimit even without progress UI to avoid OOM
-            const results = await processInBatches(files, config.concurrencyLimit, file => formatFile(file, config));
+            const results = await processInBatches(files, config.concurrencyLimit, file => formatFile(file, config, externalToken), externalToken);
             results.forEach((result, index) => {
                 const file = files[index];
                 if (result === 'formatted') {
                     successCount++;
                     formatResults.push({ uri: file, status: 'success' });
-                } else if (result === 'skipped') {
+                } else if (result.startsWith('skipped')) {
                     skippedCount++;
-                    formatResults.push({ uri: file, status: 'skipped', reason: 'File size exceeded' });
+                    formatResults.push({ uri: file, status: 'skipped', reason: result.slice('skipped'.length).replace(/^:\s*/, '') || 'Skipped' });
                 } else if (result === 'no_formatter') {
                     noFormatterCount++;
                     formatResults.push({ uri: file, status: 'skipped', reason: 'No formatter available' });
+                } else if (result === 'cancelled') {
+                    cancelled = true;
                 } else {
                     failCount++;
                     failedFiles.push(path.basename(file.fsPath));
@@ -533,13 +565,17 @@ async function formatFiles(files: vscode.Uri[], config: FormatConfig, externalPr
         }
     } finally {
         // Restore formatterPriority overrides
-        for (const [langId, original] of overriddenLangs) {
+        for (const [langId, override] of overriddenLangs) {
             try {
                 const langConfig = vscode.workspace.getConfiguration('');
-                if (original === undefined) {
+                const current = langConfig.get<string>(`[${langId}].editor.defaultFormatter`);
+                if (current !== override.formatterId) {
+                    continue;
+                }
+                if (override.original === undefined) {
                     await langConfig.update(`[${langId}].editor.defaultFormatter`, undefined, vscode.ConfigurationTarget.Workspace);
                 } else {
-                    await langConfig.update(`[${langId}].editor.defaultFormatter`, original, vscode.ConfigurationTarget.Workspace);
+                    await langConfig.update(`[${langId}].editor.defaultFormatter`, override.original, vscode.ConfigurationTarget.Workspace);
                 }
                 log('debug', `Restored formatter for ${langId}`);
             } catch (e) {
@@ -599,15 +635,18 @@ async function formatFiles(files: vscode.Uri[], config: FormatConfig, externalPr
 }
 
 // Return states: 'formatted', 'skipped' (already fine), 'no_formatter', 'failed'
-async function formatFile(uri: vscode.Uri, _config: FormatConfig): Promise<string> {
+async function formatFile(uri: vscode.Uri, _config: FormatConfig, token?: vscode.CancellationToken): Promise<string> {
     try {
+        if (token?.isCancellationRequested) {
+            return 'cancelled';
+        }
         log('debug', `Formatting file: ${uri.fsPath}`);
         const document = await vscode.workspace.openTextDocument(uri);
 
         // Skip dirty (unsaved) files to avoid overwriting user's uncommitted changes
         if (document.isDirty) {
             log('info', `Skipping ${path.basename(uri.fsPath)}: file has unsaved changes`);
-            return 'skipped';
+            return 'skipped: file has unsaved changes';
         }
 
         const editorConfig = vscode.workspace.getConfiguration('editor', document.uri);
@@ -626,8 +665,14 @@ async function formatFile(uri: vscode.Uri, _config: FormatConfig): Promise<strin
             if (edits.length > 0) {
                 const workspaceEdit = new vscode.WorkspaceEdit();
                 workspaceEdit.set(document.uri, edits);
-                await vscode.workspace.applyEdit(workspaceEdit);
-                await document.save();
+                const applied = await vscode.workspace.applyEdit(workspaceEdit);
+                if (!applied) {
+                    return 'failed: changes could not be applied';
+                }
+                const saved = await document.save();
+                if (!saved) {
+                    return 'failed: file could not be saved';
+                }
                 return 'formatted';
             } else {
                 return 'skipped';
@@ -638,7 +683,7 @@ async function formatFile(uri: vscode.Uri, _config: FormatConfig): Promise<strin
     } catch (error: unknown) {
         const message = error instanceof Error ? error.message : String(error);
         log('error', `Failed to format ${uri.fsPath}: ${message}`);
-        return 'failed';
+        return `failed: ${message}`;
     }
 }
 

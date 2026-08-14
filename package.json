@@ -2,7 +2,7 @@
     "name": "format-directory",
     "displayName": "%displayName%",
     "description": "%description%",
-    "version": "1.1.8",
+    "version": "1.1.9",
     "publisher": "FormatDirectory",
     "engines": {
         "vscode": "^1.85.0"
@@ -37,12 +37,12 @@
     "contributes": {
         "commands": [
             {
-              "command": "formatdir.formatWithDefault",
-              "title": "%command.formatWithDefault%"
+                "command": "formatdir.formatWithDefault",
+                "title": "%command.formatWithDefault%"
             },
             {
-              "command": "formatdir.formatFileWithDefault",
-              "title": "%command.formatFile%"
+                "command": "formatdir.formatFileWithDefault",
+                "title": "%command.formatFile%"
             },
             {
                 "command": "formatdir.undo",
@@ -70,14 +70,14 @@
         "menus": {
             "explorer/context": [
                 {
-                  "command": "formatdir.formatWithDefault",
-                  "group": "navigation",
-                  "when": "explorerResourceIsFolder"
+                    "command": "formatdir.formatWithDefault",
+                    "group": "navigation",
+                    "when": "explorerResourceIsFolder"
                 },
                 {
-                  "command": "formatdir.formatFileWithDefault",
-                  "group": "navigation",
-                  "when": "!explorerResourceIsFolder && resourceScheme == file"
+                    "command": "formatdir.formatFileWithDefault",
+                    "group": "navigation",
+                    "when": "!explorerResourceIsFolder && resourceScheme == file"
                 }
             ],
             "view/title": [
@@ -115,8 +115,8 @@
             "title": "%config.title%",
             "properties": {
                 "formatdir.fileExtensions": {
-                  "type": "array",
-                  "default": [
+                    "type": "array",
+                    "default": [
                         ".js",
                         ".ts",
                         ".jsx",
@@ -219,13 +219,13 @@
                         "pl",
                         "th",
                         "id"
-                      ],
-                      "default": "auto",
-                      "description": "%config.language.description%"
-                    },
-                    "formatdir.logLevel": {
-                      "type": "string",
-                      "enum": [
+                    ],
+                    "default": "auto",
+                    "description": "%config.language.description%"
+                },
+                "formatdir.logLevel": {
+                    "type": "string",
+                    "enum": [
                         "debug",
                         "info",
                         "warning",
@@ -250,7 +250,7 @@
                     "default": {},
                     "description": "%config.formatterPriority.description%",
                     "additionalProperties": {
-                      "type": "string"
+                        "type": "string"
                     }
                 },
                 "formatdir.respectGitignore": {
@@ -289,25 +289,29 @@
                 }
             }
         }
-      },
-      "scripts": {
+    },
+    "scripts": {
         "vscode:prepublish": "npm run compile",
         "compile": "tsc -p ./",
         "watch": "tsc -watch -p ./",
         "pretest": "npm run compile && npm run lint",
         "lint": "eslint src --config eslint.config.mjs",
         "test": "tsc -p ./test/tsconfig.json && mocha \"out/test/**/*.test.js\""
-      },
-      "devDependencies": {
-        "@types/vscode": "^1.85.0",
+    },
+    "devDependencies": {
         "@types/mocha": "^10.0.9",
         "@types/node": "^22.10.2",
+        "@types/vscode": "^1.85.0",
         "@typescript-eslint/eslint-plugin": "^8.19.1",
         "@typescript-eslint/parser": "^8.19.1",
+        "@vscode/test-cli": "^0.0.15",
+        "@vscode/test-electron": "^2.4.1",
         "eslint": "^9.17.0",
-        "mocha": "^10.8.2",
-        "typescript": "^5.7.2",
-        "@vscode/test-cli": "^0.0.10",
-        "@vscode/test-electron": "^2.4.1"
-      }
+        "mocha": "^11.8.0",
+        "typescript": "^5.7.2"
+    },
+    "overrides": {
+        "serialize-javascript": "7.1.0",
+        "diff": "9.0.0"
+    }
 }

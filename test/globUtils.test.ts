@@ -68,4 +68,15 @@ describe('parseGitignoreContent', () => {
         assert.ok(result.patterns.includes('**/build'));
         assert.ok(result.patterns.includes('**/build/**'));
     });
+
+    it('keeps anchored nested patterns relative to the nested ignore file', () => {
+        const result = parseGitignoreContent('/cache/*.json', 'packages/app/');
+        assert.ok(result.patterns.includes('packages/app/cache/*.json'));
+    });
+
+    it('supports negating a nested file pattern', () => {
+        const result = parseGitignoreContent('*.log\n!important.log', 'logs/');
+        assert.ok(result.patterns.includes('logs/**/*.log'));
+        assert.deepStrictEqual(result.negationPatterns, ['logs/**/important.log']);
+    });
 });

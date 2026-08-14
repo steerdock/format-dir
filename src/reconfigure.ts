@@ -118,7 +118,7 @@ export class ReconfigureWebview {
                     <div class="formatter-id">${safeId}</div>
                 </div>
                 <div class="formatter-langs">${safeLangs}${f.languages.length > 5 ? '...' : ''}</div>
-                <button class="btn-link" onclick="openSettings('${safeFirstLang}', '${safeId}')">${escapedConfigure}</button>
+                <button class="btn-link" data-lang="${safeFirstLang}" data-formatter="${safeId}">${escapedConfigure}</button>
             </div>
         `;
         }).join('');
@@ -337,6 +337,12 @@ export class ReconfigureWebview {
         function openSettings(lang, formatter) {
             vscode.postMessage({ command: 'openSettings', lang, formatter });
         }
+
+        document.querySelectorAll('.btn-link').forEach(button => {
+            button.addEventListener('click', () => {
+                openSettings(button.dataset.lang || '', button.dataset.formatter || '');
+            });
+        });
     </script>
 </body>
 </html>`;
