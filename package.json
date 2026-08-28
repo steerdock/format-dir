@@ -2,7 +2,7 @@
     "name": "format-directory",
     "displayName": "%displayName%",
     "description": "%description%",
-    "version": "1.1.9",
+    "version": "1.2.0",
     "publisher": "FormatDirectory",
     "engines": {
         "vscode": "^1.85.0"
@@ -30,9 +30,6 @@
     "homepage": "https://github.com/steerdock/format-dir#readme",
     "license": "MIT",
     "icon": "icon_v2.png",
-    "activationEvents": [
-        "onStartupFinished"
-    ],
     "main": "./out/extension.js",
     "contributes": {
         "commands": [
@@ -43,6 +40,10 @@
             {
                 "command": "formatdir.formatFileWithDefault",
                 "title": "%command.formatFile%"
+            },
+            {
+                "command": "formatdir.formatWithConfig",
+                "title": "%command.formatWithConfig%"
             },
             {
                 "command": "formatdir.undo",
@@ -72,6 +73,11 @@
                 {
                     "command": "formatdir.formatWithDefault",
                     "group": "navigation",
+                    "when": "explorerResourceIsFolder"
+                },
+                {
+                    "command": "formatdir.formatWithConfig",
+                    "group": "navigation@2",
                     "when": "explorerResourceIsFolder"
                 },
                 {

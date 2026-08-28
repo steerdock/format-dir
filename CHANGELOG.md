@@ -5,6 +5,23 @@ All notable changes to the "Format Directory" extension will be documented in th
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+### v1.2.0
+- **Feature**: Added a "Batch Format with Options" command and Explorer context-menu entry, making the existing per-run configuration webview accessible.
+- **Bug Fix**: Undo history now retains only files that were actually formatted; backups for skipped, failed, cancelled, and unprocessed files are removed so undo cannot overwrite unrelated later edits.
+- **Bug Fix**: Preview and reconfigure webview buttons now use nonce-authorized event listeners instead of CSP-blocked inline handlers.
+- **Bug Fix**: Preview formatting now remains under the operation lock until the user confirms or cancels, and repeated confirmation messages cannot start duplicate runs.
+- **Bug Fix**: Concurrent formatting operations and undo during an active format are now blocked to prevent interleaved file writes, history corruption, and formatter-setting races.
+- **Bug Fix**: An empty `formatdir.recommendedFormatters` configuration now correctly falls back to the built-in recommended formatter list.
+- **Bug Fix**: `.gitignore` processing is isolated to the selected directory's workspace folder, preventing rules from other roots in a multi-root workspace from affecting the operation.
+- **Bug Fix**: `.gitignore` matching now anchors complete paths, keeps single-star wildcards within a path segment, and evaluates exclusion and negation rules in their original order.
+- **Bug Fix**: Formatter-priority overrides now read, update, and restore `editor.defaultFormatter` at the matching language and configuration scope (global, workspace, or workspace folder).
+- **Security**: Reconfigure webview messages are validated before their configuration data is used by the extension host.
+- **Performance**: Removed unconditional `onStartupFinished` activation; the extension now activates through its contributed commands and view.
+- **Build**: Reduced VSIX contents to runtime files by excluding tests, source maps, CI files, local workspace metadata, and development-only assets.
+- **CI**: Reduced default GitHub Actions permissions to `contents: read` and moved release publishing into a dedicated job with scoped write permission.
+- **Test**: Added regression coverage for anchored glob matching and ordered `.gitignore` exclusion/negation rules; the suite now contains 14 passing tests.
+- **Code Quality**: Removed dead state and unused variables, and restored a zero-warning ESLint run.
+
 ### v1.1.9
 - **Bug Fix**: Formatting is now cancelled when any target file cannot be backed up, preventing formatting operations that cannot be undone.
 - **Bug Fix**: Formatting now checks whether edits were applied and files were saved before reporting success.

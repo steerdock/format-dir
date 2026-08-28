@@ -21,6 +21,14 @@ describe('globToRegExp', () => {
         assert.ok(re.test('dir.name'));
         assert.ok(!re.test('dirXname'));
     });
+
+    it('anchors matches and keeps a single star within one path segment', () => {
+        const re = globToRegExp('**/keep.log');
+        assert.ok(re.test('keep.log'));
+        assert.ok(re.test('logs/keep.log'));
+        assert.ok(!re.test('logs/notkeep.log'));
+        assert.ok(!re.test('logs/keep.log.bak'));
+    });
 });
 
 describe('parseGitignoreContent', () => {
@@ -78,5 +86,15 @@ describe('parseGitignoreContent', () => {
         const result = parseGitignoreContent('*.log\n!important.log', 'logs/');
         assert.ok(result.patterns.includes('logs/**/*.log'));
         assert.deepStrictEqual(result.negationPatterns, ['logs/**/important.log']);
+    });
+
+    it('preserves rule order for repeated exclusion and negation', () => {
+        const result = parseGitignoreContent('*.log\n!keep.log\nkeep.log');
+        assert.deepStrictEqual(result.rules, [
+            { pattern: '**/*.log', negated: false },
+            { pattern: '**/keep.log', negated: true },
+            { pattern: '**/keep.log', negated: false },
+            { pattern: '**/keep.log/**', negated: false },
+        ]);
     });
 });

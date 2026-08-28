@@ -1,8 +1,17 @@
 .vscode/**
+.github/**
+.dish/**
 .gitignore
 tsconfig.json
 src/**
+test/**
+out/test/**
+out/src/**
 **/*.map
 node_modules/**
 *.vsix
 install.txt
+eslint.config.mjs
+CONTRIBUTING.md
+gitps.png
+icon_v2.svg

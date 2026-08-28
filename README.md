@@ -4,17 +4,22 @@ that formats entire directories or individual files using your configured VS Cod
 
 ## Changelog
 
-### v1.1.9
-- **Bug Fix**: Formatting is now cancelled when any target file cannot be backed up, preventing formatting operations that cannot be undone.
-- **Bug Fix**: Formatting now checks whether edits were applied and files were saved before reporting success.
-- **Bug Fix**: Undo keeps the history entry and backup files when any file restore fails, allowing the operation to be retried.
-- **Bug Fix**: Single-file formatting now respects configured file extensions and maximum file size limits.
-- **Bug Fix**: Nested `.gitignore` scanning no longer stops after the first 100 files.
-- **Bug Fix**: Formatter priority restoration no longer overwrites settings changed by the user during formatting.
-- **Security**: Reconfigure webview formatter actions no longer interpolate formatter metadata into inline JavaScript handlers.
-- **Improvement**: Backup filenames are shorter and use SHA-256 path hashes to reduce Windows path-length issues.
-- **Test**: Added regression coverage for nested `.gitignore` patterns and negation rules.
-- **Security**: Updated test tooling and pinned patched transitive versions; `npm audit` now reports zero vulnerabilities.
+### v1.2.0
+- **Feature**: Added a "Batch Format with Options" command and Explorer context-menu entry, making the existing per-run configuration webview accessible.
+- **Bug Fix**: Undo history now retains only files that were actually formatted; backups for skipped, failed, cancelled, and unprocessed files are removed so undo cannot overwrite unrelated later edits.
+- **Bug Fix**: Preview and reconfigure webview buttons now use nonce-authorized event listeners instead of CSP-blocked inline handlers.
+- **Bug Fix**: Preview formatting now remains under the operation lock until the user confirms or cancels, and repeated confirmation messages cannot start duplicate runs.
+- **Bug Fix**: Concurrent formatting operations and undo during an active format are now blocked to prevent interleaved file writes, history corruption, and formatter-setting races.
+- **Bug Fix**: An empty `formatdir.recommendedFormatters` configuration now correctly falls back to the built-in recommended formatter list.
+- **Bug Fix**: `.gitignore` processing is isolated to the selected directory's workspace folder, preventing rules from other roots in a multi-root workspace from affecting the operation.
+- **Bug Fix**: `.gitignore` matching now anchors complete paths, keeps single-star wildcards within a path segment, and evaluates exclusion and negation rules in their original order.
+- **Bug Fix**: Formatter-priority overrides now read, update, and restore `editor.defaultFormatter` at the matching language and configuration scope (global, workspace, or workspace folder).
+- **Security**: Reconfigure webview messages are validated before their configuration data is used by the extension host.
+- **Performance**: Removed unconditional `onStartupFinished` activation; the extension now activates through its contributed commands and view.
+- **Build**: Reduced VSIX contents to runtime files by excluding tests, source maps, CI files, local workspace metadata, and development-only assets.
+- **CI**: Reduced default GitHub Actions permissions to `contents: read` and moved release publishing into a dedicated job with scoped write permission.
+- **Test**: Added regression coverage for anchored glob matching and ordered `.gitignore` exclusion/negation rules; the suite now contains 14 passing tests.
+- **Code Quality**: Removed dead state and unused variables, and restored a zero-warning ESLint run.
 
 See [CHANGELOG.md](./CHANGELOG.md) for detailed release notes.
 

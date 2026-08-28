@@ -3,6 +3,7 @@
     "description": "Format all files in a directory using the default formatter.",
     "command.formatWithDefault": "Batch Format",
     "command.formatFile": "Format File",
+    "command.formatWithConfig": "Batch Format with Options",
     "command.undo": "Undo Last Format",
     "command.configurePriority": "Configure Formatter Priority",
     "config.title": "Format Directory",
