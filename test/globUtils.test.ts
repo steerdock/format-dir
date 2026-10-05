@@ -88,7 +88,7 @@ describe('parseGitignoreContent', () => {
         assert.deepStrictEqual(result.negationPatterns, ['logs/**/important.log']);
     });
 
-    it('preserves rule order for repeated exclusion and negation', () => {
+	it('preserves rule order for repeated exclusion and negation', () => {
         const result = parseGitignoreContent('*.log\n!keep.log\nkeep.log');
         assert.deepStrictEqual(result.rules, [
             { pattern: '**/*.log', negated: false },
@@ -96,5 +96,12 @@ describe('parseGitignoreContent', () => {
             { pattern: '**/keep.log', negated: false },
             { pattern: '**/keep.log/**', negated: false },
         ]);
-    });
+	});
+
+	it('supports escaped comment, bang, and space characters', () => {
+		const result = parseGitignoreContent('\\#file\n\\!important\nmy\\ file');
+		assert.ok(result.patterns.includes('**/#file'));
+		assert.ok(result.patterns.includes('**/!important'));
+		assert.ok(result.patterns.includes('**/my file'));
+	});
 });

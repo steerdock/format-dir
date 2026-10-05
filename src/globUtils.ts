@@ -54,11 +54,14 @@ export function parseGitignoreContent(text: string, dirPrefix: string = ""): {
 		if (!trimmed || trimmed.startsWith("#")) {
 			continue;
 		}
+		// A backslash escapes the following character in gitignore. Keep the
+		// escaped character literal for the glob matcher.
+		const unescaped = trimmed.replace(/\\([#! ])/g, "$1");
 
 		// Handle negation patterns separately - add them at the end
 		// so they can re-include files previously excluded
-		if (trimmed.startsWith("!")) {
-			const negated = trimmed.slice(1).trim();
+		if (unescaped.startsWith("!") && !trimmed.startsWith("\\!")) {
+			const negated = unescaped.slice(1).trim();
 			if (negated) {
 				let negGlob = negated;
 				if (negGlob.endsWith("/")) {
@@ -79,7 +82,7 @@ export function parseGitignoreContent(text: string, dirPrefix: string = ""): {
 		}
 
 		// Convert .gitignore pattern to glob pattern
-		let globPattern = trimmed;
+		let globPattern = unescaped;
 
 		// Remove trailing slashes
 		if (globPattern.endsWith("/")) {

@@ -55,6 +55,7 @@ export function activate(context: vscode.ExtensionContext) {
 	statusBarItem.command = "formatdir.formatWithDefault";
 	context.subscriptions.push(statusBarItem);
 	previewManager = new PreviewManager(context);
+	context.subscriptions.push({ dispose: () => previewManager.dispose() });
 	historyManager = new HistoryManager(context);
 	reconfigureWebview = new ReconfigureWebview(context);
 	resultTreeViewManager = new ResultTreeViewManager(context);
@@ -145,8 +146,20 @@ async function formatDirectory(uri: vscode.Uri, reconfigure: boolean) {
 			return;
 		}
 		if (config.preview) {
+			// Preview and execution must operate on the same set. In particular,
+			// dirty documents are intentionally skipped by formatFile().
+			files = await filterPreviewFiles(files);
+			if (files.length === 0) {
+				vscode.window.showInformationMessage(t("formatDirectory.noFiles"));
+				return;
+			}
 			await previewManager.showPreview(files, async () => {
-				await executeFormat(files, config);
+				// Re-check at confirmation time because a document may have become
+				// dirty while the preview panel was open.
+				files = await filterPreviewFiles(files);
+				if (files.length > 0) {
+					await executeFormat(files, config);
+				}
 			}, () => {
 				log("info", "Preview cancelled by user.");
 			});
@@ -162,6 +175,24 @@ async function formatDirectory(uri: vscode.Uri, reconfigure: boolean) {
 	} finally {
 		formatInProgress = false;
 	}
+}
+
+/** Keep the preview file set identical to the files that can be formatted. */
+async function filterPreviewFiles(files: vscode.Uri[]): Promise<vscode.Uri[]> {
+	const result: vscode.Uri[] = [];
+	for (const file of files) {
+		try {
+			const document = await vscode.workspace.openTextDocument(file);
+			if (!document.isDirty) {
+				result.push(file);
+			} else {
+				log("info", `Skipping preview for ${path.basename(file.fsPath)}: file has unsaved changes`);
+			}
+		} catch {
+			log("debug", `Failed to open ${file.fsPath} while preparing preview`);
+		}
+	}
+	return result;
 }
 async function executeFormat(files: vscode.Uri[], config: FormatConfig, progress?: vscode.Progress<{
 	message?: string;
@@ -439,7 +470,11 @@ async function formatFiles(files: vscode.Uri[], config: FormatConfig, externalPr
 	if (Object.keys(config.formatterPriority).length > 0) {
 		const scopeUri = files[0];
 		const workspaceFolder = vscode.workspace.getWorkspaceFolder(scopeUri);
-		const target = workspaceFolder ? vscode.ConfigurationTarget.WorkspaceFolder : vscode.workspace.workspaceFile || vscode.workspace.workspaceFolders ? vscode.ConfigurationTarget.Workspace : vscode.ConfigurationTarget.Global;
+		const target = workspaceFolder
+			? vscode.ConfigurationTarget.WorkspaceFolder
+			: (vscode.workspace.workspaceFile || (vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0)
+				? vscode.ConfigurationTarget.Workspace
+				: vscode.ConfigurationTarget.Global);
 		for (const [langId, formatterId] of Object.entries(config.formatterPriority)) {
 			const langConfig = vscode.workspace.getConfiguration("editor", {
 				uri: scopeUri,
@@ -602,6 +637,9 @@ async function formatFiles(files: vscode.Uri[], config: FormatConfig, externalPr
 	if (cancelled) {
 		statusBarItem.text = `$(x) ${t("formatDirectory.cancelled")}`;
 		hideStatusBarAfterDelay();
+		if (successCount > 0) {
+			vscode.window.showInformationMessage(`${t("formatDirectory.cancelled")} (${successCount} ${t("formatDirectory.filesAlreadyFormatted")})`);
+		}
 		return;
 	}
 
@@ -742,9 +780,14 @@ async function configurePriority() {
 
 	// 4. Write to settings.json
 	const config = vscode.workspace.getConfiguration("formatdir");
-	const currentPriority = config.get<Record<string, string>>("formatterPriority", {});
+	const currentPriority = {
+		...config.get<Record<string, string>>("formatterPriority", {})
+	};
 	currentPriority[lang] = selected.id;
-	await config.update("formatterPriority", currentPriority, vscode.ConfigurationTarget.Workspace);
+	const target = vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0
+		? vscode.ConfigurationTarget.Workspace
+		: vscode.ConfigurationTarget.Global;
+	await config.update("formatterPriority", currentPriority, target);
 	vscode.window.showInformationMessage(t("formatDirectory.configurePriority") + `: ${lang} -> ${selected.label}`);
 }
 

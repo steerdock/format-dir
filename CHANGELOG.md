@@ -5,6 +5,14 @@ All notable changes to the "Format Directory" extension will be documented in th
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+### v1.2.1
+- **Bug Fix**: Preview mode now filters unsaved files before showing changes and rechecks them when the user confirms, keeping the preview and actual formatting targets consistent.
+- **Bug Fix**: Formatter priority configuration now uses the workspace scope when a workspace is open and the global scope otherwise, while preserving existing settings.
+- **Bug Fix**: Cancellation feedback now reports files that were already formatted during the operation.
+- **Bug Fix**: Gitignore parsing now supports escaped comment markers, exclamation marks, and spaces without misclassifying escaped negation patterns.
+- **Resource Management**: Preview files are uniquely named, stale preview files are cleaned up on activation, and preview listeners are disposed when the extension deactivates.
+- **Test**: Added regression coverage for escaped `.gitignore` pattern characters; the suite now contains 15 passing tests.
+
 ### v1.2.0
 - **Feature**: Added a "Batch Format with Options" command and Explorer context-menu entry, making the existing per-run configuration webview accessible.
 - **Bug Fix**: Undo history now retains only files that were actually formatted; backups for skipped, failed, cancelled, and unprocessed files are removed so undo cannot overwrite unrelated later edits.

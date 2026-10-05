@@ -6,7 +6,30 @@ import * as crypto from "crypto";
 const pendingPreviewDeletions = new Map<string, vscode.Disposable>();
 export class PreviewManager {
 	private panel: vscode.WebviewPanel | undefined;
-	constructor(private context: vscode.ExtensionContext) { }
+	constructor(private context: vscode.ExtensionContext) {
+		void this.cleanupStalePreviews();
+	}
+	public dispose(): void {
+		this.disposePreviewListeners();
+		this.disposePanel();
+	}
+	private disposePreviewListeners(): void {
+		for (const disposable of pendingPreviewDeletions.values()) {
+			disposable.dispose();
+		}
+		pendingPreviewDeletions.clear();
+	}
+	private async cleanupStalePreviews(): Promise<void> {
+		const previewDir = vscode.Uri.joinPath(this.context.globalStorageUri, "preview");
+		try {
+			const entries = await vscode.workspace.fs.readDirectory(previewDir);
+			await Promise.all(entries
+				.filter(([, type]) => type === vscode.FileType.File)
+				.map(([name]) => vscode.workspace.fs.delete(vscode.Uri.joinPath(previewDir, name), { useTrash: false })));
+		} catch {
+			// The directory may not exist on first activation.
+		}
+	}
 	public async showPreview(files: vscode.Uri[], onConfirm: () => Promise<void>, onCancel: () => void) {
 		if (this.panel) {
 			this.panel.reveal();
@@ -36,7 +59,7 @@ export class PreviewManager {
 					} catch (error) {
 						reject(error);
 					} finally {
-						this.dispose();
+						this.disposePanel();
 					}
 					break;
 				case "cancel":
@@ -45,7 +68,7 @@ export class PreviewManager {
 					}
 					actionTaken = true;
 					onCancel();
-					this.dispose();
+					this.disposePanel();
 					resolve();
 					break;
 				case "openDiff":
@@ -61,7 +84,7 @@ export class PreviewManager {
 			}
 		}, null, this.context.subscriptions);
 	}
-	private dispose() {
+	private disposePanel() {
 		if (this.panel) {
 			this.panel.dispose();
 			this.panel = undefined;
@@ -99,7 +122,7 @@ export class PreviewManager {
 				content = content.slice(0, startOffset) + edit.newText + content.slice(endOffset);
 			}
 			const previewDir = await this.createPreviewDir();
-			const hash = crypto.createHash("md5").update(uri.fsPath).digest("hex").slice(0, 12);
+			const hash = crypto.createHash("sha256").update(`${uri.toString()}\n${Date.now()}\n${Math.random()}`).digest("hex").slice(0, 16);
 			const previewUri = vscode.Uri.joinPath(previewDir, `${hash}_${path.basename(uri.fsPath)}.preview`);
 			await vscode.workspace.fs.writeFile(previewUri, Buffer.from(content, "utf8"));
 			await vscode.commands.executeCommand("vscode.diff", uri, previewUri, `Preview: ${path.basename(uri.fsPath)}`);

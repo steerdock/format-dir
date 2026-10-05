@@ -4,112 +4,112 @@ import * as crypto from "crypto";
 import { t } from "./i18n";
 import { escapeHtml } from "./utils";
 export interface WebviewConfig {
-	fileExtensions: string[];
-	recursive: boolean;
-	excludePatterns: string[];
-	respectGitignore: boolean;
+    fileExtensions: string[];
+    recursive: boolean;
+    excludePatterns: string[];
+    respectGitignore: boolean;
 }
 function isWebviewConfig(value: unknown): value is WebviewConfig {
-	if (!value || typeof value !== "object") {
-		return false;
-	}
-	const config = value as Partial<WebviewConfig>;
-	return Array.isArray(config.fileExtensions) && config.fileExtensions.every(item => typeof item === "string") && Array.isArray(config.excludePatterns) && config.excludePatterns.every(item => typeof item === "string") && typeof config.recursive === "boolean" && typeof config.respectGitignore === "boolean";
+    if (!value || typeof value !== "object") {
+        return false;
+    }
+    const config = value as Partial<WebviewConfig>;
+    return Array.isArray(config.fileExtensions) && config.fileExtensions.every(item => typeof item === "string") && Array.isArray(config.excludePatterns) && config.excludePatterns.every(item => typeof item === "string") && typeof config.recursive === "boolean" && typeof config.respectGitignore === "boolean";
 }
 export class ReconfigureWebview {
-	private panel: vscode.WebviewPanel | undefined;
-	constructor(private context: vscode.ExtensionContext) { }
-	public async show(currentConfig: WebviewConfig): Promise<WebviewConfig | null> {
-		return new Promise(resolve => {
-			let settled = false;
-			const doResolve = (value: WebviewConfig | null) => {
-				if (settled) {
-					return;
-				}
-				settled = true;
-				resolve(value);
-			};
-			const existingPanel = this.panel;
-			if (existingPanel) {
-				existingPanel.reveal();
-			} else {
-				this.panel = vscode.window.createWebviewPanel("reconfigureFormatDir", t("formatDirectory.reconfigureTitle") || "Reconfigure Format Directory", vscode.ViewColumn.One, {
-					enableScripts: true,
-					retainContextWhenHidden: true,
-					localResourceRoots: [vscode.Uri.file(path.join(this.context.extensionPath, "src"))]
-				});
-				const formatters = this.getInstalledFormatters();
-				this.panel.webview.html = this.getHtmlContent(currentConfig, formatters);
-			}
-			const activePanel = this.panel!;
-			const messageDisposable = activePanel.webview.onDidReceiveMessage(async message => {
-				switch (message.command) {
-					case "save":
-						if (!isWebviewConfig(message.config)) {
-							return;
-						}
-						doResolve(message.config);
-						activePanel.dispose();
-						break;
-					case "cancel":
-						doResolve(null);
-						activePanel.dispose();
-						break;
-					case "openSettings":
-						const {
-							lang
-						} = message;
-						await vscode.commands.executeCommand("workbench.action.openSettings", `@lang:${lang} editor.defaultFormatter`);
-						break;
-				}
-			}, undefined, this.context.subscriptions);
-			const disposeDisposable = activePanel.onDidDispose(() => {
-				this.panel = undefined;
-				messageDisposable.dispose();
-				disposeDisposable.dispose();
-				doResolve(null);
-			});
-		});
-	}
-	private getInstalledFormatters() {
-		// Find extensions that provide formatting
-		const formatters: {
-			id: string;
-			name: string;
-			languages: string[];
-		}[] = [];
-		vscode.extensions.all.forEach(ext => {
-			const pkg = ext.packageJSON;
-			// More precise: check for documentFormattingEditProvider or Formatters category
-			const isFormatter = pkg?.contributes?.documentFormattingEditProvider || pkg?.categories?.includes("Formatters");
-			if (isFormatter && !ext.id.startsWith("vscode.")) {
-				const langs = pkg?.contributes?.languages?.map((l: {
-					id: string;
-				}) => l.id) || [];
-				formatters.push({
-					id: ext.id,
-					name: pkg.displayName || ext.id,
-					languages: langs
-				});
-			}
-		});
-		return formatters;
-	}
-	private getHtmlContent(config: WebviewConfig, formatters: {
-		id: string;
-		name: string;
-		languages: string[];
-	}[]): string {
-		const nonce = crypto.randomBytes(16).toString("hex");
-		const extensionItems = escapeHtml(config.fileExtensions.join(", "));
-		const excludeItems = escapeHtml(config.excludePatterns.join(", "));
-		const formatterCheckboxes = formatters.map(f => {
-			const safeName = escapeHtml(f.name);
-			const safeId = escapeHtml(f.id);
-			const safeLangs = escapeHtml(f.languages.slice(0, 5).join(", "));
-			const safeFirstLang = escapeHtml(f.languages[0] || "");
-			const escapedConfigure = escapeHtml(t("formatDirectory.configure") || "Configure");
-			return `
+    private panel: vscode.WebviewPanel | undefined;
+    constructor(private context: vscode.ExtensionContext) { }
+    public async show(currentConfig: WebviewConfig): Promise<WebviewConfig | null> {
+        return new Promise(resolve => {
+            let settled = false;
+            const doResolve = (value: WebviewConfig | null) => {
+                if (settled) {
+                    return;
+                }
+                settled = true;
+                resolve(value);
+            };
+            const existingPanel = this.panel;
+            if (existingPanel) {
+                existingPanel.reveal();
+            } else {
+                this.panel = vscode.window.createWebviewPanel("reconfigureFormatDir", t("formatDirectory.reconfigureTitle") || "Reconfigure Format Directory", vscode.ViewColumn.One, {
+                    enableScripts: true,
+                    retainContextWhenHidden: true,
+                    localResourceRoots: [vscode.Uri.file(path.join(this.context.extensionPath, "src"))]
+                });
+                const formatters = this.getInstalledFormatters();
+                this.panel.webview.html = this.getHtmlContent(currentConfig, formatters);
+            }
+            const activePanel = this.panel!;
+            const messageDisposable = activePanel.webview.onDidReceiveMessage(async message => {
+                switch (message.command) {
+                    case "save":
+                        if (!isWebviewConfig(message.config)) {
+                            return;
+                        }
+                        doResolve(message.config);
+                        activePanel.dispose();
+                        break;
+                    case "cancel":
+                        doResolve(null);
+                        activePanel.dispose();
+                        break;
+                    case "openSettings":
+                        const {
+                            lang
+                        } = message;
+                        await vscode.commands.executeCommand("workbench.action.openSettings", `@lang:${lang} editor.defaultFormatter`);
+                        break;
+                }
+            }, undefined, this.context.subscriptions);
+            const disposeDisposable = activePanel.onDidDispose(() => {
+                this.panel = undefined;
+                messageDisposable.dispose();
+                disposeDisposable.dispose();
+                doResolve(null);
+            });
+        });
+    }
+    private getInstalledFormatters() {
+        // Find extensions that provide formatting
+        const formatters: {
+            id: string;
+            name: string;
+            languages: string[];
+        }[] = [];
+        vscode.extensions.all.forEach(ext => {
+            const pkg = ext.packageJSON;
+            // More precise: check for documentFormattingEditProvider or Formatters category
+            const isFormatter = pkg?.contributes?.documentFormattingEditProvider || pkg?.categories?.includes("Formatters");
+            if (isFormatter && !ext.id.startsWith("vscode.")) {
+                const langs = pkg?.contributes?.languages?.map((l: {
+                    id: string;
+                }) => l.id) || [];
+                formatters.push({
+                    id: ext.id,
+                    name: pkg.displayName || ext.id,
+                    languages: langs
+                });
+            }
+        });
+        return formatters;
+    }
+    private getHtmlContent(config: WebviewConfig, formatters: {
+        id: string;
+        name: string;
+        languages: string[];
+    }[]): string {
+        const nonce = crypto.randomBytes(16).toString("hex");
+        const extensionItems = escapeHtml(config.fileExtensions.join(", "));
+        const excludeItems = escapeHtml(config.excludePatterns.join(", "));
+        const formatterCheckboxes = formatters.map(f => {
+            const safeName = escapeHtml(f.name);
+            const safeId = escapeHtml(f.id);
+            const safeLangs = escapeHtml(f.languages.slice(0, 5).join(", "));
+            const safeFirstLang = escapeHtml(f.languages[0] || "");
+            const escapedConfigure = escapeHtml(t("formatDirectory.configure") || "Configure");
+            return `
             <div class="formatter-item">
                 <div class="formatter-info">
                     <div class="formatter-name">${safeName}</div>
@@ -119,8 +119,8 @@ export class ReconfigureWebview {
                 <button class="btn-link" data-lang="${safeFirstLang}" data-formatter="${safeId}">${escapedConfigure}</button>
             </div>
         `;
-		}).join("");
-		return `<!DOCTYPE html>
+        }).join("");
+        return `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -343,5 +343,5 @@ export class ReconfigureWebview {
     </script>
 </body>
 </html>`;
-	}
+    }
 }

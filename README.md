@@ -4,22 +4,13 @@ that formats entire directories or individual files using your configured VS Cod
 
 ## Changelog
 
-### v1.2.0
-- **Feature**: Added a "Batch Format with Options" command and Explorer context-menu entry, making the existing per-run configuration webview accessible.
-- **Bug Fix**: Undo history now retains only files that were actually formatted; backups for skipped, failed, cancelled, and unprocessed files are removed so undo cannot overwrite unrelated later edits.
-- **Bug Fix**: Preview and reconfigure webview buttons now use nonce-authorized event listeners instead of CSP-blocked inline handlers.
-- **Bug Fix**: Preview formatting now remains under the operation lock until the user confirms or cancels, and repeated confirmation messages cannot start duplicate runs.
-- **Bug Fix**: Concurrent formatting operations and undo during an active format are now blocked to prevent interleaved file writes, history corruption, and formatter-setting races.
-- **Bug Fix**: An empty `formatdir.recommendedFormatters` configuration now correctly falls back to the built-in recommended formatter list.
-- **Bug Fix**: `.gitignore` processing is isolated to the selected directory's workspace folder, preventing rules from other roots in a multi-root workspace from affecting the operation.
-- **Bug Fix**: `.gitignore` matching now anchors complete paths, keeps single-star wildcards within a path segment, and evaluates exclusion and negation rules in their original order.
-- **Bug Fix**: Formatter-priority overrides now read, update, and restore `editor.defaultFormatter` at the matching language and configuration scope (global, workspace, or workspace folder).
-- **Security**: Reconfigure webview messages are validated before their configuration data is used by the extension host.
-- **Performance**: Removed unconditional `onStartupFinished` activation; the extension now activates through its contributed commands and view.
-- **Build**: Reduced VSIX contents to runtime files by excluding tests, source maps, CI files, local workspace metadata, and development-only assets.
-- **CI**: Reduced default GitHub Actions permissions to `contents: read` and moved release publishing into a dedicated job with scoped write permission.
-- **Test**: Added regression coverage for anchored glob matching and ordered `.gitignore` exclusion/negation rules; the suite now contains 14 passing tests.
-- **Code Quality**: Removed dead state and unused variables, and restored a zero-warning ESLint run.
+### v1.2.1
+- **Bug Fix**: Preview mode now filters unsaved files before showing changes and rechecks them when the user confirms, keeping the preview and actual formatting targets consistent.
+- **Bug Fix**: Formatter priority configuration now uses the workspace scope when a workspace is open and the global scope otherwise, while preserving existing settings.
+- **Bug Fix**: Cancellation feedback now reports files that were already formatted during the operation.
+- **Bug Fix**: Gitignore parsing now supports escaped comment markers, exclamation marks, and spaces without misclassifying escaped negation patterns.
+- **Resource Management**: Preview files are uniquely named, stale preview files are cleaned up on activation, and preview listeners are disposed when the extension deactivates.
+- **Test**: Added regression coverage for escaped `.gitignore` pattern characters; the suite now contains 15 passing tests.
 
 See [CHANGELOG.md](./CHANGELOG.md) for detailed release notes.
 

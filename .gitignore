@@ -12,6 +12,7 @@ build/
 
 # Package files
 *.vsix
+package-lock.json
 
 # Logs
 *.log

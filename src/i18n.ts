@@ -58,6 +58,7 @@ const messages: {
 		"formatDirectory.formattingStatus": "Formatting...",
 		"formatDirectory.formattingFile": "Formatting: {0}/{1}",
 		"formatDirectory.alreadyRunning": "A formatting operation is already running."
+		, "formatDirectory.filesAlreadyFormatted": "files were already formatted"
 	},
 	"zh-cn": {
 		"formatDirectory.default": "格式化目录 (默认配置): {0}",
@@ -112,6 +113,7 @@ const messages: {
 		"formatDirectory.formattingStatus": "正在格式化...",
 		"formatDirectory.formattingFile": "正在格式化: {0}/{1}",
 		"formatDirectory.alreadyRunning": "已有格式化任务正在运行。"
+		, "formatDirectory.filesAlreadyFormatted": "个文件已完成格式化"
 	},
 	ja: {
 		"formatDirectory.default": "ディレクトリをフォーマット (デフォルト設定): {0}",
