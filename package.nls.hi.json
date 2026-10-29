@@ -2,6 +2,7 @@
     "displayName": "डायरेक्टरी फ़ॉर्मेट करें",
     "description": "डिफ़ॉल्ट फ़ॉर्मेटर का उपयोग करके डायरेक्टरी में सभी फ़ाइलों को फ़ॉर्मेट करें।",
     "command.formatWithDefault": "बैच फ़ॉर्मेट",
+    "command.formatWithConfig": "विकल्पों के साथ बैच फ़ॉर्मेट",
     "command.formatFile": "फ़ाइल फ़ॉर्मेट करें",
     "command.undo": "अंतिम फ़ॉर्मेट पूर्ववत करें",
     "command.configurePriority": "फ़ॉर्मेटर प्राथमिकता कॉन्फ़िगर करें",

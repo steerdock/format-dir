@@ -2,6 +2,7 @@
     "displayName": "Verzeichnis formatieren",
     "description": "Formatieren Sie ganze Verzeichnisse mit einem Rechtsklick im Kontextmenü",
     "command.formatWithDefault": "Stapelverarbeitung",
+    "command.formatWithConfig": "Stapelverarbeitung mit Optionen",
     "command.formatFile": "Einzelne Datei formatieren",
     "config.title": "Verzeichnis formatieren",
     "config.fileExtensions.description": "Array von Dateierweiterungen, die formatiert werden sollen",

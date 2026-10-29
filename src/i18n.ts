@@ -165,7 +165,10 @@ const messages: {
 		"formatDirectory.previewDiffNoChanges": "フォーマットの変更がないか、このファイルに使用できるフォーマッターがありません。",
 		"formatDirectory.previewDiffFailed": "プレビュー差分の生成に失敗しました: {0}",
 		"formatDirectory.formattingStatus": "フォーマット中...",
-		"formatDirectory.formattingFile": "フォーマット中: {0}/{1}"
+		"formatDirectory.formattingFile": "フォーマット中: {0}/{1}",
+		"formatDirectory.backupFailed": "{0}個のファイルをバックアップできなかったため、フォーマットをキャンセルしました。",
+		"formatDirectory.alreadyRunning": "フォーマット処理はすでに実行中です。",
+		"formatDirectory.filesAlreadyFormatted": "ファイルはすでにフォーマットされました"
 	},
 	fr: {
 		"formatDirectory.default": "Formater le répertoire (Paramètres par défaut): {0}",
@@ -217,7 +220,10 @@ const messages: {
 		"formatDirectory.previewDiffNoChanges": "Aucune modification de formatage ou aucun formateur disponible pour ce fichier.",
 		"formatDirectory.previewDiffFailed": "Échec de la génération du diff de prévisualisation: {0}",
 		"formatDirectory.formattingStatus": "Formatage en cours...",
-		"formatDirectory.formattingFile": "Formatage: {0}/{1}"
+		"formatDirectory.formattingFile": "Formatage: {0}/{1}",
+		"formatDirectory.backupFailed": "Impossible de sauvegarder {0} fichier(s) ; le formatage a été annulé.",
+		"formatDirectory.alreadyRunning": "Une opération de formatage est déjà en cours.",
+		"formatDirectory.filesAlreadyFormatted": "fichiers déjà formatés"
 	},
 	de: {
 		"formatDirectory.default": "Verzeichnis formatieren (Standardeinstellungen): {0}",
@@ -269,7 +275,10 @@ const messages: {
 		"formatDirectory.previewDiffNoChanges": "Keine Formatierungsänderungen oder kein Formatierer für diese Datei verfügbar.",
 		"formatDirectory.previewDiffFailed": "Fehler beim Generieren der Vorschau-Diff: {0}",
 		"formatDirectory.formattingStatus": "Formatierung läuft...",
-		"formatDirectory.formattingFile": "Formatierung: {0}/{1}"
+		"formatDirectory.formattingFile": "Formatierung: {0}/{1}",
+		"formatDirectory.backupFailed": "{0} Datei(en) konnten nicht gesichert werden; die Formatierung wurde abgebrochen.",
+		"formatDirectory.alreadyRunning": "Eine Formatierung wird bereits ausgeführt.",
+		"formatDirectory.filesAlreadyFormatted": "Dateien wurden bereits formatiert"
 	},
 	es: {
 		"formatDirectory.default": "Formatear directorio (Configuración predeterminada): {0}",
@@ -321,7 +330,10 @@ const messages: {
 		"formatDirectory.previewDiffNoChanges": "Sin cambios de formato o sin formateador disponible para este archivo.",
 		"formatDirectory.previewDiffFailed": "Error al generar el diff de vista previa: {0}",
 		"formatDirectory.formattingStatus": "Formateando...",
-		"formatDirectory.formattingFile": "Formateando: {0}/{1}"
+		"formatDirectory.formattingFile": "Formateando: {0}/{1}",
+		"formatDirectory.backupFailed": "No se pudieron guardar {0} archivo(s); se canceló el formateo.",
+		"formatDirectory.alreadyRunning": "Ya hay una operación de formateo en curso.",
+		"formatDirectory.filesAlreadyFormatted": "archivos ya formateados"
 	},
 	it: {
 		"formatDirectory.default": "Formatta Directory (Impostazioni predefinite): {0}",
@@ -373,7 +385,10 @@ const messages: {
 		"formatDirectory.previewDiffNoChanges": "Nessuna modifica di formattazione o nessun formattatore disponibile per questo file.",
 		"formatDirectory.previewDiffFailed": "Errore nella generazione del diff di anteprima: {0}",
 		"formatDirectory.formattingStatus": "Formattazione in corso...",
-		"formatDirectory.formattingFile": "Formattazione: {0}/{1}"
+		"formatDirectory.formattingFile": "Formattazione: {0}/{1}",
+		"formatDirectory.backupFailed": "Impossibile eseguire il backup di {0} file; la formattazione è stata annullata.",
+		"formatDirectory.alreadyRunning": "È già in corso un'operazione di formattazione.",
+		"formatDirectory.filesAlreadyFormatted": "file già formattati"
 	},
 	ru: {
 		"formatDirectory.default": "Форматировать каталог (Настройки по умолчанию): {0}",
@@ -425,7 +440,10 @@ const messages: {
 		"formatDirectory.previewDiffNoChanges": "Нет изменений форматирования или форматер недоступен для этого файла.",
 		"formatDirectory.previewDiffFailed": "Ошибка при создании превью diff: {0}",
 		"formatDirectory.formattingStatus": "Форматирование...",
-		"formatDirectory.formattingFile": "Форматирование: {0}/{1}"
+		"formatDirectory.formattingFile": "Форматирование: {0}/{1}",
+		"formatDirectory.backupFailed": "Не удалось создать резервную копию {0} файла(ов); форматирование отменено.",
+		"formatDirectory.alreadyRunning": "Операция форматирования уже выполняется.",
+		"formatDirectory.filesAlreadyFormatted": "файлов уже отформатировано"
 	},
 	"pt-br": {
 		"formatDirectory.default": "Formatar Diretório (Configurações Padrão): {0}",
@@ -477,7 +495,10 @@ const messages: {
 		"formatDirectory.previewDiffNoChanges": "Sem alterações de formatação ou nenhum formatador disponível para este arquivo.",
 		"formatDirectory.previewDiffFailed": "Falha ao gerar diff de prévia: {0}",
 		"formatDirectory.formattingStatus": "Formatando...",
-		"formatDirectory.formattingFile": "Formatando: {0}/{1}"
+		"formatDirectory.formattingFile": "Formatando: {0}/{1}",
+		"formatDirectory.backupFailed": "Não foi possível fazer backup de {0} arquivo(s); a formatação foi cancelada.",
+		"formatDirectory.alreadyRunning": "Uma operação de formatação já está em andamento.",
+		"formatDirectory.filesAlreadyFormatted": "arquivos já formatados"
 	},
 	ko: {
 		"formatDirectory.default": "디렉토리 포맷 (기본 설정): {0}",
@@ -529,7 +550,10 @@ const messages: {
 		"formatDirectory.previewDiffNoChanges": "서식 변경이 없거나 이 파일에 사용 가능한 포맷터가 없습니다.",
 		"formatDirectory.previewDiffFailed": "미리보기 diff 생성 실패: {0}",
 		"formatDirectory.formattingStatus": "포맷 중...",
-		"formatDirectory.formattingFile": "포맷 중: {0}/{1}"
+		"formatDirectory.formattingFile": "포맷 중: {0}/{1}",
+		"formatDirectory.backupFailed": "{0}개 파일을 백업할 수 없어 포맷이 취소되었습니다.",
+		"formatDirectory.alreadyRunning": "포맷 작업이 이미 실행 중입니다.",
+		"formatDirectory.filesAlreadyFormatted": "개 파일이 이미 포맷되었습니다"
 	},
 	"zh-tw": {
 		"formatDirectory.default": "格式化目錄 (預設配置): {0}",
@@ -581,7 +605,10 @@ const messages: {
 		"formatDirectory.previewDiffNoChanges": "無格式化更改，或該檔案沒有可用的格式化程式。",
 		"formatDirectory.previewDiffFailed": "生成預覽差異失敗：{0}",
 		"formatDirectory.formattingStatus": "正在格式化...",
-		"formatDirectory.formattingFile": "正在格式化: {0}/{1}"
+		"formatDirectory.formattingFile": "正在格式化: {0}/{1}",
+		"formatDirectory.backupFailed": "無法備份 {0} 個檔案，格式化已取消。",
+		"formatDirectory.alreadyRunning": "已有格式化工作正在執行。",
+		"formatDirectory.filesAlreadyFormatted": "個檔案已完成格式化"
 	},
 	tr: {
 		"formatDirectory.default": "Dizini Formatla (Varsayılan Ayarlar): {0}",
@@ -633,7 +660,10 @@ const messages: {
 		"formatDirectory.previewDiffNoChanges": "Bu dosya için formatlama değişikliği yok veya formatter mevcut değil.",
 		"formatDirectory.previewDiffFailed": "Önizleme farkı oluşturulamadı: {0}",
 		"formatDirectory.formattingStatus": "Formatlanıyor...",
-		"formatDirectory.formattingFile": "Formatlanıyor: {0}/{1}"
+		"formatDirectory.formattingFile": "Formatlanıyor: {0}/{1}",
+		"formatDirectory.backupFailed": "{0} dosyanın yedeği alınamadı; biçimlendirme iptal edildi.",
+		"formatDirectory.alreadyRunning": "Bir biçimlendirme işlemi zaten devam ediyor.",
+		"formatDirectory.filesAlreadyFormatted": "dosya zaten biçimlendirildi"
 	},
 	ar: {
 		"formatDirectory.default": "تنسيق الدليل (الإعدادات الافتراضية): {0}",
@@ -685,7 +715,10 @@ const messages: {
 		"formatDirectory.previewDiffNoChanges": "لا توجد تغييرات تنسيق أو لا يوجد منسق متاح لهذا الملف.",
 		"formatDirectory.previewDiffFailed": "فشل إنشاء فرق المعاينة: {0}",
 		"formatDirectory.formattingStatus": "جارٍ التنسيق...",
-		"formatDirectory.formattingFile": "التنسيق: {0}/{1}"
+		"formatDirectory.formattingFile": "التنسيق: {0}/{1}",
+		"formatDirectory.backupFailed": "تعذر نسخ {0} ملف(ملفات) احتياطيًا؛ تم إلغاء التنسيق.",
+		"formatDirectory.alreadyRunning": "هناك عملية تنسيق قيد التشغيل بالفعل.",
+		"formatDirectory.filesAlreadyFormatted": "ملفات تم تنسيقها بالفعل"
 	},
 	hi: {
 		"formatDirectory.default": "डायरेक्टरी फ़ॉर्मेट करें (डिफ़ॉल्ट सेटिंग्स): {0}",
@@ -737,7 +770,10 @@ const messages: {
 		"formatDirectory.previewDiffNoChanges": "कोई फ़ॉर्मेटिंग परिवर्तन नहीं या इस फ़ाइल के लिए कोई फ़ॉर्मेटर उपलब्ध नहीं।",
 		"formatDirectory.previewDiffFailed": "प्रीव्यू डिफ़ जनरेट करने में विफल: {0}",
 		"formatDirectory.formattingStatus": "फ़ॉर्मेट हो रहा है...",
-		"formatDirectory.formattingFile": "फ़ॉर्मेट: {0}/{1}"
+		"formatDirectory.formattingFile": "फ़ॉर्मेट: {0}/{1}",
+		"formatDirectory.backupFailed": "{0} फ़ाइलों का बैकअप नहीं लिया जा सका; फ़ॉर्मेटिंग रद्द कर दी गई।",
+		"formatDirectory.alreadyRunning": "एक फ़ॉर्मेटिंग कार्य पहले से चल रहा है।",
+		"formatDirectory.filesAlreadyFormatted": "फ़ाइलें पहले ही फ़ॉर्मेट की जा चुकी हैं"
 	},
 	nl: {
 		"formatDirectory.default": "Map formatteren (standaardinstellingen): {0}",
@@ -789,7 +825,10 @@ const messages: {
 		"formatDirectory.previewDiffNoChanges": "Geen formatteringswijzigingen of geen formatter beschikbaar voor dit bestand.",
 		"formatDirectory.previewDiffFailed": "Kan preview-diff niet genereren: {0}",
 		"formatDirectory.formattingStatus": "Formatteren...",
-		"formatDirectory.formattingFile": "Formatteren: {0}/{1}"
+		"formatDirectory.formattingFile": "Formatteren: {0}/{1}",
+		"formatDirectory.backupFailed": "Kan geen back-up maken van {0} bestand(en); formatteren is geannuleerd.",
+		"formatDirectory.alreadyRunning": "Er wordt al een formatteringsbewerking uitgevoerd.",
+		"formatDirectory.filesAlreadyFormatted": "bestanden waren al geformatteerd"
 	},
 	vi: {
 		"formatDirectory.default": "Định dạng thư mục (Cài đặt mặc định): {0}",
@@ -841,7 +880,10 @@ const messages: {
 		"formatDirectory.previewDiffNoChanges": "Không có thay đổi định dạng hoặc không có trình định dạng cho tệp này.",
 		"formatDirectory.previewDiffFailed": "Không tạo được diff xem trước: {0}",
 		"formatDirectory.formattingStatus": "Đang định dạng...",
-		"formatDirectory.formattingFile": "Định dạng: {0}/{1}"
+		"formatDirectory.formattingFile": "Định dạng: {0}/{1}",
+		"formatDirectory.backupFailed": "Không thể sao lưu {0} tệp; quá trình định dạng đã bị hủy.",
+		"formatDirectory.alreadyRunning": "Một thao tác định dạng đang được thực hiện.",
+		"formatDirectory.filesAlreadyFormatted": "tệp đã được định dạng"
 	},
 	pl: {
 		"formatDirectory.default": "Formatuj Katalog (Ustawienia Domyślne): {0}",
@@ -893,7 +935,10 @@ const messages: {
 		"formatDirectory.previewDiffNoChanges": "Brak zmian formatowania lub brak formatera dostępnego dla tego pliku.",
 		"formatDirectory.previewDiffFailed": "Nie udało się wygenerować podglądu diff: {0}",
 		"formatDirectory.formattingStatus": "Formatowanie...",
-		"formatDirectory.formattingFile": "Formatowanie: {0}/{1}"
+		"formatDirectory.formattingFile": "Formatowanie: {0}/{1}",
+		"formatDirectory.backupFailed": "Nie można utworzyć kopii zapasowej {0} plików; formatowanie zostało anulowane.",
+		"formatDirectory.alreadyRunning": "Operacja formatowania jest już uruchomiona.",
+		"formatDirectory.filesAlreadyFormatted": "plików zostało już sformatowanych"
 	},
 	th: {
 		"formatDirectory.default": "จัดรูปแบบไดเรกทอรี (การตั้งค่าเริ่มต้น): {0}",
@@ -945,7 +990,10 @@ const messages: {
 		"formatDirectory.previewDiffNoChanges": "ไม่มีการเปลี่ยนแปลงการจัดรูปแบบหรือไม่มีตัวจัดรูปแบบสำหรับไฟล์นี้",
 		"formatDirectory.previewDiffFailed": "สร้าง diff ตัวอย่างล้มเหลว: {0}",
 		"formatDirectory.formattingStatus": "กำลังจัดรูปแบบ...",
-		"formatDirectory.formattingFile": "จัดรูปแบบ: {0}/{1}"
+		"formatDirectory.formattingFile": "จัดรูปแบบ: {0}/{1}",
+		"formatDirectory.backupFailed": "ไม่สามารถสำรองข้อมูล {0} ไฟล์ได้ ยกเลิกการจัดรูปแบบแล้ว",
+		"formatDirectory.alreadyRunning": "มีการจัดรูปแบบที่กำลังทำงานอยู่แล้ว",
+		"formatDirectory.filesAlreadyFormatted": "ไฟล์ถูกจัดรูปแบบแล้ว"
 	},
 	id: {
 		"formatDirectory.default": "Format Direktori (Pengaturan Default): {0}",
@@ -997,7 +1045,10 @@ const messages: {
 		"formatDirectory.previewDiffNoChanges": "Tidak ada perubahan format atau tidak ada pemformat yang tersedia untuk file ini.",
 		"formatDirectory.previewDiffFailed": "Gagal membuat diff pratinjau: {0}",
 		"formatDirectory.formattingStatus": "Memformat...",
-		"formatDirectory.formattingFile": "Memformat: {0}/{1}"
+		"formatDirectory.formattingFile": "Memformat: {0}/{1}",
+		"formatDirectory.backupFailed": "Tidak dapat mencadangkan {0} file; pemformatan dibatalkan.",
+		"formatDirectory.alreadyRunning": "Operasi pemformatan sedang berjalan.",
+		"formatDirectory.filesAlreadyFormatted": "file sudah diformat"
 	}
 };
 let currentLocale: string = "en";

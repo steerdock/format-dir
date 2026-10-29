@@ -2,6 +2,7 @@
     "displayName": "จัดรูปแบบไดเรกทอรี",
     "description": "จัดรูปแบบไฟล์ทั้งหมดในไดเรกทอรีโดยใช้ตัวจัดรูปแบบเริ่มต้น",
     "command.formatWithDefault": "จัดรูปแบบแบบกลุ่ม",
+    "command.formatWithConfig": "จัดรูปแบบแบบกลุ่มพร้อมตัวเลือก",
     "command.formatFile": "จัดรูปแบบไฟล์",
     "command.undo": "เลิกทำจัดรูปแบบล่าสุด",
     "command.configurePriority": "กำหนดค่าลำดับความสำคัญของตัวจัดรูปแบบ",

@@ -2,6 +2,7 @@
     "displayName": "Format Directory",
     "description": "Расширение VS Code для форматирования целых каталогов через контекстное меню.",
     "command.formatWithDefault": "Пакетное форматирование",
+    "command.formatWithConfig": "Пакетное форматирование с параметрами",
     "command.formatFile": "Форматировать файл",
     "config.title": "Format Directory",
     "config.fileExtensions.description": "Расширения файлов для форматирования",

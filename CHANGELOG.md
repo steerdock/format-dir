@@ -5,6 +5,11 @@ All notable changes to the "Format Directory" extension will be documented in th
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+### v1.2.2
+- **i18n**: Added the missing `command.formatWithConfig` label to all supported `package.nls` language files.
+- **i18n**: Completed runtime translations for `backupFailed`, `alreadyRunning`, and `filesAlreadyFormatted` across all 19 supported languages, preventing unintended English fallback messages.
+- **Test**: Verified localization key coverage for all 19 languages; compilation, lint, and the 15-test suite pass.
+
 ### v1.2.1
 - **Bug Fix**: Preview mode now filters unsaved files before showing changes and rechecks them when the user confirms, keeping the preview and actual formatting targets consistent.
 - **Bug Fix**: Formatter priority configuration now uses the workspace scope when a workspace is open and the global scope otherwise, while preserving existing settings.

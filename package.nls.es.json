@@ -2,6 +2,7 @@
     "displayName": "Formatear directorio",
     "description": "Formatee directorios completos con una opción del menú contextual al hacer clic derecho",
     "command.formatWithDefault": "Formatear por lotes",
+    "command.formatWithConfig": "Formatear por lotes con opciones",
     "config.title": "Formatear directorio",
     "config.fileExtensions.description": "Array de extensiones de archivo a formatear",
     "config.recursive.description": "Si se deben formatear archivos en subdirectorios de forma recursiva",

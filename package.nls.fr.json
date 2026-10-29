@@ -2,6 +2,7 @@
     "displayName": "Formater le Répertoire",
     "description": "Une extension VS Code pour formater des répertoires entiers avec des options de clic droit.",
     "command.formatWithDefault": "Formater par lot",
+    "command.formatWithConfig": "Formater par lot avec options",
     "config.title": "Formater le Répertoire",
     "config.fileExtensions.description": "Extensions de fichiers à formater",
     "config.recursive.description": "Formater récursivement les fichiers dans les sous-répertoires",

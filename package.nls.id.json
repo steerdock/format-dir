@@ -2,6 +2,7 @@
     "displayName": "Format Direktori",
     "description": "Format semua file dalam direktori menggunakan pemformat default.",
     "command.formatWithDefault": "Format Massal",
+    "command.formatWithConfig": "Format Massal dengan Opsi",
     "command.formatFile": "Format File",
     "command.undo": "Batalkan Format Terakhir",
     "command.configurePriority": "Konfigurasi Prioritas Pemformat",

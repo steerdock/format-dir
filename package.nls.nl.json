@@ -2,6 +2,7 @@
     "displayName": "Map formatteren",
     "description": "Formatteer alle bestanden in een map met de standaard formatteerders.",
     "command.formatWithDefault": "Mappen batchgewijs formatteren",
+    "command.formatWithConfig": "Mappen batchgewijs formatteren met opties",
     "command.formatFile": "Bestand formatteren",
     "command.undo": "Laatste formattering ongedaan maken",
     "command.configurePriority": "Prioriteit van formatteerder configureren",

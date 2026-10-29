@@ -2,6 +2,7 @@
     "displayName": "Formatuj Katalog",
     "description": "Sformatuj wszystkie pliki w katalogu za pomocą domyślnego formatera.",
     "command.formatWithDefault": "Formatowanie Wsadowe",
+    "command.formatWithConfig": "Formatowanie Wsadowe z Opcjami",
     "command.formatFile": "Formatuj Plik",
     "command.undo": "Cofnij Ostatnie Formatowanie",
     "command.configurePriority": "Konfiguruj Priorytet Formatera",

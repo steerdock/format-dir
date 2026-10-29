@@ -2,6 +2,7 @@
     "displayName": "格式化目錄",
     "description": "使用預設格式化程式格式化目錄中的所有檔案。",
     "command.formatWithDefault": "批量格式化",
+    "command.formatWithConfig": "使用選項批量格式化",
     "command.formatFile": "格式化檔案",
     "command.undo": "復原上次格式化",
     "command.configurePriority": "配置格式化器優先級",

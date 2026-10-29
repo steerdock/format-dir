@@ -2,6 +2,7 @@
     "displayName": "Định dạng thư mục",
     "description": "Định dạng tất cả các tệp trong thư mục bằng trình định dạng mặc định.",
     "command.formatWithDefault": "Định dạng hàng loạt thư mục",
+    "command.formatWithConfig": "Định dạng hàng loạt với tùy chọn",
     "command.formatFile": "Định dạng tệp",
     "command.undo": "Hoàn tác lần định dạng cuối cùng",
     "command.configurePriority": "Cấu hình ưu tiên trình định dạng",

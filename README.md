@@ -4,13 +4,10 @@ that formats entire directories or individual files using your configured VS Cod
 
 ## Changelog
 
-### v1.2.1
-- **Bug Fix**: Preview mode now filters unsaved files before showing changes and rechecks them when the user confirms, keeping the preview and actual formatting targets consistent.
-- **Bug Fix**: Formatter priority configuration now uses the workspace scope when a workspace is open and the global scope otherwise, while preserving existing settings.
-- **Bug Fix**: Cancellation feedback now reports files that were already formatted during the operation.
-- **Bug Fix**: Gitignore parsing now supports escaped comment markers, exclamation marks, and spaces without misclassifying escaped negation patterns.
-- **Resource Management**: Preview files are uniquely named, stale preview files are cleaned up on activation, and preview listeners are disposed when the extension deactivates.
-- **Test**: Added regression coverage for escaped `.gitignore` pattern characters; the suite now contains 15 passing tests.
+### v1.2.2
+- **i18n**: Added the missing `command.formatWithConfig` label to all supported `package.nls` language files.
+- **i18n**: Completed runtime translations for `backupFailed`, `alreadyRunning`, and `filesAlreadyFormatted` across all 19 supported languages, preventing unintended English fallback messages.
+- **Test**: Verified localization key coverage for all 19 languages; compilation, lint, and the 15-test suite pass.
 
 See [CHANGELOG.md](./CHANGELOG.md) for detailed release notes.
 

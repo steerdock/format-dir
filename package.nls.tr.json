@@ -2,6 +2,7 @@
     "displayName": "Dizini Formatla",
     "description": "Dizindeki tüm dosyaları varsayılan formatlayıcıyı kullanarak formatla.",
     "command.formatWithDefault": "Toplu Formatla",
+    "command.formatWithConfig": "Seçeneklerle Toplu Formatla",
     "command.formatFile": "Dosyayı Formatla",
     "command.undo": "Son Formatlamayı Geri Al",
     "command.configurePriority": "Formatlayıcı Önceliğini Yapılandır",

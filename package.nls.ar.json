@@ -2,6 +2,7 @@
     "displayName": "تنسيق الدليل",
     "description": "تنسيق جميع الملفات في دليل باستخدام المنسق الافتراضي.",
     "command.formatWithDefault": "تنسيق دفعي",
+    "command.formatWithConfig": "تنسيق دفعي مع خيارات",
     "command.formatFile": "تنسيق ملف",
     "command.undo": "تراجع عن آخر تنسيق",
     "command.configurePriority": "تكوين أولوية المنسق",

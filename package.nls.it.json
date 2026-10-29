@@ -2,6 +2,7 @@
     "displayName": "Format Directory",
     "description": "Un'estensione VS Code per formattare intere directory con le opzioni del tasto destro.",
     "command.formatWithDefault": "Formatta in batch",
+    "command.formatWithConfig": "Formatta in batch con opzioni",
     "command.formatFile": "Formatta file",
     "config.title": "Format Directory",
     "config.fileExtensions.description": "Estensioni dei file da formattare",
